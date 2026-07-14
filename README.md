@@ -1,6 +1,6 @@
 # open-pulse-sources
 
-[![CI](https://github.com/caviri/open-pulse-sources/actions/workflows/ci.yml/badge.svg)](https://github.com/caviri/open-pulse-sources/actions/workflows/ci.yml)
+[![CI](https://github.com/sdsc-ordes/open-pulse-sources/actions/workflows/ci.yml/badge.svg)](https://github.com/sdsc-ordes/open-pulse-sources/actions/workflows/ci.yml)
 
 RAG source indices for the **Open Pulse** ecosystem — the *write side* of the
 retrieval stack used by
@@ -86,7 +86,7 @@ just compose-up               # standalone stack: ops-sources + ops-qdrant + ops
   `tools/deploy/docker-compose.yml` instead — its `gme-sources` service runs
   this image sharing the `gme-data` volume (DuckDB stores) and Qdrant with
   the extraction API.
-- **Published image**: CI pushes `ghcr.io/caviri/open-pulse-sources`
+- **Published image**: CI pushes `ghcr.io/sdsc-ordes/open-pulse-sources`
   (`latest` from `main`, branch tags, `sha-*` tags for pinning). Both compose
   stacks default to it via `SOURCES_IMAGE`. Note: the GHCR package must be
   made public once (or deploy hosts `docker login ghcr.io`).
@@ -102,7 +102,7 @@ Key environment variables (full annotated list in
 | `RCP_TOKEN` | RCP embeddings/rerank — required for embed + search |
 | `INDEX_QDRANT_URL` | Qdrant endpoint (compose sets it per network) |
 | `INDEX_DATA_DIR` | root of the DuckDB stores — **set explicitly in containers** (`/app/data/index`); the fallback is repo-checkout-relative |
-| `GME_GITHUB_TOKEN`, `HF_TOKEN`, `GITLAB_TOKEN`, … | per-source ingest credentials, only for indices you ingest |
+| `GME_GITHUB_TOKEN`, `HF_TOKEN`, `GITLAB_{EPFL,ETHZ,DATASCIENCE}_TOKEN`, … | per-source ingest credentials, only for indices you ingest (see `.env.example`) |
 | `SELENIUM_REMOTE_URL` | Selenium grid for SWISSUbase/ORCID-scraping ingest |
 
 ## Relationship to git-metadata-extractor

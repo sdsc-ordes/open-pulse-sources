@@ -1,0 +1,72 @@
+# Dev container stack for open-pulse-sources: dev shell + Qdrant (the core
+# index infra) + Selenium (SWISSUbase / ORCID-scraping ingest).
+#
+# Mirrors the git-metadata-extractor devcontainer conventions:
+# - Ports are published by compose (more reliable than forwardPorts).
+#   Override via `.devcontainer/.env` (see `.devcontainer/.env.example`).
+# - Network `dev` is EXTERNAL and shared with the GME devcontainer stack —
+#   create it once with `docker network create dev`. Running both
+#   devcontainers side by side works (service names differ); host-port
+#   defaults collide (6333/4444), so override QDRANT_PORT / SELENIUM_* in
+#   `.devcontainer/.env` when running both.
+# - Explicit DNS: containers on external networks sometimes get no working
+#   resolver and `uv pip` fails with "dns error". Override via
+#   DEVCONTAINER_DNS_1 / DEVCONTAINER_DNS_2.
+#
+# Internal SSH: the devcontainers `sshd` feature listens on 2222 — the host
+# default here is 2223 so it can coexist with the GME devcontainer (2222).
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    dns:
+      - "${DEVCONTAINER_DNS_1:-1.1.1.1}"
+      - "${DEVCONTAINER_DNS_2:-8.8.8.8}"
+    env_file:
+      - ../.env
+    environment:
+      UV_CACHE_DIR: /workspaces/project/.uv-cache
+      INDEX_QDRANT_URL: ${INDEX_QDRANT_URL:-http://ops-qdrant-dev:6333}
+      SELENIUM_REMOTE_URL: ${SELENIUM_REMOTE_URL:-http://ops-selenium-dev:4444}
+    ports:
+      - "${SSH_PORT:-2223}:2222"
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - ..:/workspaces/project:cached
+    command: sleep infinity
+    networks:
+      - dev
+
+  ops-qdrant-dev:
+    image: qdrant/qdrant:latest
+    container_name: ops-qdrant-dev
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      # data/ is gitignored; Qdrant state survives container rebuilds.
+      - ../data/qdrant/storage:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - dev
+
+  # Standalone Firefox grid for Selenium-driven ingest (SWISSUbase catalogue,
+  # ORCID scraping). Drop it and unset SELENIUM_REMOTE_URL if unused.
+  ops-selenium-dev:
+    image: selenium/standalone-firefox
+    container_name: ops-selenium-dev
+    ports:
+      - "${SELENIUM_GRID_PORT:-4444}:4444"
+      - "${SELENIUM_VNC_PORT:-7900}:7900"
+    shm_size: "2g"
+    environment:
+      SE_NODE_MAX_SESSIONS: "5"
+      SE_NODE_SESSION_TIMEOUT: "300"
+    restart: unless-stopped
+    networks:
+      - dev
+
+networks:
+  dev:
+    external: true

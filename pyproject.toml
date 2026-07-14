@@ -53,7 +53,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/caviri/open-pulse-sources"
+Repository = "https://github.com/sdsc-ordes/open-pulse-sources"
 
 [project.optional-dependencies]
 dev = [

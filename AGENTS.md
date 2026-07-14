@@ -85,7 +85,7 @@ target `index.github` / `index.zenodo`, which were renamed upstream to
 | `INDEX_QDRANT_URL` | `http://qdrant:6333` (yaml) | Qdrant endpoint for every index |
 | `INDEX_DATA_DIR` | `data/index` under the repo root | DuckDB store root. **Always set explicitly in containers/wheel installs** (`/app/data/index`) — the fallback resolves relative to the installed package (`site-packages/data` in a wheel). |
 | `SELENIUM_REMOTE_URL` | unset | Selenium grid for SWISSUbase / ORCID-scraping ingest |
-| `GME_GITHUB_TOKEN`, `HF_TOKEN`, `GITLAB_TOKEN`, `INFOSCIENCE_TOKEN`, `RENKULAB_TOKEN`, `EPFL_GRAPH_USERNAME/_PASSWORD` | unset | per-source ingest credentials |
+| `GME_GITHUB_TOKEN`, `HF_TOKEN`, `GITLAB_{EPFL,ETHZ,DATASCIENCE}_TOKEN`, `INFOSCIENCE_TOKEN`, `ORCID_CLIENT_ID/_SECRET`, `OPENALEX_MAILTO`, `ZENODO_TOKEN`, `DOCKERHUB_TOKEN`, `RENKULAB_TOKEN`, `EPFL_GRAPH_USERNAME/_PASSWORD` | unset | per-source ingest credentials. ⚠ GitLab tokens are per-instance — a generic `GITLAB_TOKEN` is **not** read; without one, public projects still ingest but the gitlab *users* indices silently seed zero rows. |
 | `V2_PROVIDER_CACHE_{PATH,TTL_DAYS,ENABLED}` | `.cache/v2/providers.db`, 30, true | provider/job cache. Names inherited from GME; rename planned pre-1.0. |
 
 Rules: never print, log, or commit secrets. Never modify `.env` unless

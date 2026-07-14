@@ -22,7 +22,7 @@
 # indices you ingest.
 services:
   ops-sources:
-    image: ${SOURCES_IMAGE:-ghcr.io/caviri/open-pulse-sources:latest}
+    image: ${SOURCES_IMAGE:-ghcr.io/sdsc-ordes/open-pulse-sources:latest}
     # To build locally instead of pulling, comment `image:` and uncomment:
     # build:
     #   context: ../..
