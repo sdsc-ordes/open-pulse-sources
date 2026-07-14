@@ -4,7 +4,23 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.1] — 2026-07-14
+
+### Fixed
+
+- **Wheels now ship the 26 DuckDB `schema.sql` files** (setuptools
+  package-data): non-editable installs — the GME image's git install, any
+  `pip install` — can bootstrap every store (verified: 31/31 via
+  `bootstrap_all()` from an isolated wheel install). Previously only
+  editable/source-tree installs worked. Guarded in CI by the new
+  `scripts/check_wheel_assets.py` step.
+
+### Added
+
+- `.devcontainer/` — dev shell + `ops-qdrant-dev` + `ops-selenium-dev` on
+  the shared external `dev` network.
+
+## [0.1.0] — 2026-07-14
 
 ### Added
 
@@ -27,11 +43,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Known gaps (tracked in the parent repo, `dev/split-rag-indices/`)
 
-- Wheels omit runtime `.sql`/`.yaml` package data — non-editable installs
-  cannot bootstrap stores yet (the Docker image works via the copied
-  source tree).
 - `INDEX_DATA_DIR` must be set explicitly in containers; the fallback is
-  package-relative.
+  package-relative. *(Config `.yaml` files are still not packaged either —
+  config-ownership decision pending, task brief 08.)*
 - Some `justfile` recipes inherited from the monolith target renamed
   modules (`gh-*`, `zenodo-*`).
 - `V2_*` cache env-var names are inherited; rename planned before 1.0.

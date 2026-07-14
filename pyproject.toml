@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-pulse-sources"
-version = "0.1.0"
+version = "0.1.1"
 description = "RAG source indices for the Open Pulse ecosystem: ingest -> DuckDB -> embed -> Qdrant pipelines for GitHub, GitLab, HuggingFace, OpenAlex, ORCID, ROR, Zenodo, Infoscience, ETHZ Research Collection, SNSF, SWISSUbase, RenkuLab, DockerHub, OA Monitor and the EPFL Graph disciplines ontology, plus a federated cross-index search layer."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -68,6 +68,14 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["open_pulse_sources*"]
+
+[tool.setuptools.package-data]
+# Runtime assets that must ship in wheels: the 26 DuckDB schema files every
+# store loads via Path(__file__) at bootstrap. Without this, non-editable
+# installs (Docker, git installs) cannot create stores — this was release
+# blocker "Task 01" in the GME repo (dev/split-rag-indices/01-*.md).
+# Guarded by scripts/check_wheel_assets.py in CI.
+"*" = ["*.sql"]
 
 [tool.ruff]
 line-length = 88

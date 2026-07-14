@@ -58,6 +58,14 @@ jobs:
           -m "not live_provider and not llm_integration"
           -n auto --dist=loadfile
 
+      - name: Wheel package-data guard
+        # Non-editable installs must carry the DuckDB schema files (GME
+        # task brief 01 — the Docker/git installs bootstrap stores from
+        # the wheel, not the source tree).
+        run: |
+          uv build --wheel
+          uv run python scripts/check_wheel_assets.py "dist/open_pulse_sources-*.whl"
+
   image:
     # Build + smoke on every push; publish only outside pull requests.
     needs: tests
