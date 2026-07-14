@@ -1,0 +1,73 @@
+# Standalone deployment stack for open-pulse-sources (the RAG index service).
+#
+#   docker compose -f tools/deploy/docker-compose.yml --env-file .env up -d
+#
+# Use this stack to run the index service on its own (index-only host).
+# When deploying NEXT TO the git-metadata-extractor, prefer the extractor's
+# tools/deploy/docker-compose.yml instead — it wires this service into the
+# same network and shares the data volume (DuckDB stores) and Qdrant with
+# the extraction API.
+#
+# Services:
+#   ops-sources   the index management API (uvicorn on :8080):
+#                 /v2/manifest + /v2/indices/* ingest/search/stats/reset
+#   ops-qdrant    vector store for every index
+#   ops-selenium  headless Firefox for Selenium-backed ingest (SWISSUbase,
+#                 ORCID scraping). Optional — drop it and unset
+#                 SELENIUM_REMOTE_URL if you don't ingest those sources.
+#
+# Secrets/config come from `.env`: API_TOKEN (bearer auth, required),
+# RCP_TOKEN (embeddings/rerank), plus per-source tokens (GME_GITHUB_TOKEN,
+# HF_TOKEN, INFOSCIENCE_TOKEN, GITLAB_TOKEN, RENKULAB_TOKEN, …) for the
+# indices you ingest.
+services:
+  ops-sources:
+    image: ${SOURCES_IMAGE:-ghcr.io/caviri/open-pulse-sources:latest}
+    # To build locally instead of pulling, comment `image:` and uncomment:
+    # build:
+    #   context: ../..
+    #   dockerfile: tools/image/Dockerfile
+    container_name: ops-sources
+    env_file:
+      - ../../.env
+    environment:
+      INDEX_QDRANT_URL: http://ops-qdrant:6333
+      SELENIUM_REMOTE_URL: http://ops-selenium:4444
+      WORKERS: ${WORKERS:-1}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      # Per-index DuckDB stores + provider cache.
+      - ops-data:/app/data
+    depends_on:
+      - ops-qdrant
+    restart: unless-stopped
+    networks:
+      - ops
+
+  ops-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ops-qdrant
+    volumes:
+      - ops-qdrant-storage:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - ops
+
+  ops-selenium:
+    image: selenium/standalone-firefox
+    container_name: ops-selenium
+    shm_size: "2g"
+    environment:
+      SE_NODE_MAX_SESSIONS: "5"
+      SE_NODE_SESSION_TIMEOUT: "300"
+    restart: unless-stopped
+    networks:
+      - ops
+
+volumes:
+  ops-data:
+  ops-qdrant-storage:
+
+networks:
+  ops:

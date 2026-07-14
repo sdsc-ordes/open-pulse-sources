@@ -1,0 +1,136 @@
+# CI + container publishing for open-pulse-sources.
+#
+# Every push/PR: run the non-live test suite + the import-closure guard.
+# Every non-PR push that passes tests: build the service image, smoke-test
+# it (open /health, fail-closed auth, authenticated /v2/manifest), then
+# publish to GHCR as ghcr.io/<owner>/open-pulse-sources — the exact image
+# the deploy compose stacks reference via SOURCES_IMAGE.
+#
+# Tags produced (docker/metadata-action):
+#   latest                    only from the default branch (main)
+#   <branch-name>             from feature-branch pushes (e.g. feat-migrate-rag-indices)
+#   vX.Y.Z / X.Y              from version tags (v*)
+#   sha-<short-sha>           always — use this (or the digest) to pin
+#                             deployments per Task 02 (no `latest` in prod).
+#
+# NOTE: the first publish creates a *private* GHCR package. Make it public
+# (repo → Packages → package settings → Change visibility) or `docker login
+# ghcr.io` on deploy hosts, otherwise compose pulls will 401.
+#
+# Lint/type gates are deliberately absent for now — the codebase carries
+# ~2k inherited ruff findings; adding those gates is Task 03's scope
+# (dev/split-rag-indices/03-child-ci-quality-gates.md in the parent repo).
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv (frozen, cached)
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install (locked)
+        run: uv sync --frozen --extra dev
+
+      - name: Import-closure guard
+        run: uv run python scripts/check_import_closure.py
+
+      - name: Test suite (non-live)
+        run: >
+          uv run pytest tests/ -q
+          -m "not live_provider and not llm_integration"
+          -n auto --dist=loadfile
+
+  image:
+    # Build + smoke on every push; publish only outside pull requests.
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      SMOKE_TAG: open-pulse-sources:ci-smoke
+      SMOKE_TOKEN: ci-smoke-token
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build (local, for smoke test)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: tools/image/Dockerfile
+          load: true
+          tags: ${{ env.SMOKE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke-test the image
+        run: |
+          docker run -d --name ops-smoke -e API_TOKEN="$SMOKE_TOKEN" -p 8080:8080 "$SMOKE_TAG"
+          ok=""
+          for i in $(seq 1 20); do
+            if curl -fsS http://localhost:8080/health > /dev/null 2>&1; then ok=1; break; fi
+            sleep 2
+          done
+          if [ -z "$ok" ]; then
+            echo "::error::service never became healthy"; docker logs ops-smoke; exit 1
+          fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/v2/manifest)
+          if [ "$code" != "401" ]; then
+            echo "::error::expected fail-closed 401 without token, got $code"; docker logs ops-smoke; exit 1
+          fi
+          code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $SMOKE_TOKEN" http://localhost:8080/v2/manifest)
+          if [ "$code" != "200" ]; then
+            echo "::error::expected 200 manifest with token, got $code"; docker logs ops-smoke; exit 1
+          fi
+          echo "smoke OK: /health up, auth fail-closed, manifest served"
+          docker rm -f ops-smoke
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: tools/image/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

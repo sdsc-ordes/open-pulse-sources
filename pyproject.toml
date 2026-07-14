@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open-pulse-sources"
+version = "0.1.0"
+description = "RAG source indices for the Open Pulse ecosystem: ingest -> DuckDB -> embed -> Qdrant pipelines for GitHub, GitLab, HuggingFace, OpenAlex, ORCID, ROR, Zenodo, Infoscience, ETHZ Research Collection, SNSF, SWISSUbase, RenkuLab, DockerHub, OA Monitor and the EPFL Graph disciplines ontology, plus a federated cross-index search layer."
+readme = "README.md"
+requires-python = ">=3.10"
+# Matches the shipped LICENSE file (copied from git-metadata-extractor,
+# whose LICENSE is Apache-2.0 even though its pyproject says MIT — flagged
+# for the maintainers to reconcile upstream).
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Carlos Vivar Rios", email = "carlos.vivarrios@epfl.ch" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+]
+
+# Version pins mirror git-metadata-extractor's pyproject at the time of the
+# split (@ 64f1d14) so runtime behaviour stays identical.
+dependencies = [
+    # Pinned to the monolith's locked version — FastAPI 0.139 changed
+    # include_router to lazy _IncludedRouter objects, breaking route
+    # introspection the ported tests rely on.
+    "fastapi==0.136.3",
+    "uvicorn[standard]==0.34.3",
+    "pydantic==2.11.7",
+    "pydantic-ai>=1.0.15",
+    "requests>=2.33.0",
+    "httpx",
+    "aiohttp>=3.14.0",
+    "tenacity>=8",
+    "click>=8.1.0",
+    "PyYAML==6.0.2",
+    "beautifulsoup4==4.13.4",
+    "selenium>=4.36.0",
+    "tiktoken==0.9.0",
+    "numpy>=1.26",
+    "duckdb>=1.0",
+    "qdrant-client>=1.10",
+    "pyalex>=0.15",
+    "huggingface_hub>=1.2.0",
+    "graphai-client>=1.16.0",
+]
+
+[project.urls]
+Repository = "https://github.com/caviri/open-pulse-sources"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "respx>=0.21",
+    "requests-mock>=1.12",
+]
+
+[tool.setuptools.packages.find]
+include = ["open_pulse_sources*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
+ignore = ["S101", "T201", "G004", "E501", "FA100"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["E402"]
+
+[tool.pytest.ini_options]
+markers = [
+    "live_provider: opt-in tests that hit live external provider APIs",
+    "llm_integration: opt-in tests that call real LLM providers",
+    "openalex: tests for the src/index/openalex module",
+]
