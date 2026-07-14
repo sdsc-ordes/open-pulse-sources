@@ -1,0 +1,4 @@
+# Normalize every text file to LF in the repository AND the working tree
+# (the service deploys on Linux; mixed-EOL churn already bit us once —
+# commit b98b85d accidentally converted 171 files to CRLF).
+* text=auto eol=lf
