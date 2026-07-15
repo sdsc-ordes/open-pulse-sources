@@ -17,9 +17,9 @@
 # (repo → Packages → package settings → Change visibility) or `docker login
 # ghcr.io` on deploy hosts, otherwise compose pulls will 401.
 #
-# Lint/type gates are deliberately absent for now — the codebase carries
-# ~2k inherited ruff findings; adding those gates is Task 03's scope
-# (dev/split-rag-indices/03-child-ci-quality-gates.md in the parent repo).
+# Quality gates: ruff lint (green against the documented baseline in
+# pyproject [tool.ruff.lint] ignore), import-closure guard, wheel
+# package-data guard. MyPy remains future work (Task 03 remainder).
 
 name: CI
 
