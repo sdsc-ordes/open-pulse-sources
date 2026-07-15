@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from qdrant_client import QdrantClient, models
 
@@ -31,7 +31,7 @@ def _stable_point_id(ror_id: str) -> str:
 class QdrantRorStore:
     """Per-scope collection bootstrap, upsert, search."""
 
-    def __init__(self, config: "RorIndexConfig") -> None:
+    def __init__(self, config: RorIndexConfig) -> None:
         self._config = config
         # qdrant-client's default gRPC timeout (~5s) is too tight for large
         # `wait=True` flushes (e.g. the final batch of a 125k-record upsert).
@@ -49,12 +49,12 @@ class QdrantRorStore:
     def client(self) -> QdrantClient:
         return self._client
 
-    def collection_name(self, scope_mode: Optional[str] = None) -> str:
+    def collection_name(self, scope_mode: str | None = None) -> str:
         if scope_mode is None:
             return self._config.collection_name()
         return f"{self._config.qdrant.collection_prefix}_{scope_mode}"
 
-    def ensure_collection(self, scope_mode: Optional[str] = None) -> str:
+    def ensure_collection(self, scope_mode: str | None = None) -> str:
         name = self.collection_name(scope_mode)
         if self._client.collection_exists(name):
             return name
@@ -68,7 +68,7 @@ class QdrantRorStore:
         logger.info("created qdrant collection %s (dim=%d)", name, self._dim)
         return name
 
-    def recreate_collection(self, scope_mode: Optional[str] = None) -> str:
+    def recreate_collection(self, scope_mode: str | None = None) -> str:
         name = self.collection_name(scope_mode)
         if self._client.collection_exists(name):
             self._client.delete_collection(name)
@@ -79,9 +79,9 @@ class QdrantRorStore:
         self,
         scope_mode: str,
         *,
-        ror_ids: List[str],
-        vectors: List[List[float]],
-        payloads: List[Dict[str, Any]],
+        ror_ids: list[str],
+        vectors: list[list[float]],
+        payloads: list[dict[str, Any]],
         batch_size: int = 256,
     ) -> None:
         if not (len(ror_ids) == len(vectors) == len(payloads)):
@@ -112,10 +112,10 @@ class QdrantRorStore:
         self,
         scope_mode: str,
         *,
-        query_vector: List[float],
+        query_vector: list[float],
         top_k: int = 50,
-        country: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        country: str | None = None,
+    ) -> list[dict[str, Any]]:
         name = self.collection_name(scope_mode)
         if not self._client.collection_exists(name):
             msg = (

@@ -79,7 +79,7 @@ def _fetch_qids_batch(
 
 
 def fetch_wikidata_qids(
-    config: EpflGraphIndexConfig,  # noqa: ARG001 — kept for symmetry with sister enrichers
+    config: EpflGraphIndexConfig,
     store: EpflGraphStore,
     *,
     limit: int | None = None,
@@ -132,7 +132,7 @@ def fetch_wikidata_qids(
             qids = _fetch_qids_batch(
                 batch, session=session, timeout=DEFAULT_TIMEOUT,
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning(
                 "epfl_graph: wikidata qid batch failed at offset %d: %s",
                 index, exc,
@@ -144,7 +144,7 @@ def fetch_wikidata_qids(
                 try:
                     store.update_wikidata_qid(category_id, qid)
                     updated += 1
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     LOGGER.warning(
                         "epfl_graph: failed to upsert wikidata_qid for %s: %s",
                         category_id, exc,

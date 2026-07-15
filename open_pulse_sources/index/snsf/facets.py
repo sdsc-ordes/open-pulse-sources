@@ -66,7 +66,7 @@ def build_facets(store: SnsfStore) -> dict[str, int]:
                 WHERE  p.{col} IS NOT NULL
                   AND  json_extract_string(j.value, '$') IS NOT NULL
                 ON CONFLICT DO NOTHING
-                """,  # noqa: S608 — role and col are fixed strings from _ROLE_COL_PAIRS
+                """,
             )
 
         # --- grant_output_counts: per-grant rollup across all 7 output tables ---
@@ -138,7 +138,7 @@ def build_facets(store: SnsfStore) -> dict[str, int]:
 
     # --- Return counts ---
     def _count(table: str) -> int:
-        result = conn.execute(f"SELECT count(*) FROM {table}").fetchone()  # noqa: S608
+        result = conn.execute(f"SELECT count(*) FROM {table}").fetchone()
         return int(result[0]) if result else 0
 
     return {

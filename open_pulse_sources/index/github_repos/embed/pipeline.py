@@ -22,8 +22,8 @@ import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
+from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 # Qdrant upsert retry policy. The qdrant_client default 5s read timeout is too
@@ -34,7 +34,9 @@ _QDRANT_RETRY_DELAYS_SECONDS: tuple[int, ...] = (5, 15, 45, 135)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.github_repos.config import GitHubIndexConfig
-    from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore
+    from open_pulse_sources.index.github_repos.storage.duckdb_store import (
+        GitHubReposStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 
@@ -173,7 +175,7 @@ async def _embed_repos_async(
                     payloads=payloads,
                 )
                 break
-            except Exception as exc:  # noqa: BLE001 — qdrant_client raises a wide variety
+            except Exception as exc:
                 last_exc = exc
         else:
             LOGGER.error("qdrant upsert giving up after %d attempts", len(_QDRANT_RETRY_DELAYS_SECONDS))

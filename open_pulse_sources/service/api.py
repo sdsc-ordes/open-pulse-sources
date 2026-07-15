@@ -110,9 +110,18 @@ from open_pulse_sources.service.indices.oamonitor import (
     run_oamonitor_ingest_job,
     run_oamonitor_search,
 )
-from open_pulse_sources.service.indices.openalex import run_openalex_ingest_job, run_openalex_search
-from open_pulse_sources.service.indices.orcid import run_orcid_ingest_job, run_orcid_search
-from open_pulse_sources.service.indices.renkulab import run_renkulab_ingest_job, run_renkulab_search
+from open_pulse_sources.service.indices.openalex import (
+    run_openalex_ingest_job,
+    run_openalex_search,
+)
+from open_pulse_sources.service.indices.orcid import (
+    run_orcid_ingest_job,
+    run_orcid_search,
+)
+from open_pulse_sources.service.indices.renkulab import (
+    run_renkulab_ingest_job,
+    run_renkulab_search,
+)
 from open_pulse_sources.service.indices.stats import (
     INDEX_STATS_SUPPORTED_PROVIDERS,
     IndexStatsResponse,
@@ -208,7 +217,9 @@ async def get_manifest(
     returns only the stores that should surface as Hub "Sources" tiles
     (vector-backed plus allowlisted DuckDB-only).
     """
-    from open_pulse_sources.index._federated.manifest import build_manifest  # noqa: PLC0415
+    from open_pulse_sources.index._federated.manifest import (
+        build_manifest,
+    )
 
     return build_manifest(sources_only=sources)
 
@@ -1362,7 +1373,7 @@ async def snsf_search_post(
     "/indices/snsf/grants",
     tags=["Indices"],
 )
-async def snsf_grants_get(  # noqa: PLR0913
+async def snsf_grants_get(
     _token: Annotated[str, Depends(verify_token)],
     funding_instrument: Annotated[list[str] | None, Query(alias="scheme")] = None,
     research_institution: Annotated[list[str] | None, Query(alias="institution")] = None,
@@ -1390,12 +1401,14 @@ async def snsf_grants_get(  # noqa: PLR0913
     fields.  A missing or inaccessible store returns ``{"total":0,"results":[]}``.
     """
     try:
-        from open_pulse_sources.index.snsf.facet_query import (  # noqa: PLC0415
+        from open_pulse_sources.index.snsf.facet_query import (
             GrantFilters,
             query_grants,
         )
-        from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore  # noqa: PLC0415
-    except Exception:  # noqa: BLE001
+        from open_pulse_sources.index.snsf.storage.duckdb_store import (
+            SnsfStore,
+        )
+    except Exception:
         return {"total": 0, "results": []}
 
     try:
@@ -1426,7 +1439,7 @@ async def snsf_grants_get(  # noqa: PLR0913
             )
         finally:
             store.close()
-    except Exception:  # noqa: BLE001
+    except Exception:
         return {"total": 0, "results": []}
 
 
@@ -1434,7 +1447,7 @@ async def snsf_grants_get(  # noqa: PLR0913
     "/indices/snsf/grants/facets",
     tags=["Indices"],
 )
-async def snsf_grants_facets_get(  # noqa: PLR0913
+async def snsf_grants_facets_get(
     _token: Annotated[str, Depends(verify_token)],
     funding_instrument: Annotated[list[str] | None, Query(alias="scheme")] = None,
     research_institution: Annotated[list[str] | None, Query(alias="institution")] = None,
@@ -1458,12 +1471,14 @@ async def snsf_grants_facets_get(  # noqa: PLR0913
     A missing or inaccessible store returns ``{}``.
     """
     try:
-        from open_pulse_sources.index.snsf.facet_query import (  # noqa: PLC0415
+        from open_pulse_sources.index.snsf.facet_query import (
             GrantFilters,
             facet_counts,
         )
-        from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore  # noqa: PLC0415
-    except Exception:  # noqa: BLE001
+        from open_pulse_sources.index.snsf.storage.duckdb_store import (
+            SnsfStore,
+        )
+    except Exception:
         return {}
 
     try:
@@ -1488,7 +1503,7 @@ async def snsf_grants_facets_get(  # noqa: PLR0913
             return facet_counts(store, filters, text=q)
         finally:
             store.close()
-    except Exception:  # noqa: BLE001
+    except Exception:
         return {}
 
 
@@ -1887,7 +1902,7 @@ async def reset_provider_index(
         shifted; default keeps cached upstream responses so
         re-ingest is fast.
     """
-    from open_pulse_sources.service.indices.reset import (  # noqa: PLC0415
+    from open_pulse_sources.service.indices.reset import (
         UnknownProviderError,
         reset_index,
     )
@@ -1933,7 +1948,7 @@ async def reset_all_indices(
     returns its own result entry. Use carefully — this is an operator
     tool for full re-ingest, not a routine cache flush.
     """
-    from open_pulse_sources.service.indices.reset import reset_all  # noqa: PLC0415
+    from open_pulse_sources.service.indices.reset import reset_all
 
     results = await asyncio.to_thread(
         reset_all,

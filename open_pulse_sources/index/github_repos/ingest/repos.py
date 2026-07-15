@@ -7,14 +7,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from open_pulse_sources.common.canonicalization.github import github_repo_iri
 from open_pulse_sources.index.github_repos.ingest.github_client import GitHubClient
 from open_pulse_sources.index.github_repos.models import ContributorEntry, RepoRecord
-from open_pulse_sources.common.canonicalization.github import github_repo_iri
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.github_repos.config import GitHubIndexConfig
     from open_pulse_sources.index.github_repos.ingest.scope import Scope
-    from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore
+    from open_pulse_sources.index.github_repos.storage.duckdb_store import (
+        GitHubReposStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

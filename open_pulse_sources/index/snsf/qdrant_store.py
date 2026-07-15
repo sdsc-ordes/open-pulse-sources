@@ -13,7 +13,7 @@ infoscience / ethz scheme); the URL itself rides in the payload as
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from qdrant_client import QdrantClient, models
 
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class QdrantSnsfStore:
     """Per-scope collection bootstrap, upsert, search."""
 
-    def __init__(self, config: "SnsfIndexConfig") -> None:
+    def __init__(self, config: SnsfIndexConfig) -> None:
         self._config = config
         self._client = QdrantClient(
             url=config.qdrant.url,
@@ -42,12 +42,12 @@ class QdrantSnsfStore:
     def client(self) -> QdrantClient:
         return self._client
 
-    def collection_name(self, scope_mode: Optional[str] = None) -> str:
+    def collection_name(self, scope_mode: str | None = None) -> str:
         if scope_mode is None:
             return self._config.collection_name()
         return f"{self._config.qdrant.collection_prefix}_{scope_mode}"
 
-    def ensure_collection(self, scope_mode: Optional[str] = None) -> str:
+    def ensure_collection(self, scope_mode: str | None = None) -> str:
         name = self.collection_name(scope_mode)
         if self._client.collection_exists(name):
             return name
@@ -60,7 +60,7 @@ class QdrantSnsfStore:
         logger.info("created qdrant collection %s (dim=%d)", name, self._dim)
         return name
 
-    def recreate_collection(self, scope_mode: Optional[str] = None) -> str:
+    def recreate_collection(self, scope_mode: str | None = None) -> str:
         name = self.collection_name(scope_mode)
         if self._client.collection_exists(name):
             self._client.delete_collection(name)
@@ -71,9 +71,9 @@ class QdrantSnsfStore:
         self,
         scope_mode: str,
         *,
-        grant_numbers: List[str],
-        vectors: List[List[float]],
-        payloads: List[Dict[str, Any]],
+        grant_numbers: list[str],
+        vectors: list[list[float]],
+        payloads: list[dict[str, Any]],
         batch_size: int = 256,
     ) -> None:
         if not (len(grant_numbers) == len(vectors) == len(payloads)):
@@ -96,12 +96,12 @@ class QdrantSnsfStore:
         self,
         scope_mode: str,
         *,
-        query_vector: List[float],
+        query_vector: list[float],
         top_k: int = 50,
-        institution: Optional[str] = None,
-        discipline_l1: Optional[str] = None,
-        state: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        institution: str | None = None,
+        discipline_l1: str | None = None,
+        state: str | None = None,
+    ) -> list[dict[str, Any]]:
         name = self.collection_name(scope_mode)
         if not self._client.collection_exists(name):
             msg = (

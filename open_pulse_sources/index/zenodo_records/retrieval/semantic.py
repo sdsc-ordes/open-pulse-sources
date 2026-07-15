@@ -15,7 +15,9 @@ from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index._rcp.reranker_client import RCPRerankerClient
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 from open_pulse_sources.index.zenodo_records.embed.pipeline import ZENODO_COLLECTION
-from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+    ZenodoRecordsStore,
+)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.zenodo_records.config import ZenodoIndexConfig

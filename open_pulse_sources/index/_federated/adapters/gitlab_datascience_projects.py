@@ -9,7 +9,7 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 class GitLabDatascienceProjectsAdapter:
     name = "gitlab_datascience_projects"
-    entity_types: list[str] = ["project"]  # noqa: RUF012
+    entity_types: list[str] = ["project"]
 
     # Manifest hints (see IndexAdapter docstring).
     backend = "vector"
@@ -20,19 +20,19 @@ class GitLabDatascienceProjectsAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
-        filters: dict[str, Any] | None,  # noqa: ARG002
+        filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
-            from open_pulse_sources.index.gitlab_datascience_projects.retrieval import (  # noqa: PLC0415
+            from open_pulse_sources.index.gitlab_datascience_projects.retrieval import (
                 search,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         try:
             results = search(query, top_k=top_k)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -52,14 +52,16 @@ class GitLabDatascienceProjectsAdapter:
             ))
         return out
 
-    def lookup(self, identifier: str) -> list[EntityRecord]:  # noqa: PLR0911
+    def lookup(self, identifier: str) -> list[EntityRecord]:
         if not isinstance(identifier, str) or not identifier.strip():
             return []
         s = identifier.strip()
         # Validate that it's a GitLab URL using the canonicalization helper.
         try:
-            from open_pulse_sources.common.canonicalization.gitlab import parse_gitlab_iri  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.common.canonicalization.gitlab import (
+                parse_gitlab_iri,
+            )
+        except Exception:
             return []
         parsed = parse_gitlab_iri(s)
         if parsed is None:
@@ -68,10 +70,10 @@ class GitLabDatascienceProjectsAdapter:
         if host != "gitlab.datascience.ch":
             return []
         try:
-            from open_pulse_sources.index.gitlab_datascience_projects.store import (  # noqa: PLC0415
+            from open_pulse_sources.index.gitlab_datascience_projects.store import (
                 open_store,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         store = None
         try:
@@ -86,13 +88,13 @@ class GitLabDatascienceProjectsAdapter:
                 data=row,
                 url=s,
             )]
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         finally:
             if store is not None:
-                try:  # noqa: SIM105
+                try:
                     store.close()
-                except Exception:  # noqa: BLE001, S110
+                except Exception:
                     pass
 
 

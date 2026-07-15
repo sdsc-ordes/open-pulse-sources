@@ -6,12 +6,14 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.dockerhub.models import DockerhubRepoRecord
 from open_pulse_sources.common.canonicalization.dockerhub import dockerhub_iri
+from open_pulse_sources.index.dockerhub.models import DockerhubRepoRecord
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.dockerhub.config import DockerhubIndexConfig
-    from open_pulse_sources.index.dockerhub.ingest.dockerhub_client import DockerHubClient
+    from open_pulse_sources.index.dockerhub.ingest.dockerhub_client import (
+        DockerHubClient,
+    )
     from open_pulse_sources.index.dockerhub.storage.duckdb_store import DockerhubStore
 
 LOGGER = logging.getLogger(__name__)

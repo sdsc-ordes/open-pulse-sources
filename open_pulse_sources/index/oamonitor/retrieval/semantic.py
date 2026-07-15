@@ -12,10 +12,16 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.oamonitor.embed.pipeline import OAM_COLLECTIONS, qdrant_collection_for
-from open_pulse_sources.index.oamonitor.storage.duckdb_store import ENTITY_TABLES, OamonitorStore
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index._rcp.reranker_client import RCPRerankerClient
+from open_pulse_sources.index.oamonitor.embed.pipeline import (
+    OAM_COLLECTIONS,
+    qdrant_collection_for,
+)
+from open_pulse_sources.index.oamonitor.storage.duckdb_store import (
+    ENTITY_TABLES,
+    OamonitorStore,
+)
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
@@ -40,7 +46,7 @@ def _hydrate(
     if entity_type not in ENTITY_TABLES:
         return None
     cursor = store.connect().execute(
-        f"SELECT raw FROM {entity_type} WHERE _id = ?",  # noqa: S608
+        f"SELECT raw FROM {entity_type} WHERE _id = ?",
         [entity_id],
     ).fetchone()
     if not cursor or cursor[0] is None:

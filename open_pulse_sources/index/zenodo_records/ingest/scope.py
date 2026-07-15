@@ -67,16 +67,19 @@ def _slugs_from_communities_index(parent_org: str | None) -> list[str]:
     """
 
     try:
-        import duckdb  # noqa: PLC0415
-        from open_pulse_sources.index.zenodo_communities.paths import duckdb_path  # noqa: PLC0415
-    except Exception:  # noqa: BLE001
+        import duckdb
+
+        from open_pulse_sources.index.zenodo_communities.paths import (
+            duckdb_path,
+        )
+    except Exception:
         return []
     db_path = duckdb_path()
     if not db_path.exists():
         return []
     try:
         con = duckdb.connect(str(db_path), read_only=True)
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.exception("communities index open failed")
         return []
     try:
@@ -90,13 +93,13 @@ def _slugs_from_communities_index(parent_org: str | None) -> list[str]:
                 "SELECT source_slug FROM communities WHERE source = 'zenodo'",
             ).fetchall()
         return [r[0] for r in rows if r and isinstance(r[0], str)]
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.exception("communities index query failed (parent=%r)", parent_org)
         return []
     finally:
         try:
             con.close()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 

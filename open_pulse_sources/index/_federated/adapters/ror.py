@@ -7,7 +7,7 @@ from typing import Any
 
 from open_pulse_sources.index._federated.registry import EntityRecord, Hit, register
 
-_RE_ROR_URL = re.compile(r"https?://ror\.org/([0-9a-z]{9})", re.I)
+_RE_ROR_URL = re.compile(r"https?://ror\.org/([0-9a-z]{9})", re.IGNORECASE)
 _RE_ROR_ID = re.compile(r"\b([0-9a-z]{9})\b")
 
 
@@ -19,7 +19,7 @@ class RorAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
@@ -32,7 +32,7 @@ class RorAdapter:
             scored = query_rag_sync(
                 cfg, query, top_k=top_k, country=country,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for s in scored:
@@ -65,12 +65,12 @@ class RorAdapter:
         try:
             from open_pulse_sources.index.ror.config import load_config
             from open_pulse_sources.index.ror.query import lookup_dump
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         cfg = load_config()
         try:
             matches = lookup_dump(cfg, f"https://ror.org/{ror_id}")
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         records: list[EntityRecord] = []
         for dm in matches:

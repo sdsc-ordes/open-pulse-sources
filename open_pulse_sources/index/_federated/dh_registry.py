@@ -79,7 +79,7 @@ def _load(target: str, kind: str) -> None:
     except ModuleNotFoundError:
         # Index hasn't been migrated to the new protocols yet. That's fine.
         LOGGER.debug("federated/%s: %s has no _federated module yet", kind, target)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning(
             "federated/%s: %s failed to import (%s); skipping", kind, target, exc,
         )
@@ -144,7 +144,7 @@ def dispatch_hydrate(
             continue
         try:
             summary = hyd.hydrate(relevant, only_unfetched=only_unfetched)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.exception("hydrator %r failed: %s", hyd.name, exc)
             summary = HydrationSummary(errors=len(relevant))
         summaries[hyd.name] = summary
@@ -154,9 +154,9 @@ def dispatch_hydrate(
 __all__ = [
     "DISCOVERERS",
     "HYDRATORS",
-    "register_discoverer",
-    "register_hydrator",
+    "dispatch_hydrate",
     "load_discoverers",
     "load_hydrators",
-    "dispatch_hydrate",
+    "register_discoverer",
+    "register_hydrator",
 ]

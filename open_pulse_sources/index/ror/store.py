@@ -18,7 +18,6 @@ from __future__ import annotations
 import datetime as dt
 import json
 import logging
-from typing import List
 
 from .models import IndexedRecord, IndexManifest
 from .paths import faiss_path, manifest_path, records_path
@@ -30,12 +29,12 @@ def now_iso() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
-def read_records(scope_mode: str) -> List[IndexedRecord]:
+def read_records(scope_mode: str) -> list[IndexedRecord]:
     rp = records_path(scope_mode)
     if not rp.exists():
         msg = f"Records file not found: {rp}. Run `build` first."
         raise FileNotFoundError(msg)
-    out: List[IndexedRecord] = []
+    out: list[IndexedRecord] = []
     with rp.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -74,7 +73,7 @@ def read_legacy_faiss(scope_mode: str):
     return faiss.read_index(str(fp))
 
 
-__all__: List[str] = [
+__all__: list[str] = [
     "has_legacy_faiss",
     "now_iso",
     "read_legacy_faiss",

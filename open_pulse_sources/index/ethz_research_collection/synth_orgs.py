@@ -31,7 +31,6 @@ import json
 import logging
 import re
 import uuid
-from typing import Optional
 
 from .config import EthzResearchCollectionIndexConfig
 from .paths import (
@@ -66,7 +65,7 @@ def _synth_uuid(leitzahl: str) -> str:
     return str(uuid.uuid5(_LEITZAHL_NAMESPACE, f"ethz-leitzahl-{leitzahl}"))
 
 
-def _parse_department(text: str) -> Optional[dict]:
+def _parse_department(text: str) -> dict | None:
     """Return ``{leitzahl, name, head}`` or ``None`` if the text is malformed."""
     if not isinstance(text, str):
         return None
@@ -133,7 +132,7 @@ def synthesize_organizations(_cfg: EthzResearchCollectionIndexConfig) -> dict:
     for person_path in sorted(persons_dir.glob("*.json")):
         try:
             person = json.loads(person_path.read_text(encoding="utf-8"))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("synth_orgs: failed to read %s — %s", person_path.name, exc)
             continue
         md = person.get("metadata", {}) or {}

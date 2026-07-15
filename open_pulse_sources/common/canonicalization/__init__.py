@@ -21,7 +21,11 @@ from open_pulse_sources.common.canonicalization.infoscience import (
     infoscience_person_iri,
     parse_infoscience_iri,
 )
-from open_pulse_sources.common.canonicalization.orcid import ORCID_BARE_RE, orcid_iri, parse_orcid
+from open_pulse_sources.common.canonicalization.orcid import (
+    ORCID_BARE_RE,
+    orcid_iri,
+    parse_orcid,
+)
 from open_pulse_sources.common.canonicalization.string_utils import normalize_string
 
 __all__ = [

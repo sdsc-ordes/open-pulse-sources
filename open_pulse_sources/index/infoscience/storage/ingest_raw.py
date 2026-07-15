@@ -21,16 +21,15 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict
 
+from open_pulse_sources.common.canonicalization.infoscience import (
+    infoscience_article_iri,
+    infoscience_iri_sql,
+)
 from open_pulse_sources.index.infoscience.paths import (
     raw_items_dir,
     raw_organizations_dir,
     raw_persons_dir,
-)
-from open_pulse_sources.common.canonicalization.infoscience import (
-    infoscience_article_iri,
-    infoscience_iri_sql,
 )
 
 from .duckdb_store import InfoscienceStore
@@ -147,7 +146,7 @@ def _orgs_union_sql() -> str:
                      json_extract(i.json, '$.metadata."{field}"') AS JSON[]
                    )
                  ) AS t(org)
-            """
+            """,
         )
     return " UNION ALL ".join(parts)
 
@@ -373,7 +372,7 @@ def ingest_links_dump(store: InfoscienceStore, dump_path: Path) -> int:
     return len(rows)
 
 
-def ingest_all(store: InfoscienceStore, *, links_dump: Path | None = None) -> Dict[str, int]:
+def ingest_all(store: InfoscienceStore, *, links_dump: Path | None = None) -> dict[str, int]:
     summary = {
         "articles": ingest_articles(store),
         "persons": ingest_persons(store),

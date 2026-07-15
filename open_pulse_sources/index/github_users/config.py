@@ -8,7 +8,6 @@ the resolved data dir.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from open_pulse_sources.index._github_accounts_base.config_base import (
     AccountIndexConfigBase,
@@ -21,7 +20,7 @@ DEFAULT_CONFIG_PATH = Path("config/index/github_users.yaml")
 GitHubUsersIndexConfig = AccountIndexConfigBase
 
 
-def load_config(path: Optional[Path] = None) -> GitHubUsersIndexConfig:
+def load_config(path: Path | None = None) -> GitHubUsersIndexConfig:
     return load_account_config(
         yaml_path=path or DEFAULT_CONFIG_PATH,
         paths=get_github_users_paths(),

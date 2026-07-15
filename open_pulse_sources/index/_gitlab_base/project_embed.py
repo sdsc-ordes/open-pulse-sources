@@ -153,7 +153,7 @@ async def _embed_projects_async(
                     payloads=payloads,
                 )
                 break
-            except Exception as exc:  # noqa: BLE001 — qdrant_client raises a wide variety
+            except Exception as exc:
                 last_exc = exc
         else:
             LOGGER.error("qdrant upsert giving up after %d attempts", len(_QDRANT_RETRY_DELAYS_SECONDS))

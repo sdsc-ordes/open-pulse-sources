@@ -9,7 +9,6 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import Optional
 
 import click
 
@@ -47,7 +46,7 @@ def _setup_logging(verbose: bool) -> None:
               default=None, help=f"Path to YAML config (default {DEFAULT_CONFIG_PATH}).")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose logging.")
 @click.pass_context
-def cli(ctx: click.Context, config_path: Optional[Path], verbose: bool) -> None:
+def cli(ctx: click.Context, config_path: Path | None, verbose: bool) -> None:
     _setup_logging(verbose)
     ctx.ensure_object(dict)
     ctx.obj["config"] = load_config(config_path)
@@ -58,7 +57,7 @@ def cli(ctx: click.Context, config_path: Optional[Path], verbose: bool) -> None:
               help="Comma-separated Solr fulltext terms (overrides config).")
 @click.option("--limit", type=int, default=None, help="Stop after N new items.")
 @click.pass_context
-def discover(ctx: click.Context, terms: Optional[str], limit: Optional[int]) -> None:
+def discover(ctx: click.Context, terms: str | None, limit: int | None) -> None:
     """Solr fulltext search → raw item JSON dumps."""
     cfg = ctx.obj["config"]
     term_list = [t.strip() for t in terms.split(",")] if terms else None
@@ -126,7 +125,7 @@ def synth_orgs(ctx: click.Context) -> None:
               default="all")
 @click.option("--batch", type=int, default=None, help="Override embed batch size.")
 @click.pass_context
-def embed(ctx: click.Context, scope: str, batch: Optional[int]) -> None:
+def embed(ctx: click.Context, scope: str, batch: int | None) -> None:
     """Chunk, embed, and populate the LanceDB tables."""
     from . import build as build_stage  # lazy: requires lancedb
 
@@ -155,7 +154,7 @@ def query_cmd(
     ctx: click.Context,
     text: str,
     target: str,
-    where: Optional[str],
+    where: str | None,
     top_k: int,
     top_n: int,
     mode: str,
@@ -191,7 +190,7 @@ def query_cmd(
          "into article_links.",
 )
 @click.pass_context
-def ingest_duckdb(ctx: click.Context, links_dump: Optional[Path]) -> None:
+def ingest_duckdb(ctx: click.Context, links_dump: Path | None) -> None:
     """Ingest raw/{items,persons,organizations}/*.json into the DuckDB store."""
     from .storage import EthzResearchCollectionStore
     from .storage.ingest_raw import ingest_all

@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from open_pulse_sources.index.snsf.config import SnsfIndexConfig
 from open_pulse_sources.index.snsf.document import to_document
@@ -24,7 +24,7 @@ from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore
 LOGGER = logging.getLogger(__name__)
 
 
-def _payload(grant: Dict[str, Any], text: str) -> Dict[str, Any]:
+def _payload(grant: dict[str, Any], text: str) -> dict[str, Any]:
     """Qdrant payload — small subset of grant columns useful for filtering / rendering."""
     return {
         "grant_number":          grant.get("grant_number"),
@@ -45,7 +45,7 @@ def _payload(grant: Dict[str, Any], text: str) -> Dict[str, Any]:
     }
 
 
-def _iso(v: Any) -> Optional[str]:
+def _iso(v: Any) -> str | None:
     if v is None:
         return None
     if isinstance(v, (dt.datetime, dt.date)):
@@ -53,7 +53,7 @@ def _iso(v: Any) -> Optional[str]:
     return str(v)
 
 
-def _scope_grant_rows(store: SnsfStore, scope_mode: str) -> List[Dict[str, Any]]:
+def _scope_grant_rows(store: SnsfStore, scope_mode: str) -> list[dict[str, Any]]:
     """Return all grant rows for `scope_mode`, ordered by grant_number desc."""
     cur = store.connect().execute(
         """
@@ -72,9 +72,9 @@ def _scope_grant_rows(store: SnsfStore, scope_mode: str) -> List[Dict[str, Any]]
 async def run(
     cfg: SnsfIndexConfig,
     *,
-    scope_mode: Optional[str] = None,
+    scope_mode: str | None = None,
     recreate: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Embed all grants in the active scope and upsert to Qdrant."""
     if cfg.rcp.token is None:
         msg = (
@@ -141,7 +141,7 @@ async def run(
     }
 
 
-def run_sync(cfg: SnsfIndexConfig, **kwargs: Any) -> Dict[str, Any]:
+def run_sync(cfg: SnsfIndexConfig, **kwargs: Any) -> dict[str, Any]:
     return asyncio.run(run(cfg, **kwargs))
 
 

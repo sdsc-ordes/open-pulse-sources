@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Any
 from open_pulse_sources.index.huggingface_papers.models import PaperAuthor, PaperRecord
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index.huggingface_papers.config import HuggingFacePapersIndexConfig
+    from open_pulse_sources.index.huggingface_papers.config import (
+        HuggingFacePapersIndexConfig,
+    )
     from open_pulse_sources.index.huggingface_papers.ingest.hf_papers_client import (
         HFPapersClient,
     )

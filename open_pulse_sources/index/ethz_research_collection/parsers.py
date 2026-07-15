@@ -9,7 +9,7 @@ returned by `/server/api/core/items/{uuid}` or as embedded inside
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from open_pulse_sources.common.canonicalization.ethz import (
     ethz_article_iri,
@@ -32,7 +32,7 @@ def _org_id(value: str | None) -> str | None:
     return ethz_org_iri(value) or value
 
 
-def first_value(metadata: dict, field: str) -> Optional[str]:
+def first_value(metadata: dict, field: str) -> str | None:
     values = metadata.get(field) or []
     if not isinstance(values, list) or not values:
         return None
@@ -42,8 +42,8 @@ def first_value(metadata: dict, field: str) -> Optional[str]:
     return None
 
 
-def all_values(metadata: dict, field: str) -> List[str]:
-    out: List[str] = []
+def all_values(metadata: dict, field: str) -> list[str]:
+    out: list[str] = []
     for entry in metadata.get(field) or []:
         if isinstance(entry, dict):
             v = entry.get("value")
@@ -52,7 +52,7 @@ def all_values(metadata: dict, field: str) -> List[str]:
     return out
 
 
-def first_authority(metadata: dict, field: str) -> Optional[str]:
+def first_authority(metadata: dict, field: str) -> str | None:
     for entry in metadata.get(field) or []:
         if isinstance(entry, dict):
             a = entry.get("authority")
@@ -65,14 +65,14 @@ def _research_collection_url(uuid: str, entity: str) -> str:
     return f"https://www.research-collection.ethz.ch/entities/{entity}/{uuid}"
 
 
-def _year_from_date(date: Optional[str]) -> Optional[int]:
+def _year_from_date(date: str | None) -> int | None:
     if not date:
         return None
     m = _YEAR_RE.search(date)
     return int(m.group(0)) if m else None
 
 
-def parse_article(item: Dict[str, Any], matched_urls: Optional[List[str]] = None) -> ArticleRecord:
+def parse_article(item: dict[str, Any], matched_urls: list[str] | None = None) -> ArticleRecord:
     md = item.get("metadata", {}) or {}
     uuid = item.get("uuid") or ""
     publication_date = first_value(md, "dc.date.issued")
@@ -129,7 +129,7 @@ def parse_article(item: Dict[str, Any], matched_urls: Optional[List[str]] = None
     )
 
 
-def parse_person(item: Dict[str, Any]) -> PersonRecord:
+def parse_person(item: dict[str, Any]) -> PersonRecord:
     md = item.get("metadata", {}) or {}
     uuid = item.get("uuid") or ""
     name = (
@@ -173,7 +173,7 @@ def parse_person(item: Dict[str, Any]) -> PersonRecord:
     )
 
 
-def parse_organization(item: Dict[str, Any]) -> OrganizationRecord:
+def parse_organization(item: dict[str, Any]) -> OrganizationRecord:
     md = item.get("metadata", {}) or {}
     uuid = item.get("uuid") or ""
     parent_chain_authorities = [

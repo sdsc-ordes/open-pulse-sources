@@ -137,7 +137,7 @@ def _probe_account_type(account_name: str) -> str | None:
             headers=headers,
             timeout=5.0,
         )
-    except Exception:  # noqa: BLE001 — must never break classification
+    except Exception:
         return None
     if response.status_code != 200:
         return None

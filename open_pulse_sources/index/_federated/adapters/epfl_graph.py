@@ -35,11 +35,13 @@ class EpflGraphAdapter:
         if entity_type and entity_type not in {"disciplines", "discipline"}:
             return []
         try:
-            from open_pulse_sources.index.epfl_graph.config import load_config  # noqa: PLC0415
-            from open_pulse_sources.index.epfl_graph.retrieval.semantic import (  # noqa: PLC0415
+            from open_pulse_sources.index.epfl_graph.config import (
+                load_config,
+            )
+            from open_pulse_sources.index.epfl_graph.retrieval.semantic import (
                 semantic_search,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         try:
             config = load_config()
@@ -54,7 +56,7 @@ class EpflGraphAdapter:
                     else None
                 ),
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -89,18 +91,20 @@ class EpflGraphAdapter:
         if not slug:
             return []
         try:
-            from open_pulse_sources.index.epfl_graph.config import load_config  # noqa: PLC0415
-            from open_pulse_sources.index.epfl_graph.storage.duckdb_store import (  # noqa: PLC0415
+            from open_pulse_sources.index.epfl_graph.config import (
+                load_config,
+            )
+            from open_pulse_sources.index.epfl_graph.storage.duckdb_store import (
                 EpflGraphStore,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         try:
             config = load_config()
             # Read-only: lookup only does fetch_category() SELECTs; a read-write
             # handle collides with the disciplines read-only lookup (Bug 01).
             store = EpflGraphStore.open_readonly(config.paths.duckdb_path)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         try:
             record = store.fetch_category(slug)

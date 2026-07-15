@@ -6,18 +6,18 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from open_pulse_sources.index.orcid.ingest.orcid_client import build_orcid_provider
-from open_pulse_sources.index.orcid.ingest.scope import post_filter_record
 from open_pulse_sources.common.canonicalization.orcid import parse_orcid
 from open_pulse_sources.common.providers.base import (
     ProviderError,
     ProviderNotFoundError,
 )
+from open_pulse_sources.index.orcid.ingest.orcid_client import build_orcid_provider
+from open_pulse_sources.index.orcid.ingest.scope import post_filter_record
 
 if TYPE_CHECKING:
+    from open_pulse_sources.common.providers.base import ORCIDAffiliation, ORCIDRecord
     from open_pulse_sources.index.orcid.config import OrcidIndexConfig
     from open_pulse_sources.index.orcid.storage.duckdb_store import OrcidStore
-    from open_pulse_sources.common.providers.base import ORCIDAffiliation, ORCIDRecord
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def ingest_single_orcid(
     except ProviderError as exc:
         LOGGER.warning("provider error for %s: %s", orcid_id, exc)
         return "error"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("unexpected error for %s: %s", orcid_id, exc)
         return "error"
     in_scope, reason = post_filter_record(
@@ -106,7 +106,7 @@ def ingest_persons(
             LOGGER.warning("provider error for %s: %s", orcid_id, exc)
             summary["errors"] += 1
             continue
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("unexpected error for %s: %s", orcid_id, exc)
             summary["errors"] += 1
             continue

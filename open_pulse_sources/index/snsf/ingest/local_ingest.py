@@ -14,7 +14,6 @@ from __future__ import annotations
 import datetime as dt
 import logging
 from pathlib import Path
-from typing import Optional
 
 from open_pulse_sources.index.snsf.config import SnsfIndexConfig
 from open_pulse_sources.index.snsf.ingest.scope import where_for
@@ -47,7 +46,7 @@ OUTPUT_LOADERS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def resolve_source_dir(explicit: Optional[Path] = None) -> Path:
+def resolve_source_dir(explicit: Path | None = None) -> Path:
     """Resolve the source directory; explicit > env override > default."""
     if explicit is not None:
         return Path(explicit).expanduser().resolve()
@@ -62,12 +61,12 @@ def resolve_source_dir(explicit: Optional[Path] = None) -> Path:
 def run(
     cfg: SnsfIndexConfig,
     *,
-    source_dir: Optional[Path] = None,
-    db_path: Optional[Path] = None,
+    source_dir: Path | None = None,
+    db_path: Path | None = None,
     skip_persons: bool = False,
     skip_disciplines: bool = False,
     skip_outputs: bool = False,
-    scope_mode: Optional[str] = None,
+    scope_mode: str | None = None,
 ) -> IngestSummary:
     """Run a full local-CSV ingest. Returns a printable summary."""
     src = resolve_source_dir(source_dir)

@@ -16,12 +16,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from pydantic import BaseModel
 
-from open_pulse_sources.index.swissubase.paths import SwissubasePaths, get_swissubase_paths
+from open_pulse_sources.index.swissubase.paths import (
+    SwissubasePaths,
+    get_swissubase_paths,
+)
 
 DEFAULT_CONFIG_PATH = Path("config/index/swissubase.yaml")
 
@@ -41,7 +43,7 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class CatalogueConfig(BaseModel):
@@ -92,7 +94,7 @@ class ScopeConfig(BaseModel):
 
 
 class SeleniumConfig(BaseModel):
-    remote_url: Optional[str] = None
+    remote_url: str | None = None
     page_load_timeout_seconds: int = 60
     headless: bool = True
 
@@ -100,7 +102,7 @@ class SeleniumConfig(BaseModel):
 class QdrantConfig(BaseModel):
     url: str = "http://localhost:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class ChunkingConfig(BaseModel):
@@ -129,7 +131,7 @@ class SwissubaseIndexConfig(BaseModel):
             raise ValueError(MISSING_SELENIUM_URL_ERROR)
 
 
-def _env_bool(name: str) -> Optional[bool]:
+def _env_bool(name: str) -> bool | None:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return None
@@ -142,7 +144,7 @@ def _env_bool(name: str) -> Optional[bool]:
     raise ValueError(message)
 
 
-def _env_str(name: str) -> Optional[str]:
+def _env_str(name: str) -> str | None:
     raw = os.getenv(name)
     if raw is None:
         return None
@@ -150,7 +152,7 @@ def _env_str(name: str) -> Optional[str]:
     return stripped or None
 
 
-def load_config(path: Optional[Path] = None) -> SwissubaseIndexConfig:
+def load_config(path: Path | None = None) -> SwissubaseIndexConfig:
     cfg_path = path or DEFAULT_CONFIG_PATH
     raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
 

@@ -119,7 +119,7 @@ def _ingest_one(
     return row, payload, concepts
 
 
-def ingest_tree(  # noqa: C901, PLR0915
+def ingest_tree(
     config: EpflGraphIndexConfig,
     *,
     limit: int | None = None,
@@ -135,7 +135,7 @@ def ingest_tree(  # noqa: C901, PLR0915
     edges = tree.get("child_to_parent") if isinstance(tree, dict) else None
     if not isinstance(edges, list):
         msg = "ontology_tree() returned no child_to_parent edges"
-        raise RuntimeError(msg)  # noqa: TRY004
+        raise RuntimeError(msg)
 
     parent_map: dict[str, str] = {}
     nodes: set[str] = set()
@@ -184,7 +184,7 @@ def ingest_tree(  # noqa: C901, PLR0915
                 cid = futures[future]
                 try:
                     result = future.result()
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     LOGGER.warning(
                         "epfl_graph: failed to fetch %s: %s", cid, exc,
                     )
@@ -195,7 +195,7 @@ def ingest_tree(  # noqa: C901, PLR0915
                 try:
                     store.upsert_category(row, payload, concepts)
                     ingested += 1
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     LOGGER.warning(
                         "epfl_graph: failed to upsert %s: %s", cid, exc,
                     )

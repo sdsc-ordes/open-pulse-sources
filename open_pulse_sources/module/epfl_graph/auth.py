@@ -16,7 +16,6 @@ import json
 import os
 import tempfile
 import threading
-from typing import Optional
 
 from graphai_client.client_api.utils import login as _upstream_login
 
@@ -24,8 +23,8 @@ DEFAULT_HOST = "https://graphai.epfl.ch"
 DEFAULT_PORT = 443
 
 _lock = threading.Lock()
-_credentials_path: Optional[str] = None
-_login_info: Optional[dict] = None
+_credentials_path: str | None = None
+_login_info: dict | None = None
 
 
 def _read_credentials() -> tuple[str, str]:

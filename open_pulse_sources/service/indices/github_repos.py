@@ -37,10 +37,16 @@ def get_or_create_github_repos_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.github_repos.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.github_repos.ingest.github_client import GitHubClient  # noqa: PLC0415
-        from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.github_repos.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.github_repos.ingest.github_client import (
+            GitHubClient,
+        )
+        from open_pulse_sources.index.github_repos.storage.duckdb_store import (
+            GitHubReposStore,
+        )
+    except Exception as exc:
         logger.warning("github ingest: index module unavailable — %s", exc)
         return None
     try:
@@ -52,7 +58,7 @@ def get_or_create_github_repos_resources(app_state: Any) -> Any | None:
             token=config.github.token,
             cache_path=config.paths.cache_db_path,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("github ingest: resource init failed — %s", exc)
         return None
     app_state.v2_github_repos_resources = (config, store, client)
@@ -64,13 +70,13 @@ def _ingest_one_repo(
 ) -> dict[str, Any]:
     """Run a single per-repo ingest; never raises."""
     try:
-        from open_pulse_sources.index.github_repos.ingest.repos import (  # noqa: PLC0415
+        from open_pulse_sources.index.github_repos.ingest.repos import (
             ingest_single_repo,
         )
         outcome = ingest_single_repo(
             config=config, store=store, client=client, full_name=repo,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("github ingest: %s failed — %s", repo, exc)
         return {"repo": repo, "outcome": "failed", "error": str(exc)}
     return {"repo": repo, "outcome": outcome}
@@ -116,7 +122,9 @@ async def run_github_repos_ingest_job(
         skipped_404 = sum(1 for r in items_results if r["outcome"] == "skipped_404")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.github_repos.embed.pipeline import embed_repos  # noqa: PLC0415
+        from open_pulse_sources.index.github_repos.embed.pipeline import (
+            embed_repos,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -153,7 +161,9 @@ async def run_github_repos_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.github_repos.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.github_repos.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query,

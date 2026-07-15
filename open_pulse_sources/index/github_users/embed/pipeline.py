@@ -6,11 +6,15 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index._github_accounts_base.embed_base import embed_accounts_async
+from open_pulse_sources.index._github_accounts_base.embed_base import (
+    embed_accounts_async,
+)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.github_users.config import GitHubUsersIndexConfig
-    from open_pulse_sources.index.github_users.storage.duckdb_store import GitHubUsersStore
+    from open_pulse_sources.index.github_users.storage.duckdb_store import (
+        GitHubUsersStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

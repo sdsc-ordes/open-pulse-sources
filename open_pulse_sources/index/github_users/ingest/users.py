@@ -6,13 +6,15 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.github_users.models import UserRecord
 from open_pulse_sources.common.canonicalization.github import github_user_iri
+from open_pulse_sources.index.github_users.models import UserRecord
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.github_repos.ingest.github_client import GitHubClient
     from open_pulse_sources.index.github_users.config import GitHubUsersIndexConfig
-    from open_pulse_sources.index.github_users.storage.duckdb_store import GitHubUsersStore
+    from open_pulse_sources.index.github_users.storage.duckdb_store import (
+        GitHubUsersStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

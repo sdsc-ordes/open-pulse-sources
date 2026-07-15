@@ -30,7 +30,9 @@ from open_pulse_sources.index._github_accounts_base.config_base import (
     AccountIndexConfigBase,
     load_account_config,
 )
-from open_pulse_sources.index._github_accounts_base.embed_base import embed_accounts_async
+from open_pulse_sources.index._github_accounts_base.embed_base import (
+    embed_accounts_async,
+)
 from open_pulse_sources.index._github_accounts_base.paths_base import (
     AccountIndexPathsBase,
     resolve_account_paths,

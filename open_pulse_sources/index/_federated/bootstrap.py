@@ -28,7 +28,7 @@ from typing import Any, Callable
 
 def _snsf_post_bootstrap(store: Any) -> None:
     """Run build_facets after the snsf store is opened."""
-    from open_pulse_sources.index.snsf.facets import build_facets  # noqa: PLC0415
+    from open_pulse_sources.index.snsf.facets import build_facets
 
     build_facets(store)
 
@@ -117,7 +117,7 @@ def bootstrap_store(name: str) -> str:
         if hasattr(store, "close"):
             store.close()
 
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return f"error: {exc}"
     else:
         return "exists" if existed_before else "created"

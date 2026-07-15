@@ -9,13 +9,13 @@ schema, only this module needs updating.
 from __future__ import annotations
 
 import logging
-from typing import List, Sequence
+from typing import Sequence
 
 import httpx
 from pydantic import BaseModel
 
 from .config import RcpConfig
-from .embed import _auth_headers, _post_with_retry  # noqa: PLC2701
+from .embed import _auth_headers, _post_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ async def rerank(
     documents: Sequence[str],
     *,
     top_n: int | None = None,
-) -> List[RerankResult]:
+) -> list[RerankResult]:
     """Rerank `documents` by relevance to `query`. Returns descending score order."""
     if not documents:
         return []
@@ -59,7 +59,7 @@ async def rerank(
         msg = f"Rerank response missing 'results' list; got keys {list(body.keys())}"
         raise RerankError(msg)
 
-    out: List[RerankResult] = []
+    out: list[RerankResult] = []
     for entry in raw_results:
         if not isinstance(entry, dict):
             continue
@@ -73,4 +73,4 @@ async def rerank(
     return out
 
 
-__all__: List[str] = ["RerankError", "RerankResult", "rerank"]
+__all__: list[str] = ["RerankError", "RerankResult", "rerank"]

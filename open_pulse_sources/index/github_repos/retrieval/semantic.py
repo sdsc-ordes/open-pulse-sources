@@ -11,10 +11,10 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.github_repos.embed.pipeline import GITHUB_REPOS_COLLECTION
-from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index._rcp.reranker_client import RCPRerankerClient
+from open_pulse_sources.index.github_repos.embed.pipeline import GITHUB_REPOS_COLLECTION
+from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:

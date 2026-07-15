@@ -74,7 +74,9 @@ class BaseProvider:
         provider_name: str | None = None,
         rate_limiter: RateLimiter | None = None,
     ) -> None:
-        from open_pulse_sources.common.providers.rate_limiter import RateLimiter  # noqa: PLC0415
+        from open_pulse_sources.common.providers.rate_limiter import (
+            RateLimiter,
+        )
 
         if provider_name is None:
             provider_name = self.provider_name

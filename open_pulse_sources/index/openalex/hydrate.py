@@ -25,11 +25,14 @@ from __future__ import annotations
 import logging
 import os
 import time
-from typing import Any, Iterable
+from typing import Iterable
 
 import requests
 
-from open_pulse_sources.index._federated.protocols import HydrationSummary, IndexHydrator, Seed
+from open_pulse_sources.index._federated.protocols import (
+    HydrationSummary,
+    Seed,
+)
 from open_pulse_sources.index.openalex.ingest.authors import _project_author
 from open_pulse_sources.index.openalex.ingest.works import persist_work
 from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore
@@ -69,7 +72,7 @@ def _ror_to_openalex_institution(ror: str, cache: dict[str, str]) -> str | None:
         )
         r.raise_for_status()
         oid = r.json().get("id")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("ROR %s → OpenAlex institution lookup failed: %s", ror, exc)
         oid = None
     cache[ror] = oid or ""
@@ -114,7 +117,7 @@ def _hydrate_dois(
                 continue
             r.raise_for_status()
             item = r.json()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("DOI fetch failed for %s: %s", doi, exc)
             summary.errors += 1
             time.sleep(0.5)
@@ -158,7 +161,7 @@ def _hydrate_works_full(
                 continue
             r.raise_for_status()
             item = r.json()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("work fetch failed for %s: %s", wid, exc)
             summary.errors += 1
             time.sleep(0.5)
@@ -198,7 +201,7 @@ def _hydrate_works_refs_only(
             r = _http_get("https://api.openalex.org/works", params=params)
             r.raise_for_status()
             results = r.json().get("results", []) or []
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning(
                 "refs-only batch %d-%d failed: %s", i, i + len(batch), exc,
             )
@@ -259,7 +262,7 @@ def _hydrate_authors(
                 continue
             r.raise_for_status()
             item = r.json()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("author fetch failed for %s: %s", aid, exc)
             summary.errors += 1
             time.sleep(0.5)

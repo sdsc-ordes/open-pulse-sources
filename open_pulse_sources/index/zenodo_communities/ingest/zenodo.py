@@ -50,7 +50,9 @@ def _normalize_record(payload: dict[str, Any], parent_org: str | None) -> dict[s
         val = metadata.get(key) if isinstance(metadata, dict) else None
         if isinstance(val, list):
             keywords.extend(str(v) for v in val if isinstance(v, (str, dict)))
-    from open_pulse_sources.index.zenodo_communities.iri import canonical_community_id  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_communities.iri import (
+        canonical_community_id,
+    )
 
     return {
         "community_id": canonical_community_id("zenodo", slug),
@@ -92,7 +94,7 @@ def _search_fallback(slug: str, parent_org: str | None) -> dict[str, Any] | None
                     "zenodo_communities.ingest.zenodo: recovered %r via ?q= fallback", slug,
                 )
                 return record
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.exception(
             "zenodo_communities.ingest.zenodo: search fallback failed (%s)", slug,
         )
@@ -109,7 +111,7 @@ def fetch_by_slug(slug: str, parent_org: str | None = None) -> dict[str, Any] | 
     url = f"{_ZENODO_BASE}/{slug}"
     try:
         response = requests.get(url, timeout=_REQUEST_TIMEOUT)
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.exception("zenodo_communities.ingest.zenodo: fetch_by_slug failed (%s)", slug)
         return _search_fallback(slug, parent_org)
     if response.status_code == 404:
@@ -143,7 +145,7 @@ def discover_by_query(
         params = {"q": keyword, "size": page_size, "page": page, "sort": "bestmatch"}
         try:
             response = requests.get(_ZENODO_BASE, params=params, timeout=_REQUEST_TIMEOUT)
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.exception(
                 "zenodo_communities.ingest.zenodo: discover_by_query failed (%s, page=%d)",
                 keyword, page,

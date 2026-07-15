@@ -14,20 +14,17 @@ import json
 import logging
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator
 
 import duckdb
 
-from open_pulse_sources.index.ethz_research_collection.paths import duckdb_path
 from open_pulse_sources.common.canonicalization.ethz import (
     ethz_article_iri,
     ethz_iri_sql,
     ethz_org_iri,
     ethz_person_iri,
 )
-
-if TYPE_CHECKING:
-    pass
+from open_pulse_sources.index.ethz_research_collection.paths import duckdb_path
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +47,7 @@ class EthzResearchCollectionStore:
         self._conn: duckdb.DuckDBPyConnection | None = None
 
     @classmethod
-    def open(cls, db_path: Path | None = None) -> "EthzResearchCollectionStore":
+    def open(cls, db_path: Path | None = None) -> EthzResearchCollectionStore:
         if db_path is None:
             db_path = duckdb_path()
         store = cls(db_path)

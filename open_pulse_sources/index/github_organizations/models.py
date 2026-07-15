@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -18,25 +18,25 @@ class OrgRecord(BaseModel):
     """
 
     login: str
-    github_id: Optional[int] = None
-    node_id: Optional[str] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    blog: Optional[str] = None
-    location: Optional[str] = None
-    email: Optional[str] = None
-    twitter_username: Optional[str] = None
-    company: Optional[str] = None
+    github_id: int | None = None
+    node_id: str | None = None
+    name: str | None = None
+    description: str | None = None
+    blog: str | None = None
+    location: str | None = None
+    email: str | None = None
+    twitter_username: str | None = None
+    company: str | None = None
     public_repos: int = 0
     public_gists: int = 0
     followers: int = 0
     following: int = 0
-    is_verified: Optional[bool] = None
-    has_organization_projects: Optional[bool] = None
-    has_repository_projects: Optional[bool] = None
-    account_type: Optional[str] = None  # "Organization"
-    avatar_url: Optional[str] = None
-    html_url: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    is_verified: bool | None = None
+    has_organization_projects: bool | None = None
+    has_repository_projects: bool | None = None
+    account_type: str | None = None  # "Organization"
+    avatar_url: str | None = None
+    html_url: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
     raw: dict[str, Any] = {}

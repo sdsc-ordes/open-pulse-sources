@@ -38,7 +38,7 @@ def _bearer_headers(login_info: dict[str, Any] | None) -> tuple[str, dict[str, s
     return info["host"], {"Authorization": f"Bearer {info['token']}"}
 
 
-def concept_nearest_categories(  # noqa: PLR0913
+def concept_nearest_categories(
     concept_id: str | int,
     *,
     top_n: int = 5,
@@ -88,7 +88,7 @@ def ontology_tree(
     refresh: bool = False,
 ) -> dict[str, Any]:
     """Fetch the ``child_to_parent`` ontology tree, cached for the process lifetime."""
-    global _TREE_CACHE  # noqa: PLW0603
+    global _TREE_CACHE
     with _TREE_LOCK:
         if _TREE_CACHE is not None and not refresh:
             return _TREE_CACHE

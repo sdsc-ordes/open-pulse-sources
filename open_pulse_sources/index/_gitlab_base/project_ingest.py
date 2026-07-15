@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index._gitlab_base.models import GitLabProjectRecord
 from open_pulse_sources.common.canonicalization.gitlab import gitlab_iri
+from open_pulse_sources.index._gitlab_base.models import GitLabProjectRecord
 
 if TYPE_CHECKING:
     from open_pulse_sources.index._gitlab_base.client import GitLabClient

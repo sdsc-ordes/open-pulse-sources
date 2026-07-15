@@ -164,11 +164,11 @@ def _close_cached_store(app_state: Any, attr: str) -> None:
     if callable(close):
         try:
             close()
-        except Exception as exc:  # noqa: BLE001 — best-effort
+        except Exception as exc:
             LOGGER.warning("compact: failed to close cached %s: %s", attr, exc)
     try:
         setattr(app_state, attr, None)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("compact: failed to clear cached %s: %s", attr, exc)
 
 
@@ -213,13 +213,13 @@ def close_cached_resources_for(provider: str, app_state: Any) -> None:
                 if callable(close):
                     try:
                         close()
-                    except Exception as exc:  # noqa: BLE001
+                    except Exception as exc:
                         LOGGER.warning(
                             "compact: failed to close item in %s: %s", attr, exc,
                         )
             try:
                 setattr(app_state, attr, None)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 LOGGER.warning("compact: failed to clear %s: %s", attr, exc)
         else:
             _close_cached_store(app_state, attr)
@@ -253,7 +253,7 @@ def compact_all_indexes(
             LOGGER.info("compacting %s …", db_path)
         try:
             result = compact_duckdb(provider, db_path)
-        except Exception as exc:  # noqa: BLE001 — keep going on partial failure
+        except Exception as exc:
             LOGGER.warning("compact %s: FAILED — %s", db_path, exc)
             continue
         results.append(result)
@@ -271,8 +271,8 @@ def compact_all_indexes(
 
 def _cli_main() -> int:
     """Entry point for `python -m open_pulse_sources.service.indices.compact`."""
-    import argparse  # noqa: PLC0415
-    import json  # noqa: PLC0415
+    import argparse
+    import json
 
     parser = argparse.ArgumentParser(
         prog="python -m open_pulse_sources.service.indices.compact",

@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Sequence
 
 from .config import InfoscienceIndexConfig
 from .embed import RCPEmbedder
@@ -36,7 +36,6 @@ from .store import (
     ORGANIZATIONS_COLLECTION,
     PERSONS_COLLECTION,
     QdrantStore,
-    article_point_id,
     build_filter,
     organization_point_id,
     person_point_id,
@@ -63,14 +62,14 @@ _DOC_FIELD = {
 @dataclass
 class QueryResult:
     target: str
-    rows: List[Dict[str, Any]] = field(default_factory=list)
-    related_persons: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
-    related_organizations: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
+    rows: list[dict[str, Any]] = field(default_factory=list)
+    related_persons: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+    related_organizations: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
 
 
-def _flatten(hits: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _flatten(hits: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     """Lift the payload one level so the caller doesn't have to dig."""
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for h in hits:
         row = dict(h.get("payload") or {})
         row["id"] = h.get("id")
@@ -85,9 +84,9 @@ async def _vector_search(
     store: QdrantStore,
     collection: str,
     query: str,
-    where: Optional[dict],
+    where: dict | None,
     top_k: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     async with RCPEmbedder(cfg.rcp) as embedder:
         vec = await embedder.embed_query(query)
     hits = store.search(
@@ -103,9 +102,9 @@ def _lexical_search(
     store: QdrantStore,
     collection: str,
     query: str,
-    where: Optional[dict],
+    where: dict | None,
     top_k: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     # Qdrant has no built-in BM25; "lexical" here means
     # filter-on-text-contains. Combine the user's where with a $contains
     # over the canonical text field for the target collection.
@@ -123,9 +122,9 @@ def _lexical_search(
 def _filter_only(
     store: QdrantStore,
     collection: str,
-    where: Optional[dict],
+    where: dict | None,
     top_k: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     hits = store.scroll(
         collection,
         query_filter=build_filter(where),
@@ -137,10 +136,10 @@ def _filter_only(
 async def _rerank(
     cfg: InfoscienceIndexConfig,
     query: str,
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
     target_collection: str,
     top_n: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     if not rows:
         return []
     doc_field = _DOC_FIELD.get(target_collection, "text")
@@ -155,21 +154,21 @@ async def _rerank(
     return [rows[h.index] | {"rerank_score": h.score} for h in hits]
 
 
-def _resolve_persons(store: QdrantStore, person_uuids: Sequence[str]) -> List[Dict[str, Any]]:
+def _resolve_persons(store: QdrantStore, person_uuids: Sequence[str]) -> list[dict[str, Any]]:
     if not person_uuids:
         return []
     ids = [person_point_id(u) for u in person_uuids]
     return _flatten(store.lookup(PERSONS_COLLECTION, ids=ids))
 
 
-def _resolve_orgs(store: QdrantStore, org_uuids: Sequence[str]) -> List[Dict[str, Any]]:
+def _resolve_orgs(store: QdrantStore, org_uuids: Sequence[str]) -> list[dict[str, Any]]:
     if not org_uuids:
         return []
     ids = [organization_point_id(u) for u in org_uuids]
     return _flatten(store.lookup(ORGANIZATIONS_COLLECTION, ids=ids))
 
 
-def _row_key(row: Dict[str, Any]) -> str:
+def _row_key(row: dict[str, Any]) -> str:
     """Pick a stable per-row key for cross-entity join indexing."""
     return (
         row.get("article_uuid")
@@ -186,7 +185,7 @@ async def query(
     text: str,
     *,
     target: str = "chunks",
-    where: Optional[dict] = None,
+    where: dict | None = None,
     top_k: int = 50,
     top_n: int = 10,
     mode: str = "hybrid",

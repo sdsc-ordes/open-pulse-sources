@@ -7,8 +7,6 @@ trailing context carried into the next chunk.
 
 from __future__ import annotations
 
-from typing import List
-
 import tiktoken
 
 from .config import ChunkingConfig
@@ -16,12 +14,12 @@ from .config import ChunkingConfig
 _PARAGRAPH_SEP = "\n\n"
 
 
-def _split_paragraphs(text: str) -> List[str]:
+def _split_paragraphs(text: str) -> list[str]:
     paras = [p.strip() for p in text.split(_PARAGRAPH_SEP)]
     return [p for p in paras if p]
 
 
-def chunk_text(text: str, cfg: ChunkingConfig) -> List[str]:
+def chunk_text(text: str, cfg: ChunkingConfig) -> list[str]:
     """Return a list of chunk strings."""
     if not text.strip():
         return []
@@ -30,8 +28,8 @@ def chunk_text(text: str, cfg: ChunkingConfig) -> List[str]:
     if not paragraphs:
         return []
 
-    chunks: List[str] = []
-    current_tokens: List[int] = []
+    chunks: list[str] = []
+    current_tokens: list[int] = []
     for para in paragraphs:
         para_tokens = enc.encode(para)
         # If a single paragraph exceeds the budget, flush and slice it.

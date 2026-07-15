@@ -11,12 +11,9 @@ Two entrypoints:
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore
-
-if TYPE_CHECKING:
-    pass
 
 INVALID_QUERY_PREFIX_ERROR = "Only SELECT/WITH queries are allowed"
 FORBIDDEN_KEYWORD_ERROR = "Forbidden keyword in query: {kw}"

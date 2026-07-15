@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from open_pulse_sources.index._gitlab_base.user_store import GitLabUserStore
-from open_pulse_sources.index.gitlab_datascience_users.paths import get_gitlab_datascience_users_paths
+from open_pulse_sources.index.gitlab_datascience_users.paths import (
+    get_gitlab_datascience_users_paths,
+)
 
 
 def open_store() -> GitLabUserStore:

@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
-from open_pulse_sources.index.orcid.paths import get_orcid_paths
 from open_pulse_sources.common.canonicalization.orcid import orcid_iri
+from open_pulse_sources.index.orcid.paths import get_orcid_paths
 
 
 def _canon_orcid(value: Any) -> Any:
@@ -121,7 +121,7 @@ class OrcidStore:
         update_cols = ", ".join(
             f"{c} = excluded.{c}" for c in (*cols[1:], "raw", "ingested_at")
         )
-        sql = (  # noqa: S608 - column names sourced from the literal `cols` tuple above
+        sql = (
             f"INSERT INTO persons ({col_list}) VALUES ({placeholders}) "
             f"ON CONFLICT (orcid_id) DO UPDATE SET {update_cols}"
         )
@@ -145,7 +145,7 @@ class OrcidStore:
         # Replace-all semantics keeps the table consistent when ORCID
         # entries are removed/renumbered upstream.
         conn.execute(
-            f"DELETE FROM {table} WHERE orcid_id = ?",  # noqa: S608 - guarded
+            f"DELETE FROM {table} WHERE orcid_id = ?",
             [orcid_id],
         )
         cols = (
@@ -160,7 +160,7 @@ class OrcidStore:
         )
         col_list = ", ".join(cols)
         placeholders = ", ".join(["?"] * len(cols))
-        sql = f"INSERT INTO {table} ({col_list}) VALUES ({placeholders})"  # noqa: S608
+        sql = f"INSERT INTO {table} ({col_list}) VALUES ({placeholders})"
         count = 0
         for row in rows:
             row_values = [row.get(c) for c in cols]
@@ -194,7 +194,7 @@ class OrcidStore:
 
     def count(self, table: str) -> int:
         result = self.connect().execute(
-            f"SELECT count(*) FROM {table}",  # noqa: S608 - callers pass internal table names
+            f"SELECT count(*) FROM {table}",
         ).fetchone()
         return int(result[0]) if result else 0
 
@@ -272,7 +272,7 @@ class OrcidStore:
             # Affiliations: only embed if the parent person is in scope.
             join_id = "t.orcid_id || '#' || CAST(t.seq AS VARCHAR)"
             sql = (
-                f"SELECT t.*, {join_id} AS entity_id "  # noqa: S608 - table guarded
+                f"SELECT t.*, {join_id} AS entity_id "
                 f"FROM {entity_type} t "
                 "JOIN persons p ON p.orcid_id = t.orcid_id "
                 "WHERE p.in_scope = TRUE AND NOT EXISTS ("

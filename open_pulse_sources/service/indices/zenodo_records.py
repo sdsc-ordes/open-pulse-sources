@@ -42,15 +42,19 @@ def get_or_create_zenodo_records_store(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.zenodo_records.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.zenodo_records.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+            ZenodoRecordsStore,
+        )
+    except Exception as exc:
         logger.warning("zenodo ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = ZenodoRecordsStore.open(config.paths.duckdb_path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("zenodo ingest: store init failed — %s", exc)
         return None
     app_state.v2_zenodo_records_resources = (config, store)
@@ -83,7 +87,7 @@ async def run_zenodo_records_ingest_job(
             return
         config, store = resources
 
-        from open_pulse_sources.index.zenodo_records.ingest.records import (  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.ingest.records import (
             _normalize_id_token,
             ingest_by_ids,
         )
@@ -126,7 +130,9 @@ async def run_zenodo_records_ingest_job(
         finished.completed_at = datetime.now(timezone.utc)
         normalised_summary = summary if isinstance(summary, dict) else {"result": summary}
 
-        from open_pulse_sources.index.zenodo_records.embed.pipeline import embed_records  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.embed.pipeline import (
+            embed_records,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -157,7 +163,9 @@ async def run_zenodo_records_search(
     if resources is None:
         return None
     config, store = resources
-    from open_pulse_sources.index.zenodo_records.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_records.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query,

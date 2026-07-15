@@ -7,7 +7,9 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index._github_accounts_base.embed_base import embed_accounts_async
+from open_pulse_sources.index._github_accounts_base.embed_base import (
+    embed_accounts_async,
+)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.huggingface_spaces.config import (

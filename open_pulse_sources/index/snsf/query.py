@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -24,14 +24,14 @@ async def query_rag(
     cfg: SnsfIndexConfig,
     text: str,
     *,
-    top_k: Optional[int] = None,
-    rerank_top_k: Optional[int] = None,
-    institution: Optional[str] = None,
-    institute: Optional[str] = None,
-    discipline_l1: Optional[str] = None,
-    state: Optional[str] = None,
-    scope_mode: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    top_k: int | None = None,
+    rerank_top_k: int | None = None,
+    institution: str | None = None,
+    institute: str | None = None,
+    discipline_l1: str | None = None,
+    state: str | None = None,
+    scope_mode: str | None = None,
+) -> list[dict[str, Any]]:
     if cfg.rcp.token is None:
         msg = "RCP_TOKEN is not set."
         raise RuntimeError(msg)
@@ -62,7 +62,7 @@ async def query_rag(
     rerank_results = await rerank(
         cfg.rcp, text, [c["text"] for c in candidates], top_n=rerank_top_k,
     )
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for r in rerank_results[:rerank_top_k]:
         if r.index < 0 or r.index >= len(candidates):
             continue
@@ -72,9 +72,9 @@ async def query_rag(
 
 
 def _post_filter_by_institute(
-    candidates: List[Dict[str, Any]],
+    candidates: list[dict[str, Any]],
     institute_substring: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Keep only candidates whose `institute` (lab/centre, from DuckDB) matches.
 
     `institute` isn't in the Qdrant payload (it would balloon every point),
@@ -91,7 +91,7 @@ def _post_filter_by_institute(
         placeholders = ",".join(["?"] * len(grant_ids))
         rows = store.connect().execute(
             f"SELECT grant_number, institute FROM grants "
-            f"WHERE grant_number IN ({placeholders})",  # noqa: S608 - placeholders are bound
+            f"WHERE grant_number IN ({placeholders})",
             list(grant_ids),
         ).fetchall()
     finally:
@@ -106,7 +106,7 @@ def _post_filter_by_institute(
     return kept
 
 
-def query_rag_sync(cfg: SnsfIndexConfig, text: str, **kwargs: Any) -> List[Dict[str, Any]]:
+def query_rag_sync(cfg: SnsfIndexConfig, text: str, **kwargs: Any) -> list[dict[str, Any]]:
     return asyncio.run(query_rag(cfg, text, **kwargs))
 
 

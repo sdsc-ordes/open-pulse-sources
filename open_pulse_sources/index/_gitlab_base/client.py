@@ -20,7 +20,7 @@ _RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
 class GitLabClient:
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         *,
         host: str,

@@ -21,14 +21,16 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Dict
 
+from open_pulse_sources.common.canonicalization.ethz import (
+    ethz_article_iri,
+    ethz_iri_sql,
+)
 from open_pulse_sources.index.ethz_research_collection.paths import (
     raw_items_dir,
     raw_organizations_dir,
     raw_persons_dir,
 )
-from open_pulse_sources.common.canonicalization.ethz import ethz_article_iri, ethz_iri_sql
 
 from .duckdb_store import EthzResearchCollectionStore
 
@@ -390,7 +392,7 @@ def ingest_links_dump(store: EthzResearchCollectionStore, dump_path: Path) -> in
     return len(rows)
 
 
-def ingest_all(store: EthzResearchCollectionStore, *, links_dump: Path | None = None) -> Dict[str, int]:
+def ingest_all(store: EthzResearchCollectionStore, *, links_dump: Path | None = None) -> dict[str, int]:
     summary = {
         "articles": ingest_articles(store),
         "persons": ingest_persons(store),

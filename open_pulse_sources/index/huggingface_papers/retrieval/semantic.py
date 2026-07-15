@@ -15,7 +15,9 @@ from open_pulse_sources.index.huggingface_papers.storage.duckdb_store import (
 )
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index.huggingface_papers.config import HuggingFacePapersIndexConfig
+    from open_pulse_sources.index.huggingface_papers.config import (
+        HuggingFacePapersIndexConfig,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

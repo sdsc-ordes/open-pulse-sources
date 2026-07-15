@@ -7,9 +7,14 @@ import json
 import logging
 from pathlib import Path
 
-from open_pulse_sources.index.zenodo_communities.build import DEFAULT_CONFIG, build_from_config
+from open_pulse_sources.index.zenodo_communities.build import (
+    DEFAULT_CONFIG,
+    build_from_config,
+)
 from open_pulse_sources.index.zenodo_communities.paths import duckdb_path
-from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import ZenodoCommunitiesStore
+from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import (
+    ZenodoCommunitiesStore,
+)
 
 
 def _cmd_build(args: argparse.Namespace) -> None:

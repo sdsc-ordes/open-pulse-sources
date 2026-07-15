@@ -73,7 +73,9 @@ class GitHubUsersStore:
     # ---- Upserts ---------------------------------------------------------
 
     def upsert_user(self, record: UserRecord) -> None:
-        from open_pulse_sources.common.canonicalization.github import github_user_iri  # noqa: PLC0415
+        from open_pulse_sources.common.canonicalization.github import (
+            github_user_iri,
+        )
 
         sql = (
             "INSERT INTO users "
@@ -157,7 +159,9 @@ class GitHubUsersStore:
         return count_table(self.connect(), table)
 
     def fetch_user(self, login: str) -> dict[str, Any] | None:
-        from open_pulse_sources.common.canonicalization.github import github_user_iri  # noqa: PLC0415
+        from open_pulse_sources.common.canonicalization.github import (
+            github_user_iri,
+        )
 
         return fetch_one(
             self.connect(),

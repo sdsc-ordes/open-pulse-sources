@@ -11,7 +11,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+    ZenodoRecordsStore,
+)
 
 INVALID_QUERY_PREFIX_ERROR = "Only SELECT/WITH queries are allowed"
 FORBIDDEN_KEYWORD_ERROR = "Forbidden keyword in query: {kw}"

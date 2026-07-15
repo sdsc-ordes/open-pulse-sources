@@ -31,7 +31,7 @@ serve *ARGS:
 
 # Serve with auto-reload for development
 serve-dev *ARGS:
-    .venv/bin/python -m uvicorn open_pulse_sources.service.app:app --host 0.0.0.0 --port 8080 --reload --reload-dir src {{ARGS}}
+    .venv/bin/python -m uvicorn open_pulse_sources.service.app:app --host 0.0.0.0 --port 8080 --reload --reload-dir open_pulse_sources {{ARGS}}
 
 # ============================================================================
 # Testing
@@ -51,15 +51,15 @@ test-file FILE:
 
 # Lint code using ruff
 lint:
-    uv run ruff check src/
+    uv run ruff check open_pulse_sources/
 
 # Lint and fix issues automatically
 lint-fix:
-    uv run ruff check --fix src/
+    uv run ruff check --fix open_pulse_sources/
 
 # Type check using mypy
 type-check:
-    uv run mypy src/
+    uv run mypy open_pulse_sources/
 
 # Run all code quality checks
 check: lint type-check
@@ -82,7 +82,7 @@ clean-test:
 # Clean up all cache and temporary files
 clean-all: clean-py clean-test
 # ============================================================================
-# Infoscience indexer (src/index/infoscience)
+# Infoscience indexer (open_pulse_sources/index/infoscience)
 # ============================================================================
 
 # Solr fulltext discover for configured filter terms.
@@ -124,7 +124,7 @@ index-infoscience-status:
     .venv/bin/python -m open_pulse_sources.index.infoscience status
 
 # ============================================================================
-# OpenAlex indexer (src/index/openalex)
+# OpenAlex indexer (open_pulse_sources/index/openalex)
 # ============================================================================
 
 # Pull OpenAlex entities into DuckDB. Pass --scope epfl|switzerland.
@@ -161,7 +161,7 @@ openalex-test:
     .venv/bin/python -m pytest tests/index/openalex/ -v -m openalex
 
 # ============================================================================
-# ORCID indexer (src/index/orcid)
+# ORCID indexer (open_pulse_sources/index/orcid)
 # ============================================================================
 
 # Build the seed ORCID list (OpenAlex authors + ORCID expanded-search).
@@ -198,7 +198,7 @@ orcid-test:
     .venv/bin/python -m pytest tests/index/orcid/ -v
 
 # ============================================================================
-# HuggingFace indexer (src/index/huggingface)
+# HuggingFace indexer (open_pulse_sources/index/huggingface)
 # ============================================================================
 
 # Pull HuggingFace metadata + cards into DuckDB. Pass --scope epfl|switzerland
@@ -236,7 +236,7 @@ hf-test:
     .venv/bin/python -m pytest tests/index/huggingface/ -v
 
 # ============================================================================
-# Zenodo indexer (src/index/zenodo)
+# Zenodo indexer (open_pulse_sources/index/zenodo)
 # ============================================================================
 
 # Pull Zenodo records into DuckDB. Pass --scope epfl|switzerland.
@@ -264,7 +264,7 @@ zenodo-serve *ARGS:
     .venv/bin/python -m open_pulse_sources.index.zenodo serve {{ARGS}}
 
 # ============================================================================
-# EPFL Graph disciplines indexer (src/index/epfl_graph)
+# EPFL Graph disciplines indexer (open_pulse_sources/index/epfl_graph)
 # ============================================================================
 # RAG index over the curated EPFL Graph academic ontology (~2226 categories,
 # 6 levels deep, each backed by 50-110 anchor Wikipedia concepts). Requires
@@ -287,7 +287,7 @@ epfl-graph-status:
     .venv/bin/python -m open_pulse_sources.index.epfl_graph status
 
 # ============================================================================
-# SWISSUbase indexer (src/index/swissubase)
+# SWISSUbase indexer (open_pulse_sources/index/swissubase)
 # ============================================================================
 # SWISSUbase has no public REST API — every catalogue endpoint requires
 # the SPA's session cookie. Ingest drives a Selenium browser session and
@@ -322,7 +322,7 @@ swissubase-serve *ARGS:
     .venv/bin/python -m open_pulse_sources.index.swissubase serve {{ARGS}}
 
 # ============================================================================
-# RenkuLab indexer (src/index/renkulab)
+# RenkuLab indexer (open_pulse_sources/index/renkulab)
 # ============================================================================
 
 # Pull RenkuLab projects/groups/users/data_connectors into DuckDB.
@@ -352,7 +352,7 @@ renku-serve *ARGS:
     .venv/bin/python -m open_pulse_sources.index.renkulab serve {{ARGS}}
 
 # ============================================================================
-# GitHub repository indexer (src/index/github)
+# GitHub repository indexer (open_pulse_sources/index/github)
 # ============================================================================
 
 # Fetch GitHub repo metadata + README into DuckDB. Pass --scope epfl|switzerland,
@@ -386,7 +386,7 @@ gh-serve *ARGS:
     .venv/bin/python -m open_pulse_sources.index.github serve {{ARGS}}
 
 # ============================================================================
-# Federated cross-index layer (src/index/_federated)
+# Federated cross-index layer (open_pulse_sources/index/_federated)
 # ============================================================================
 
 # Federated semantic search across every registered index in parallel.

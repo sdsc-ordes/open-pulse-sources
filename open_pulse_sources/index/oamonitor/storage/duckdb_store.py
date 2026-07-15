@@ -62,7 +62,7 @@ class OamonitorStore:
         conn = self.connect()
         conn.execute(_load_schema_sql())
         # Promote `publications.doi` to canonical `https://doi.org/<bare>`.
-        from open_pulse_sources.index._shared.doi import (  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import (
             migrate_doi_column_to_url,
         )
 
@@ -108,7 +108,7 @@ class OamonitorStore:
         )
 
     def upsert_publication(self, row: dict[str, Any]) -> None:
-        from open_pulse_sources.index._shared.doi import doi_iri  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import doi_iri
 
         if row.get("doi"):
             row = {**row, "doi": doi_iri(row["doi"])}
@@ -211,7 +211,7 @@ class OamonitorStore:
             message = f"Unsupported table: {table}"
             raise ValueError(message)
         row = self.connect().execute(
-            f"SELECT COUNT(*) FROM {table}",  # noqa: S608 — whitelisted table
+            f"SELECT COUNT(*) FROM {table}",
         ).fetchone()
         return int(row[0]) if row else 0
 
@@ -240,7 +240,7 @@ class OamonitorStore:
             clauses.append("(embedded_at IS NULL OR embedded_at < updated)")
         where = " AND ".join(clauses)
         cursor = self.connect().execute(
-            f"SELECT _id, embedding_text FROM {table} "  # noqa: S608
+            f"SELECT _id, embedding_text FROM {table} "
             f"WHERE {where} "
             "ORDER BY _id",
             [int(min_length)],
@@ -257,7 +257,7 @@ class OamonitorStore:
             return
         placeholders = ",".join(["?"] * len(entity_ids))
         self.connect().execute(
-            f"UPDATE {table} SET embedded_at = now() "  # noqa: S608
+            f"UPDATE {table} SET embedded_at = now() "
             f"WHERE _id IN ({placeholders})",
             entity_ids,
         )
@@ -267,7 +267,7 @@ class OamonitorStore:
             message = f"Unsupported table: {table}"
             raise ValueError(message)
         row = self.connect().execute(
-            f"SELECT COUNT(*) FROM {table} "  # noqa: S608
+            f"SELECT COUNT(*) FROM {table} "
             "WHERE embedding_text IS NOT NULL "
             "  AND LENGTH(embedding_text) >= 1 "
             "  AND (embedded_at IS NULL OR embedded_at < updated)",

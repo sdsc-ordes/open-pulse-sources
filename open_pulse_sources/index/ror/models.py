@@ -6,7 +6,7 @@ in-memory data passed between stages and the public query result shape.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -15,15 +15,15 @@ class RorRecord(BaseModel):
     """A ROR v2 record kept verbatim. We expose a few accessors for convenience."""
 
     id: str
-    raw: Dict[str, Any]
+    raw: dict[str, Any]
 
     @property
-    def names(self) -> List[Dict[str, Any]]:
+    def names(self) -> list[dict[str, Any]]:
         names = self.raw.get("names")
         return names if isinstance(names, list) else []
 
     @property
-    def display_name(self) -> Optional[str]:
+    def display_name(self) -> str | None:
         for entry in self.names:
             if "ror_display" in (entry.get("types") or []):
                 value = entry.get("value")
@@ -36,7 +36,7 @@ class RorRecord(BaseModel):
         return None
 
     @property
-    def country_code(self) -> Optional[str]:
+    def country_code(self) -> str | None:
         for loc in self.raw.get("locations") or []:
             details = loc.get("geonames_details") if isinstance(loc, dict) else None
             if isinstance(details, dict):
@@ -51,9 +51,9 @@ class IndexedRecord(BaseModel):
 
     row: int
     ror_id: str
-    name: Optional[str]
+    name: str | None
     text: str
-    record: Dict[str, Any]
+    record: dict[str, Any]
 
 
 class IndexManifest(BaseModel):
@@ -64,8 +64,8 @@ class IndexManifest(BaseModel):
     embedding_model: str
     embedding_dim: int
     reranker_model: str
-    ror_release_version: Optional[str] = None
-    ror_release_doi: Optional[str] = None
+    ror_release_version: str | None = None
+    ror_release_doi: str | None = None
     built_at_iso: str
 
 
@@ -73,15 +73,15 @@ class ScoredRecord(BaseModel):
     """Public query result shape."""
 
     ror_id: str
-    name: Optional[str]
+    name: str | None
     score: float
-    record: Dict[str, Any]
+    record: dict[str, Any]
 
 
 class DumpMatch(BaseModel):
     """Public lookup result shape (no score from semantic model)."""
 
     ror_id: str
-    name: Optional[str]
-    record: Dict[str, Any]
-    matched_tokens: List[str] = Field(default_factory=list)
+    name: str | None
+    record: dict[str, Any]
+    matched_tokens: list[str] = Field(default_factory=list)

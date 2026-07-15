@@ -22,8 +22,8 @@ import logging
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
+from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:

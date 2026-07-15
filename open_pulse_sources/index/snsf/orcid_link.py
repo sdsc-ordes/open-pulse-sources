@@ -14,11 +14,10 @@ long as no writer holds the OpenAlex DB lock.
 
 from __future__ import annotations
 
-import json
 import logging
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import duckdb
 
@@ -35,7 +34,7 @@ def openalex_db_path() -> Path:
 _ORCID_RE = re.compile(r"\b\d{4}-\d{4}-\d{4}-\d{3}[\dX]\b")
 
 
-def normalize_orcid(value: Optional[str]) -> Optional[str]:
+def normalize_orcid(value: str | None) -> str | None:
     """Strip any URL prefix, return canonical 0000-0000-0000-000X form, or None."""
     if not value:
         return None
@@ -74,10 +73,10 @@ def open_joined(read_only: bool = True) -> duckdb.DuckDBPyConnection:
 def link_by_orcid(
     orcid: str,
     *,
-    snsf_scope: Optional[str] = None,
+    snsf_scope: str | None = None,
     work_limit: int = 50,
     grant_limit: int = 50,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Look up one ORCID in both stores and return their grants + works."""
     norm = normalize_orcid(orcid)
     if norm is None:
@@ -111,7 +110,7 @@ def link_by_orcid(
             "JOIN scope_records s ON s.grant_number = g.grant_number "
             "AND s.scope_mode = ? "
         ) if snsf_scope else ""
-        scope_params: List[Any] = [snsf_scope] if snsf_scope else []
+        scope_params: list[Any] = [snsf_scope] if snsf_scope else []
         grants = conn.execute(
             f"""
             SELECT g.grant_number, g.title, g.research_institution,
@@ -141,7 +140,7 @@ def link_by_orcid(
             [norm, f"https://orcid.org/{norm}"],
         ).fetchone()
 
-        works: List[Dict[str, Any]] = []
+        works: list[dict[str, Any]] = []
         if oa_author is not None:
             oa_id = oa_author[0]
             # Join authors→work_authors→works for the openalex side.
@@ -175,7 +174,7 @@ def link_by_orcid(
         conn.close()
 
 
-def coverage_report(snsf_scope: Optional[str] = None) -> Dict[str, Any]:
+def coverage_report(snsf_scope: str | None = None) -> dict[str, Any]:
     """How well does ORCID link the two stores for the given SNSF scope?"""
     conn = open_joined(read_only=True)
     try:
@@ -183,7 +182,7 @@ def coverage_report(snsf_scope: Optional[str] = None) -> Dict[str, Any]:
             "JOIN scope_records s ON s.grant_number = json_extract_string(j.value, '$') "
             "AND s.scope_mode = ?"
         ) if snsf_scope else ""
-        params: List[Any] = [snsf_scope] if snsf_scope else []
+        params: list[Any] = [snsf_scope] if snsf_scope else []
 
         # SNSF persons with ORCID who are responsible applicants on grants
         # in the chosen scope (no scope = all).

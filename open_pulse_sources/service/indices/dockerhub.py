@@ -38,10 +38,16 @@ def get_or_create_dockerhub_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.dockerhub.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.dockerhub.ingest.dockerhub_client import DockerHubClient  # noqa: PLC0415
-        from open_pulse_sources.index.dockerhub.storage.duckdb_store import DockerhubStore  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.dockerhub.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.dockerhub.ingest.dockerhub_client import (
+            DockerHubClient,
+        )
+        from open_pulse_sources.index.dockerhub.storage.duckdb_store import (
+            DockerhubStore,
+        )
+    except Exception as exc:
         logger.warning("dockerhub ingest: index module unavailable — %s", exc)
         return None
     try:
@@ -52,7 +58,7 @@ def get_or_create_dockerhub_resources(app_state: Any) -> Any | None:
             token=config.dockerhub.token,
             cache_path=config.paths.cache_db_path,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("dockerhub ingest: resource init failed — %s", exc)
         return None
     app_state.v2_dockerhub_resources = (config, store, client)
@@ -64,13 +70,13 @@ def _ingest_one_image(
 ) -> dict[str, Any]:
     """Run a single per-image ingest; never raises."""
     try:
-        from open_pulse_sources.index.dockerhub.ingest.repos import (  # noqa: PLC0415
+        from open_pulse_sources.index.dockerhub.ingest.repos import (
             ingest_single_image,
         )
         outcome = ingest_single_image(
             config=config, store=store, client=client, image_ref=image_ref,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("dockerhub ingest: %s failed — %s", image_ref, exc)
         return {"image": image_ref, "outcome": "failed", "error": str(exc)}
     return {"image": image_ref, "outcome": outcome}
@@ -116,7 +122,9 @@ async def run_dockerhub_ingest_job(
         skipped_404 = sum(1 for r in items_results if r["outcome"] == "skipped_404")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.dockerhub.embed.pipeline import embed_images  # noqa: PLC0415
+        from open_pulse_sources.index.dockerhub.embed.pipeline import (
+            embed_images,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -153,7 +161,9 @@ async def run_dockerhub_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.dockerhub.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.dockerhub.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query,

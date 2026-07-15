@@ -35,7 +35,7 @@ _CONFIGURED = False
 
 def configure_pyalex(config: OpenAlexIndexConfig) -> None:
     """Apply our config to the pyalex global. Idempotent."""
-    global _CONFIGURED  # noqa: PLW0603
+    global _CONFIGURED
     config.require_ingest()
     pyalex.config.email = config.openalex.mailto
     pyalex.config.api_key = None
@@ -97,7 +97,7 @@ def fetch_work(
     # them to the same /works/{id} endpoint.
     try:
         result = Works()[candidate]
-    except Exception as exc:  # noqa: BLE001 — pyalex raises HTTP errors here
+    except Exception as exc:
         message = str(exc).lower()
         if "404" in message or "not found" in message:
             return None

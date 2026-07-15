@@ -10,11 +10,11 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 # https://hub.docker.com/r/<ns>/<name>  |  https://hub.docker.com/_/<name>
 _RE_HUB_REPO_URL = re.compile(
     r"https?://(?:www\.)?hub\.docker\.com/r/([^/\s?#]+)/([^/\s?#]+)",
-    re.I,
+    re.IGNORECASE,
 )
 _RE_HUB_OFFICIAL_URL = re.compile(
     r"https?://(?:www\.)?hub\.docker\.com/_/([^/\s?#]+)",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -51,14 +51,16 @@ class DockerhubAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.dockerhub.config import load_config
-            from open_pulse_sources.index.dockerhub.retrieval.semantic import semantic_search
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.dockerhub.retrieval.semantic import (
+                semantic_search,
+            )
+        except Exception:
             return []
         try:
             cfg = load_config()
@@ -67,7 +69,7 @@ class DockerhubAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -93,8 +95,10 @@ class DockerhubAdapter:
         if not repo_id:
             return []
         try:
-            from open_pulse_sources.index.dockerhub.storage.duckdb_store import DockerhubStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.dockerhub.storage.duckdb_store import (
+                DockerhubStore,
+            )
+        except Exception:
             return []
         store = DockerhubStore.open()
         if hasattr(store, "fetch_image"):

@@ -19,8 +19,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index.orcid.config import OrcidIndexConfig
     from open_pulse_sources.common.providers.base import ORCIDAffiliation, ORCIDRecord
+    from open_pulse_sources.index.orcid.config import OrcidIndexConfig
 
 ScopeName = Literal["epfl", "switzerland"]
 
@@ -51,7 +51,7 @@ def _alias_match(
     norms = [a.lower().strip() for a in aliases if a and a.strip()]
     if not norms:
         return False, None
-    affiliations_by_kind: dict[str, list["ORCIDAffiliation"]] = {
+    affiliations_by_kind: dict[str, list[ORCIDAffiliation]] = {
         "employment": list(record.get("employment") or []),
         "education": list(record.get("education") or []),
     }

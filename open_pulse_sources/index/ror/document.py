@@ -7,11 +7,11 @@ elsewhere (records.jsonl) — this module is text-only.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
-def _names_by_type(record: Dict[str, Any]) -> Dict[str, List[str]]:
-    grouped: Dict[str, List[str]] = {}
+def _names_by_type(record: dict[str, Any]) -> dict[str, list[str]]:
+    grouped: dict[str, list[str]] = {}
     for entry in record.get("names") or []:
         if not isinstance(entry, dict):
             continue
@@ -24,7 +24,7 @@ def _names_by_type(record: Dict[str, Any]) -> Dict[str, List[str]]:
     return grouped
 
 
-def display_name(record: Dict[str, Any]) -> Optional[str]:
+def display_name(record: dict[str, Any]) -> str | None:
     grouped = _names_by_type(record)
     if grouped.get("ror_display"):
         return grouped["ror_display"][0]
@@ -36,7 +36,7 @@ def display_name(record: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _location_phrase(record: Dict[str, Any]) -> Optional[str]:
+def _location_phrase(record: dict[str, Any]) -> str | None:
     locations = record.get("locations") or []
     if not isinstance(locations, list) or not locations:
         return None
@@ -55,7 +55,7 @@ def _location_phrase(record: Dict[str, Any]) -> Optional[str]:
     return ", ".join(parts) if parts else None
 
 
-def _website(record: Dict[str, Any]) -> Optional[str]:
+def _website(record: dict[str, Any]) -> str | None:
     for link in record.get("links") or []:
         if isinstance(link, dict) and link.get("type") == "website":
             value = link.get("value")
@@ -69,8 +69,8 @@ def _website(record: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _relationships_phrase(record: Dict[str, Any]) -> Optional[str]:
-    parts: List[str] = []
+def _relationships_phrase(record: dict[str, Any]) -> str | None:
+    parts: list[str] = []
     for rel in record.get("relationships") or []:
         if not isinstance(rel, dict):
             continue
@@ -81,7 +81,7 @@ def _relationships_phrase(record: Dict[str, Any]) -> Optional[str]:
     return "; ".join(parts) if parts else None
 
 
-def to_document(record: Dict[str, Any]) -> str:
+def to_document(record: dict[str, Any]) -> str:
     """Build the flattened embedding-ready string for one ROR record."""
     grouped = _names_by_type(record)
     name = display_name(record) or record.get("id") or ""
@@ -97,7 +97,7 @@ def to_document(record: Dict[str, Any]) -> str:
     website = _website(record)
     relationships = _relationships_phrase(record)
 
-    lines: List[str] = [f"Name: {name}"]
+    lines: list[str] = [f"Name: {name}"]
     if labels:
         lines.append("Other names: " + "; ".join(labels))
     if aliases:

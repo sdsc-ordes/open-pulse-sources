@@ -97,7 +97,7 @@ class SwissubaseClient:
         self.open()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:  # noqa: ANN001
+    def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
 
     def open(self) -> None:
@@ -125,7 +125,7 @@ class SwissubaseClient:
         if self._driver is not None:
             try:
                 self._driver.quit()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 LOGGER.warning("driver.quit failed: %s", exc)
             self._driver = None
             self._session_warm = False
@@ -155,7 +155,7 @@ class SwissubaseClient:
                 self.driver,
                 self._config.catalogue.list_render_timeout_seconds,
             ).until(EC.presence_of_element_located((By.CSS_SELECTOR, "tr.mat-mdc-row")))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning(
                 "session-warm wait timed out (%s); continuing anyway",
                 exc,
@@ -324,7 +324,7 @@ class SwissubaseClient:
                     continue
                 LOGGER.warning("overview id=%d failed: %s", sid, msg[:200])
                 continue
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 # Selenium TimeoutException, WebDriverException, transient
                 # network errors — keep the ingest moving instead of letting
                 # one slow study kill the whole run. Brief sleep to let

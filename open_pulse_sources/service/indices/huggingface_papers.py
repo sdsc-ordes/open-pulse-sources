@@ -36,14 +36,16 @@ def get_or_create_huggingface_papers_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.huggingface_papers.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_papers.ingest.hf_papers_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_papers.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.huggingface_papers.ingest.hf_papers_client import (
             HFPapersClient,
         )
-        from open_pulse_sources.index.huggingface_papers.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_papers.storage.duckdb_store import (
             HuggingFacePapersStore,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning(
             "huggingface_papers ingest: index module unavailable — %s", exc,
         )
@@ -56,7 +58,7 @@ def get_or_create_huggingface_papers_resources(app_state: Any) -> Any | None:
             token=config.huggingface.token,
             cache_path=config.paths.cache_db_path,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_papers ingest: resource init failed — %s", exc)
         return None
     app_state.v2_huggingface_papers_resources = (config, store, client)
@@ -69,10 +71,10 @@ def _ingest_one_paper(
     """Per-paper ingest; never raises. Normalises wire input before
     calling the underlying ``ingest_single_paper``."""
     try:
-        from open_pulse_sources.index.huggingface_papers.ingest.hf_papers_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_papers.ingest.hf_papers_client import (
             normalize_arxiv_id,
         )
-        from open_pulse_sources.index.huggingface_papers.ingest.papers import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_papers.ingest.papers import (
             ingest_single_paper,
         )
         arxiv_id = normalize_arxiv_id(raw_arxiv_id)
@@ -85,7 +87,7 @@ def _ingest_one_paper(
         outcome = ingest_single_paper(
             config=config, store=store, client=client, arxiv_id=arxiv_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning(
             "huggingface_papers ingest: %s failed — %s", raw_arxiv_id, exc,
         )
@@ -135,7 +137,9 @@ async def run_huggingface_papers_ingest_job(
         skipped_404 = sum(1 for r in items_results if r["outcome"] == "skipped_404")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.huggingface_papers.embed.pipeline import embed_papers  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_papers.embed.pipeline import (
+            embed_papers,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -172,7 +176,7 @@ async def run_huggingface_papers_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.huggingface_papers.retrieval.semantic import (  # noqa: PLC0415
+    from open_pulse_sources.index.huggingface_papers.retrieval.semantic import (
         semantic_search,
     )
     raw_hits = await asyncio.to_thread(

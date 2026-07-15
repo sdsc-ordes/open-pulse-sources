@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 from pydantic import BaseModel
@@ -102,7 +102,7 @@ def _bare_id(value: str) -> str:
     return value.rstrip("/").rsplit("/", 1)[-1]
 
 
-def _display_name(record: dict[str, Any]) -> Optional[str]:
+def _display_name(record: dict[str, Any]) -> str | None:
     grouped = _names_grouped(record)
     if grouped.get("ror_display"):
         return grouped["ror_display"][0]
@@ -123,7 +123,7 @@ def _first_location(record: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
-def _first_website(record: dict[str, Any]) -> Optional[str]:
+def _first_website(record: dict[str, Any]) -> str | None:
     for link in record.get("links") or []:
         if isinstance(link, dict) and link.get("type") == "website":
             value = link.get("value")
@@ -135,7 +135,7 @@ def _first_website(record: dict[str, Any]) -> Optional[str]:
 def extract_record_columns(
     record: dict[str, Any],
     *,
-    ror_release_version: Optional[str] = None,
+    ror_release_version: str | None = None,
 ) -> dict[str, Any]:
     """Turn a raw ROR v2 record into the column dict accepted by `upsert_record`.
 
@@ -186,7 +186,7 @@ class ScopeRecord(BaseModel):
     ror_id: str
     text: str
     vector_id: str
-    embedded_at: Optional[str] = None
+    embedded_at: str | None = None
 
 
 class StoreManifest(BaseModel):
@@ -200,9 +200,9 @@ class StoreManifest(BaseModel):
     embedding_model: str
     embedding_dim: int
     reranker_model: str
-    ror_release_version: Optional[str] = None
-    ror_release_doi: Optional[str] = None
-    built_at_iso: Optional[str] = None
+    ror_release_version: str | None = None
+    ror_release_doi: str | None = None
+    built_at_iso: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -297,7 +297,7 @@ class RorStore:
         conn = self.connect()
         conn.execute(_load_schema_sql())
         # Promote the per-release Zenodo DOI to canonical URL form.
-        from open_pulse_sources.index._shared.doi import (  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import (
             migrate_doi_column_to_url,
         )
 
@@ -362,7 +362,7 @@ class RorStore:
         rows: Iterable[dict[str, Any]],
         *,
         csv_chunk_size: int = 50_000,
-        progress: Optional[Any] = None,
+        progress: Any | None = None,
     ) -> int:
         """Replace the `records` table via streaming `COPY FROM CSV`.
 
@@ -450,7 +450,7 @@ class RorStore:
         rows: Iterable[dict[str, Any]],
         *,
         chunk_size: int = _DEFAULT_CHUNK_SIZE,
-        progress: Optional[Any] = None,
+        progress: Any | None = None,
     ) -> int:
         """Bulk upsert with per-chunk transactions and optional progress hook.
 
@@ -594,7 +594,7 @@ class RorStore:
             "ror_release_doi = excluded.ror_release_doi, "
             "built_at_iso = excluded.built_at_iso"
         )
-        from open_pulse_sources.index._shared.doi import doi_iri  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import doi_iri
 
         self.connect().execute(
             sql,
@@ -625,7 +625,7 @@ class RorStore:
         ).fetchone()
         return int(result[0]) if result else 0
 
-    def fetch_record(self, ror_id: str) -> Optional[dict[str, Any]]:
+    def fetch_record(self, ror_id: str) -> dict[str, Any] | None:
         """Exact match on ROR URL or bare id (`02s376052`). Returns the full
         record JSON merged with structured columns, or None."""
         rid = ror_id.strip().rstrip("/")
@@ -640,7 +640,7 @@ class RorStore:
         cols = [d[0] for d in cur.description]
         return _hydrate_row(dict(zip(cols, row, strict=False)))
 
-    def fetch_manifest(self, scope_mode: str) -> Optional[dict[str, Any]]:
+    def fetch_manifest(self, scope_mode: str) -> dict[str, Any] | None:
         cur = self.connect().execute(
             "SELECT * FROM manifests WHERE scope_mode = ?", [scope_mode],
         )
@@ -653,11 +653,11 @@ class RorStore:
     def lookup(
         self,
         *,
-        text: Optional[str] = None,
-        ror_id: Optional[str] = None,
-        country: Optional[str] = None,
-        type_: Optional[str] = None,
-        status: Optional[str] = None,
+        text: str | None = None,
+        ror_id: str | None = None,
+        country: str | None = None,
+        type_: str | None = None,
+        status: str | None = None,
         limit: int = 20,
     ) -> list[dict[str, Any]]:
         """Lexical/exact lookup over the full `records` table.

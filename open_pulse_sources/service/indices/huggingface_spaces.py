@@ -29,19 +29,23 @@ def get_or_create_huggingface_spaces_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index._huggingface_base.client import HFClient  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_spaces.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_spaces.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index._huggingface_base.client import (
+            HFClient,
+        )
+        from open_pulse_sources.index.huggingface_spaces.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.huggingface_spaces.storage.duckdb_store import (
             HuggingFaceSpacesStore,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_spaces ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = HuggingFaceSpacesStore.open(config.paths.duckdb_path)
         client = HFClient(config)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_spaces ingest: resource init failed — %s", exc)
         return None
     app_state.v2_huggingface_spaces_resources = (config, store, client)
@@ -50,13 +54,13 @@ def get_or_create_huggingface_spaces_resources(app_state: Any) -> Any | None:
 
 def _ingest_one(repo_id: str, *, config: Any, store: Any, client: Any) -> dict[str, Any]:
     try:
-        from open_pulse_sources.index.huggingface_spaces.ingest.spaces import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_spaces.ingest.spaces import (
             ingest_single_space,
         )
         outcome = ingest_single_space(
             config=config, store=store, client=client, repo_id=repo_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_spaces ingest: %s failed — %s", repo_id, exc)
         return {"repo_id": repo_id, "outcome": "failed", "error": str(exc)}
     return {"repo_id": repo_id, "outcome": outcome}
@@ -99,7 +103,9 @@ async def run_huggingface_spaces_ingest_job(
         skipped_404 = sum(1 for r in items_results if r["outcome"] == "skipped_404")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.huggingface_spaces.embed.pipeline import embed_spaces  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_spaces.embed.pipeline import (
+            embed_spaces,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -135,7 +141,7 @@ async def run_huggingface_spaces_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.huggingface_spaces.retrieval.semantic import (  # noqa: PLC0415
+    from open_pulse_sources.index.huggingface_spaces.retrieval.semantic import (
         semantic_search,
     )
     raw_hits = await asyncio.to_thread(

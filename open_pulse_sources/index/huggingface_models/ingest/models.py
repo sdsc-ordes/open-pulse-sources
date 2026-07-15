@@ -7,8 +7,8 @@ import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.huggingface_models.models import ModelRecord
 from open_pulse_sources.common.canonicalization.huggingface import huggingface_iri
+from open_pulse_sources.index.huggingface_models.models import ModelRecord
 
 if TYPE_CHECKING:
     from open_pulse_sources.index._huggingface_base.client import HFClient

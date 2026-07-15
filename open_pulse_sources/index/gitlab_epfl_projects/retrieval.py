@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from open_pulse_sources.index._gitlab_base.project_retrieval import project_semantic_search
+from open_pulse_sources.index._gitlab_base.project_retrieval import (
+    project_semantic_search,
+)
 from open_pulse_sources.index.gitlab_epfl_projects.config import load_config
 from open_pulse_sources.index.gitlab_epfl_projects.store import open_store
 

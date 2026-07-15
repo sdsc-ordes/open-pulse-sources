@@ -4,7 +4,7 @@ import ipaddress
 import logging
 import os
 import socket
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -15,9 +15,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from open_pulse_sources.common.cache import ProviderCache
 from open_pulse_sources.common.query_log import record_query
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +152,7 @@ def fetch_link_content_via_selenium(
             "content_length": len(text),
             "error": None,
         }
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning(
             "fetch_link_content_via_selenium failed for %s: %s",
             normalized_url,

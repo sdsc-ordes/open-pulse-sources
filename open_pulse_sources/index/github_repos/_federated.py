@@ -22,11 +22,12 @@ from __future__ import annotations
 import logging
 from typing import Any, Iterator
 
-from open_pulse_sources.index._federated.dh_registry import register_discoverer, register_hydrator
+from open_pulse_sources.index._federated.dh_registry import (
+    register_discoverer,
+    register_hydrator,
+)
 from open_pulse_sources.index._federated.protocols import (
     HydrationSummary,
-    IndexDiscoverer,
-    IndexHydrator,
     Seed,
 )
 
@@ -64,7 +65,9 @@ class GitHubDiscoverer:
         # source == "from-references"
         # Pull github URLs that OpenAlex's find-github discovered into work_github_urls.
         try:
-            from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore as OAStore
+            from open_pulse_sources.index.openalex.storage.duckdb_store import (
+                OpenAlexStore as OAStore,
+            )
         except ImportError:
             LOGGER.warning("OpenAlex DB not available for from-references discover")
             return
@@ -72,7 +75,7 @@ class GitHubDiscoverer:
         cur = store.connect()
         rows = cur.execute(
             "SELECT DISTINCT normalized_url FROM work_github_urls "
-            "WHERE normalized_url IS NOT NULL"
+            "WHERE normalized_url IS NOT NULL",
         ).fetchall()
         for (url,) in rows:
             yield Seed(

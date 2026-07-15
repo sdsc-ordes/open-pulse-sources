@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from pydantic import BaseModel
@@ -36,7 +35,7 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class HuggingFacePapersFetchConfig(BaseModel):
@@ -49,13 +48,13 @@ class HuggingFacePapersFetchConfig(BaseModel):
     # "title-only" stubs.
     min_card_chars: int = 32
     # Optional HF token — falls back to anonymous when None.
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class QdrantConfig(BaseModel):
     url: str = "http://gme-qdrant:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class ChunkingConfig(BaseModel):
@@ -81,7 +80,7 @@ class HuggingFacePapersIndexConfig(BaseModel):
             raise ValueError(MISSING_RCP_TOKEN_ERROR)
 
 
-def _env_str(name: str) -> Optional[str]:
+def _env_str(name: str) -> str | None:
     raw = os.getenv(name)
     if raw is None:
         return None
@@ -89,7 +88,7 @@ def _env_str(name: str) -> Optional[str]:
     return stripped or None
 
 
-def _env_bool(name: str) -> Optional[bool]:
+def _env_bool(name: str) -> bool | None:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return None
@@ -101,7 +100,7 @@ def _env_bool(name: str) -> Optional[bool]:
     return None
 
 
-def load_config(path: Optional[Path] = None) -> HuggingFacePapersIndexConfig:
+def load_config(path: Path | None = None) -> HuggingFacePapersIndexConfig:
     cfg_path = path or DEFAULT_CONFIG_PATH
     raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
 

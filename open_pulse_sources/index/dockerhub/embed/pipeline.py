@@ -146,7 +146,7 @@ async def _embed_images_async(
                     DOCKERHUB_COLLECTION, ids=ids, vectors=vectors, payloads=payloads,
                 )
                 break
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 last_exc = exc
         else:
             LOGGER.error(

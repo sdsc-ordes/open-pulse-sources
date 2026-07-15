@@ -22,10 +22,12 @@ import logging
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
+from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
-from open_pulse_sources.index.swissubase.storage.duckdb_store import EMBEDDABLE_ENTITY_TYPES
+from open_pulse_sources.index.swissubase.storage.duckdb_store import (
+    EMBEDDABLE_ENTITY_TYPES,
+)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.swissubase.config import SwissubaseIndexConfig

@@ -6,7 +6,7 @@ Named ``HFUserRecord`` (not ``UserRecord``) to disambiguate from
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -19,9 +19,9 @@ class HFUserRecord(BaseModel):
     """
 
     slug: str  # namespace handle, e.g. "ylecun"
-    fullname: Optional[str] = None  # display name
-    details: Optional[str] = None   # bio
-    avatar_url: Optional[str] = None
+    fullname: str | None = None  # display name
+    details: str | None = None   # bio
+    avatar_url: str | None = None
     num_models: int = 0
     num_datasets: int = 0
     num_spaces: int = 0

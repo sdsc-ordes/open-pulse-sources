@@ -77,9 +77,9 @@ def _file_bytes(p: Path) -> int | None:
 
 def check_store(name: str, live_path: Path) -> dict[str, Any]:
     """Read-only health report: tables, row counts, live + snapshot sizes."""
-    import duckdb  # noqa: PLC0415
+    import duckdb
 
-    from open_pulse_sources.index._snapshot import snapshot_path_for  # noqa: PLC0415
+    from open_pulse_sources.index._snapshot import snapshot_path_for
 
     snap = snapshot_path_for(live_path)
     counts: dict[str, int | None] = {}
@@ -96,9 +96,9 @@ def check_store(name: str, live_path: Path) -> dict[str, Any]:
         for t in tables:
             try:
                 counts[t] = con.execute(f'SELECT count(*) FROM "{t}"').fetchone()[0]
-            except Exception:  # noqa: BLE001
+            except Exception:
                 counts[t] = None
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         error = str(exc)
     finally:
         if con is not None:
@@ -116,9 +116,12 @@ def check_store(name: str, live_path: Path) -> dict[str, Any]:
 
 def optimize_store(name: str, live_path: Path) -> dict[str, Any]:
     """Checkpoint the live file and (re)publish the compacted `.ro` snapshot."""
-    import duckdb  # noqa: PLC0415
+    import duckdb
 
-    from open_pulse_sources.index._snapshot import publish_snapshot, snapshot_path_for  # noqa: PLC0415
+    from open_pulse_sources.index._snapshot import (
+        publish_snapshot,
+        snapshot_path_for,
+    )
 
     snap = snapshot_path_for(live_path)
     before = _file_bytes(snap) if snap.exists() else None
@@ -127,7 +130,7 @@ def optimize_store(name: str, live_path: Path) -> dict[str, Any]:
     try:
         con = duckdb.connect(str(live_path))  # writer — needs exclusive access
         result = publish_snapshot(con, live_path, force=True)
-    except Exception as exc:  # noqa: BLE001 — never abort the whole sweep on one store
+    except Exception as exc:
         result = {"published": False, "error": str(exc)}
     finally:
         if con is not None:

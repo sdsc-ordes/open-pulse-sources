@@ -9,11 +9,12 @@ from __future__ import annotations
 import logging
 from typing import Any, Iterator
 
-from open_pulse_sources.index._federated.dh_registry import register_discoverer, register_hydrator
+from open_pulse_sources.index._federated.dh_registry import (
+    register_discoverer,
+    register_hydrator,
+)
 from open_pulse_sources.index._federated.protocols import (
     HydrationSummary,
-    IndexDiscoverer,
-    IndexHydrator,
     Seed,
 )
 
@@ -29,7 +30,9 @@ class ETHZResearchCollectionDiscoverer:
             message = f"ETHZ-RC: unknown source {source!r}. Accepted: {list(self.accepted_sources)}"
             raise ValueError(message)
 
-        from open_pulse_sources.index.ethz_research_collection.discover import discover_state_path
+        from open_pulse_sources.index.ethz_research_collection.discover import (
+            discover_state_path,
+        )
 
         state_path = discover_state_path()
         if not state_path.exists():
@@ -42,7 +45,7 @@ class ETHZResearchCollectionDiscoverer:
         import json
         try:
             data = json.loads(state_path.read_text())
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("failed to read %s: %s", state_path, exc)
             return
         items = data.get("links") or data.get("items") or []

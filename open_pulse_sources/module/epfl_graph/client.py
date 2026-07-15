@@ -7,7 +7,7 @@ translates everything into the requested destination languages.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from graphai_client import client as _client
 
@@ -16,7 +16,7 @@ from open_pulse_sources.module.epfl_graph.auth import get_login_info
 
 def process_video(
     video_url: str,
-    login_info: Optional[dict] = None,
+    login_info: dict | None = None,
     **kwargs: Any,
 ):
     return _client.process_video(

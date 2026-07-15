@@ -21,7 +21,6 @@ import shutil
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import requests
 
@@ -45,7 +44,7 @@ class RorDumpError(RuntimeError):
 @dataclass(frozen=True)
 class CachedDump:
     release_version: str
-    release_doi: Optional[str]
+    release_doi: str | None
     json_path: Path
 
 
@@ -98,7 +97,7 @@ def _release_version(record: dict) -> str:
     return str(record.get("id", "unknown"))
 
 
-def _release_doi(record: dict) -> Optional[str]:
+def _release_doi(record: dict) -> str | None:
     doi = record.get("doi")
     return doi if isinstance(doi, str) else None
 
@@ -110,7 +109,7 @@ def _release_dir(version: str) -> Path:
     return p
 
 
-def _existing_v2_json(release_path: Path) -> Optional[Path]:
+def _existing_v2_json(release_path: Path) -> Path | None:
     for child in release_path.iterdir():
         if not child.is_file():
             continue
@@ -145,7 +144,7 @@ def _stream_download(url: str, dest: Path) -> None:
 
 def _extract_v2_json(zip_path: Path, into: Path) -> Path:
     with zipfile.ZipFile(zip_path) as zf:
-        candidate: Optional[zipfile.ZipInfo] = None
+        candidate: zipfile.ZipInfo | None = None
         for info in zf.infolist():
             base = Path(info.filename).name
             for pattern in _V2_FILENAME_PATTERNS:

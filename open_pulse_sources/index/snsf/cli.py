@@ -22,7 +22,7 @@ from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore
 LOGGER = logging.getLogger(__name__)
 
 
-def _build_parser() -> argparse.ArgumentParser:  # noqa: PLR0915
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="open_pulse_sources.index.snsf")
     parser.add_argument(
         "--config", type=Path, default=DEFAULT_CONFIG_PATH,
@@ -227,7 +227,7 @@ def _print_json(obj) -> None:
     print(json.dumps(obj, ensure_ascii=False, indent=2, default=str))
 
 
-def main(argv=None) -> int:  # noqa: C901, PLR0911, PLR0912, PLR0915
+def main(argv=None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     logging.basicConfig(
@@ -314,7 +314,7 @@ def main(argv=None) -> int:  # noqa: C901, PLR0911, PLR0912, PLR0915
         return 0
 
     if args.cmd == "build-facets":
-        from open_pulse_sources.index.snsf.facets import build_facets  # noqa: PLC0415
+        from open_pulse_sources.index.snsf.facets import build_facets
         store = SnsfStore.open()
         try:
             counts = build_facets(store)
@@ -324,7 +324,7 @@ def main(argv=None) -> int:  # noqa: C901, PLR0911, PLR0912, PLR0915
         return 0
 
     if args.cmd == "facet-search":
-        from open_pulse_sources.index.snsf.facet_query import (  # noqa: PLC0415
+        from open_pulse_sources.index.snsf.facet_query import (
             GrantFilters,
             facet_counts,
             query_grants,

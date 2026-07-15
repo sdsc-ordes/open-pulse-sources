@@ -18,13 +18,16 @@ import argparse
 import json
 import logging
 import sys
-from typing import TYPE_CHECKING
 
 from open_pulse_sources.index.openalex.config import load_config
 from open_pulse_sources.index.openalex.ingest.authors import ingest_authors
 from open_pulse_sources.index.openalex.ingest.concepts import ingest_concepts
-from open_pulse_sources.index.openalex.ingest.github_discovery import discover_github_works
-from open_pulse_sources.index.openalex.ingest.github_extract import extract_for_persisted_works
+from open_pulse_sources.index.openalex.ingest.github_discovery import (
+    discover_github_works,
+)
+from open_pulse_sources.index.openalex.ingest.github_extract import (
+    extract_for_persisted_works,
+)
 from open_pulse_sources.index.openalex.ingest.institutions import ingest_institutions
 from open_pulse_sources.index.openalex.ingest.scope import resolve_scope
 from open_pulse_sources.index.openalex.ingest.sources import ingest_sources
@@ -32,9 +35,6 @@ from open_pulse_sources.index.openalex.ingest.topics import ingest_topics
 from open_pulse_sources.index.openalex.ingest.works import ingest_works
 from open_pulse_sources.index.openalex.retrieval.sql import run_adhoc, run_predefined
 from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore
-
-if TYPE_CHECKING:
-    pass
 
 LOGGER = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ def _cmd_find_github(args: argparse.Namespace) -> int:
     )
     scanned, urls = extract_for_persisted_works(store)
     distinct = store.connect().execute(
-        "SELECT COUNT(DISTINCT normalized_url) FROM work_github_urls"
+        "SELECT COUNT(DISTINCT normalized_url) FROM work_github_urls",
     ).fetchone()
     _emit_json(
         {
@@ -162,7 +162,9 @@ def _cmd_embed(args: argparse.Namespace) -> int:
 
 
 def _cmd_rebuild_qdrant(args: argparse.Namespace) -> int:
-    from open_pulse_sources.index.openalex.embed.pipeline import rebuild_qdrant_from_chunks
+    from open_pulse_sources.index.openalex.embed.pipeline import (
+        rebuild_qdrant_from_chunks,
+    )
 
     entities = _split_entities(args.entities)
     config = load_config()
@@ -278,7 +280,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_s.set_defaults(func=_cmd_search)
 
     p_v = sub.add_parser("serve", help="Run the FastAPI app")
-    p_v.add_argument("--host", default="0.0.0.0")  # noqa: S104
+    p_v.add_argument("--host", default="0.0.0.0")
     p_v.add_argument("--port", type=int, default=8001)
     p_v.add_argument("--reload", action="store_true")
     p_v.set_defaults(func=_cmd_serve)

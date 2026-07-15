@@ -9,8 +9,13 @@ from typing import Any
 
 import yaml
 
-from open_pulse_sources.index.zenodo_communities.ingest.zenodo import discover_by_query, fetch_by_slug
-from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import ZenodoCommunitiesStore
+from open_pulse_sources.index.zenodo_communities.ingest.zenodo import (
+    discover_by_query,
+    fetch_by_slug,
+)
+from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import (
+    ZenodoCommunitiesStore,
+)
 
 logger = logging.getLogger(__name__)
 

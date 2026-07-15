@@ -14,7 +14,9 @@ from open_pulse_sources.index.oamonitor.ingest._common import (
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.oamonitor.config import OamonitorIndexConfig
-    from open_pulse_sources.index.oamonitor.ingest.oamonitor_client import OamonitorClient
+    from open_pulse_sources.index.oamonitor.ingest.oamonitor_client import (
+        OamonitorClient,
+    )
     from open_pulse_sources.index.oamonitor.storage.duckdb_store import OamonitorStore
 
 LOGGER = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ def _row_from_doc(doc: dict[str, Any]) -> dict[str, Any] | None:
 
 def ingest_single_journal(
     *,
-    config: OamonitorIndexConfig,  # noqa: ARG001 — kept for signature parity
+    config: OamonitorIndexConfig,
     client: OamonitorClient,
     store: OamonitorStore,
     journal_id: str,

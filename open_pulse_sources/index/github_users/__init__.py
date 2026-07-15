@@ -11,9 +11,15 @@ pattern, with the cross-cutting infra factored into
 ``open_pulse_sources.index._github_accounts_base``.
 """
 
-from open_pulse_sources.index.github_users.config import GitHubUsersIndexConfig, load_config
+from open_pulse_sources.index.github_users.config import (
+    GitHubUsersIndexConfig,
+    load_config,
+)
 from open_pulse_sources.index.github_users.models import UserRecord
-from open_pulse_sources.index.github_users.paths import GitHubUsersPaths, get_github_users_paths
+from open_pulse_sources.index.github_users.paths import (
+    GitHubUsersPaths,
+    get_github_users_paths,
+)
 from open_pulse_sources.index.github_users.storage.duckdb_store import GitHubUsersStore
 
 __all__ = [

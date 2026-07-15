@@ -31,17 +31,19 @@ def get_or_create_swissubase_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.swissubase.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.swissubase.ingest.scope import (  # noqa: PLC0415
+        from open_pulse_sources.index.swissubase.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.swissubase.ingest.scope import (
             switzerland_scope,
         )
-        from open_pulse_sources.index.swissubase.ingest.swissubase_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.swissubase.ingest.swissubase_client import (
             SwissubaseClient,
         )
-        from open_pulse_sources.index.swissubase.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.swissubase.storage.duckdb_store import (
             SwissubaseStore,
         )
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+    except Exception as exc:
         logger.warning("swissubase ingest: index module unavailable — %s", exc)
         return None
     try:
@@ -49,7 +51,7 @@ def get_or_create_swissubase_resources(app_state: Any) -> Any | None:
         client = SwissubaseClient(config)
         store = SwissubaseStore.open(config.paths.duckdb_path)
         scope = switzerland_scope(config)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("swissubase ingest: resource init failed — %s", exc)
         return None
     app_state.v2_swissubase_resources = (config, client, store, scope)
@@ -61,14 +63,14 @@ def _ingest_one_study(
 ) -> dict[str, Any]:
     """Run a single per-study ingest; never raises."""
     try:
-        from open_pulse_sources.index.swissubase.ingest.studies import (  # noqa: PLC0415
+        from open_pulse_sources.index.swissubase.ingest.studies import (
             ingest_single_study,
         )
         outcome = ingest_single_study(
             config=config, client=client, store=store, scope=scope,
             study_id=study_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("swissubase ingest: %s failed — %s", study_id, exc)
         return {"study_id": study_id, "outcome": "error", "error": str(exc)}
     return {"study_id": study_id, "outcome": outcome}
@@ -117,7 +119,9 @@ async def run_swissubase_ingest_job(
         )
         errors = sum(1 for r in items_results if r["outcome"] == "error")
 
-        from open_pulse_sources.index.swissubase.embed.pipeline import embed_entities  # noqa: PLC0415
+        from open_pulse_sources.index.swissubase.embed.pipeline import (
+            embed_entities,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -155,7 +159,9 @@ async def run_swissubase_search(
     if resources is None:
         return None
     config, _, store, _ = resources
-    from open_pulse_sources.index.swissubase.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.swissubase.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query,

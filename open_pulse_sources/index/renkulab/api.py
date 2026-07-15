@@ -45,16 +45,16 @@ def healthz() -> dict[str, Any]:
     qdrant_status: dict[str, Any] = {}
     try:
         RenkulabStore.open().count("projects")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         duck_status = f"error: {exc}"
     try:
         qd = QdrantStore(config)  # type: ignore[arg-type]
         for entity_type, collection in COLLECTION_BY_ENTITY.items():
             try:
                 qdrant_status[collection] = qd.count(collection)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 qdrant_status[collection] = f"error: {exc}"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_status = {"_error": str(exc)}
     return {
         "duckdb": duck_status,

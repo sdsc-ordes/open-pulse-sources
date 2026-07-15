@@ -11,11 +11,12 @@ from __future__ import annotations
 import logging
 from typing import Any, Iterator
 
-from open_pulse_sources.index._federated.dh_registry import register_discoverer, register_hydrator
+from open_pulse_sources.index._federated.dh_registry import (
+    register_discoverer,
+    register_hydrator,
+)
 from open_pulse_sources.index._federated.protocols import (
     HydrationSummary,
-    IndexDiscoverer,
-    IndexHydrator,
     Seed,
 )
 
@@ -34,8 +35,13 @@ class ZenodoDiscoverer:
             raise ValueError(message)
 
         from pathlib import Path
-        from open_pulse_sources.index.zenodo_records.ingest.discover import discover_from_infoscience
-        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+
+        from open_pulse_sources.index.zenodo_records.ingest.discover import (
+            discover_from_infoscience,
+        )
+        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+            ZenodoRecordsStore,
+        )
 
         store = ZenodoRecordsStore.open()
         text_dir = opts.get("text_dir")
@@ -68,7 +74,9 @@ class ZenodoHydrator:
     ) -> HydrationSummary:
         from open_pulse_sources.index.zenodo_records.config import load_config
         from open_pulse_sources.index.zenodo_records.ingest.records import ingest_by_ids
-        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+        from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+            ZenodoRecordsStore,
+        )
 
         ids: list[str] = []
         for s in seeds:

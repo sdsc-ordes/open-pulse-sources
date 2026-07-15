@@ -66,7 +66,9 @@ class _ResetSpec:
 
 
 def _hf_models_spec() -> _ResetSpec:
-    from open_pulse_sources.index.huggingface_models.paths import get_huggingface_models_paths
+    from open_pulse_sources.index.huggingface_models.paths import (
+        get_huggingface_models_paths,
+    )
     return _ResetSpec(
         duckdb_path_getter=lambda g=get_huggingface_models_paths: g().duckdb_path,
         qdrant_collections=("huggingface_models",),
@@ -75,7 +77,9 @@ def _hf_models_spec() -> _ResetSpec:
 
 
 def _hf_datasets_spec() -> _ResetSpec:
-    from open_pulse_sources.index.huggingface_datasets.paths import get_huggingface_datasets_paths
+    from open_pulse_sources.index.huggingface_datasets.paths import (
+        get_huggingface_datasets_paths,
+    )
     return _ResetSpec(
         duckdb_path_getter=lambda g=get_huggingface_datasets_paths: g().duckdb_path,
         qdrant_collections=("huggingface_datasets",),
@@ -84,7 +88,9 @@ def _hf_datasets_spec() -> _ResetSpec:
 
 
 def _hf_spaces_spec() -> _ResetSpec:
-    from open_pulse_sources.index.huggingface_spaces.paths import get_huggingface_spaces_paths
+    from open_pulse_sources.index.huggingface_spaces.paths import (
+        get_huggingface_spaces_paths,
+    )
     return _ResetSpec(
         duckdb_path_getter=lambda g=get_huggingface_spaces_paths: g().duckdb_path,
         qdrant_collections=("huggingface_spaces",),
@@ -93,7 +99,9 @@ def _hf_spaces_spec() -> _ResetSpec:
 
 
 def _hf_users_spec() -> _ResetSpec:
-    from open_pulse_sources.index.huggingface_users.paths import get_huggingface_users_paths
+    from open_pulse_sources.index.huggingface_users.paths import (
+        get_huggingface_users_paths,
+    )
     return _ResetSpec(
         duckdb_path_getter=lambda g=get_huggingface_users_paths: g().duckdb_path,
         qdrant_collections=("huggingface_users",),
@@ -113,7 +121,9 @@ def _hf_organizations_spec() -> _ResetSpec:
 
 
 def _hf_papers_spec() -> _ResetSpec:
-    from open_pulse_sources.index.huggingface_papers.paths import get_huggingface_papers_paths
+    from open_pulse_sources.index.huggingface_papers.paths import (
+        get_huggingface_papers_paths,
+    )
     return _ResetSpec(
         duckdb_path_getter=lambda g=get_huggingface_papers_paths: g().duckdb_path,
         qdrant_collections=("huggingface_papers",),
@@ -216,7 +226,6 @@ def _orcid_spec() -> _ResetSpec:
 
 def _ror_spec() -> _ResetSpec:
     # ROR uses module-function paths (no class-based loader).
-    from open_pulse_sources.index.ror import paths as ror_paths
     return _ResetSpec(
         # ROR keys files by `scope_mode`, not a single duckdb file.
         # `faiss_path("epfl")` is the closest analogue — see paths.py.
@@ -232,7 +241,9 @@ def _ror_spec() -> _ResetSpec:
 
 def _infoscience_spec() -> _ResetSpec:
     # Infoscience uses module-function paths.
-    from open_pulse_sources.index.infoscience.paths import duckdb_path as infoscience_duckdb_path
+    from open_pulse_sources.index.infoscience.paths import (
+        duckdb_path as infoscience_duckdb_path,
+    )
     return _ResetSpec(
         duckdb_path_getter=infoscience_duckdb_path,
         # See src/index/infoscience/store.py: 4 entity collections.
@@ -407,11 +418,11 @@ def _delete_duckdb(db_path: Path) -> tuple[bool, int]:
     if wal_path.exists():
         try:
             wal_path.unlink()
-        except OSError:  # noqa: BLE001
+        except OSError:
             pass
     # Also drop the read-only snapshot (`<file>.ro.duckdb`) so a wiped
     # provider stops serving stale rows to the Hub.
-    from open_pulse_sources.index._snapshot import delete_snapshot  # noqa: PLC0415
+    from open_pulse_sources.index._snapshot import delete_snapshot
 
     delete_snapshot(db_path)
     return True, bytes_freed
@@ -439,7 +450,7 @@ def _drop_qdrant_collections(
     dropped: list[str] = []
     try:
         existing = {c.name for c in client.get_collections().collections}
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("reset: failed to list Qdrant collections — %s", exc)
         return []
     for name in collections:
@@ -450,7 +461,7 @@ def _drop_qdrant_collections(
             client.delete_collection(collection_name=name)
             dropped.append(name)
             LOGGER.info("reset: dropped Qdrant collection %r", name)
-        except Exception as exc:  # noqa: BLE001 — best-effort
+        except Exception as exc:
             LOGGER.warning(
                 "reset: failed to drop Qdrant collection %r — %s", name, exc,
             )
@@ -518,24 +529,23 @@ def reset_index(
     qdrant_skipped = False
     if not wipe_qdrant or not spec.qdrant_collections:
         qdrant_skipped = True
+    elif spec.config_loader_dotted is None:
+        qdrant_skipped = True
+        LOGGER.warning(
+            "reset: provider %s has Qdrant collections but no config loader; skipping",
+            provider,
+        )
     else:
-        if spec.config_loader_dotted is None:
-            qdrant_skipped = True
-            LOGGER.warning(
-                "reset: provider %s has Qdrant collections but no config loader; skipping",
-                provider,
+        try:
+            load_config = _import_config_loader(spec.config_loader_dotted)
+            config = load_config()
+            collections_dropped = _drop_qdrant_collections(
+                config, spec.qdrant_collections,
             )
-        else:
-            try:
-                load_config = _import_config_loader(spec.config_loader_dotted)
-                config = load_config()
-                collections_dropped = _drop_qdrant_collections(
-                    config, spec.qdrant_collections,
-                )
-            except Exception as exc:  # noqa: BLE001
-                LOGGER.warning(
-                    "reset: Qdrant drop for %s failed — %s; continuing", provider, exc,
-                )
+        except Exception as exc:
+            LOGGER.warning(
+                "reset: Qdrant drop for %s failed — %s; continuing", provider, exc,
+            )
 
     # 4. ProviderCache (opt-in).
     cache_cleared = False
@@ -544,7 +554,7 @@ def reset_index(
             load_config = _import_config_loader(spec.config_loader_dotted)
             config = load_config()
             cache_cleared = _clear_provider_cache(config)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning(
                 "reset: ProviderCache clear for %s failed — %s", provider, exc,
             )
@@ -588,7 +598,7 @@ def reset_all(
                     wipe_cache=wipe_cache,
                 ),
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.exception("reset_all: %s failed — %s", provider, exc)
     return results
 

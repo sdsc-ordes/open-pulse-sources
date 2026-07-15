@@ -15,8 +15,6 @@ import logging
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.service.indices._embed_step import run_embed_step
-
 from open_pulse_sources.service.api_models import (
     EthzResearchCollectionIngestRequest,
     IndexIngestJobStatus,
@@ -24,6 +22,7 @@ from open_pulse_sources.service.api_models import (
     IndexSearchRequest,
     IndexSearchResponse,
 )
+from open_pulse_sources.service.indices._embed_step import run_embed_step
 
 if TYPE_CHECKING:
     from open_pulse_sources.service.indices.jobs import IndexIngestJobStore
@@ -40,15 +39,17 @@ def get_or_create_ethz_research_collection_resources(app_state: Any) -> Any | No
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.ethz_research_collection.config import load_config  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.ethz_research_collection.config import (
+            load_config,
+        )
+    except Exception as exc:
         logger.warning(
             "ethz_research_collection ingest: index module unavailable — %s", exc,
         )
         return None
     try:
         config = load_config()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning(
             "ethz_research_collection ingest: config load failed — %s", exc,
         )
@@ -72,11 +73,11 @@ async def _ingest_one_item(uuid: str, *, config: Any) -> dict[str, Any]:
     result: dict[str, Any] = {"uuid": uuid}
 
     try:
-        from open_pulse_sources.index.ethz_research_collection.discover import (  # noqa: PLC0415
+        from open_pulse_sources.index.ethz_research_collection.discover import (
             fetch_and_persist_item,
         )
         result["item"] = await fetch_and_persist_item(config, uuid=uuid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("ethz_research_collection: discover %s failed — %s", uuid, exc)
         result["item"] = "error"
         result["error"] = str(exc)
@@ -86,21 +87,21 @@ async def _ingest_one_item(uuid: str, *, config: Any) -> dict[str, Any]:
         return result
 
     try:
-        from open_pulse_sources.index.ethz_research_collection.text_fetch import (  # noqa: PLC0415
+        from open_pulse_sources.index.ethz_research_collection.text_fetch import (
             fetch_text_single,
         )
         result["text"] = await fetch_text_single(config, uuid=uuid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("ethz_research_collection: text %s failed — %s", uuid, exc)
         result["text"] = "error"
         result["text_error"] = str(exc)
 
     try:
-        from open_pulse_sources.index.ethz_research_collection.extract_matches import (  # noqa: PLC0415
+        from open_pulse_sources.index.ethz_research_collection.extract_matches import (
             extract_matches_single,
         )
         matches = extract_matches_single(uuid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("ethz_research_collection: matches %s failed — %s", uuid, exc)
         matches = None
         result["matches_error"] = str(exc)
@@ -111,11 +112,11 @@ async def _ingest_one_item(uuid: str, *, config: Any) -> dict[str, Any]:
     }
 
     try:
-        from open_pulse_sources.index.ethz_research_collection.extract_relations import (  # noqa: PLC0415
+        from open_pulse_sources.index.ethz_research_collection.extract_relations import (
             extract_relations_single,
         )
         relations = extract_relations_single(uuid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("ethz_research_collection: relations %s failed — %s", uuid, exc)
         relations = None
         result["relations_error"] = str(exc)
@@ -129,7 +130,7 @@ async def _ingest_one_item(uuid: str, *, config: Any) -> dict[str, Any]:
 
     if person_uuids or org_uuids:
         try:
-            from open_pulse_sources.index.ethz_research_collection.fetch_related import (  # noqa: PLC0415
+            from open_pulse_sources.index.ethz_research_collection.fetch_related import (
                 fetch_related_single,
             )
             related_summary: dict[str, dict[str, int]] = {
@@ -151,7 +152,7 @@ async def _ingest_one_item(uuid: str, *, config: Any) -> dict[str, Any]:
                     related_summary["organizations"].get(outcome, 0) + 1
                 )
             result["related"] = related_summary
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning(
                 "ethz_research_collection: fetch-related %s failed — %s",
                 uuid, exc,
@@ -208,7 +209,9 @@ async def run_ethz_research_collection_ingest_job(
             if isinstance(r.get("matches"), dict) and r["matches"].get("found")
         )
 
-        from open_pulse_sources.index.ethz_research_collection.build import build  # noqa: PLC0415
+        from open_pulse_sources.index.ethz_research_collection.build import (
+            build,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -259,7 +262,9 @@ async def run_ethz_research_collection_search(
         return None
     (config,) = resources
     target = payload.target or "chunks"
-    from open_pulse_sources.index.ethz_research_collection.pipeline import query  # noqa: PLC0415
+    from open_pulse_sources.index.ethz_research_collection.pipeline import (
+        query,
+    )
     candidate_k = payload.candidate_k or max(payload.top_k * 5, 50)
     result = await query(
         config,

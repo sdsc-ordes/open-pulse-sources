@@ -12,7 +12,6 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import Optional
 
 import httpx
 
@@ -25,7 +24,7 @@ logger = logging.getLogger(__name__)
 _TEXT_BUNDLE_NAME = "TEXT"
 
 
-def _pick_text_bitstream(bitstreams: list) -> Optional[dict]:
+def _pick_text_bitstream(bitstreams: list) -> dict | None:
     """Pick the first bitstream that looks like extracted plain text."""
     for bs in bitstreams:
         name = (bs.get("name") or "").lower()

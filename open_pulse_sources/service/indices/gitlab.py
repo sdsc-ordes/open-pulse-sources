@@ -41,7 +41,7 @@ async def run_gitlab_ingest_job(
     *,
     index_name: str,
     payload: GitLabIngestRequest,
-    app_state: Any,  # noqa: ARG001 — parity with sibling runners; gitlab leaves self-config
+    app_state: Any,
     job_store: IndexIngestJobStore,
     job_id: str,
 ) -> None:
@@ -65,7 +65,7 @@ async def run_gitlab_ingest_job(
         try:
             ingest_mod = importlib.import_module(f"open_pulse_sources.index.{index_name}.ingest")
             embed_mod = importlib.import_module(f"open_pulse_sources.index.{index_name}.embed")
-        except Exception as exc:  # noqa: BLE001 — optional dependency
+        except Exception as exc:
             logger.warning(
                 "gitlab ingest: %s module unavailable — %s", index_name, exc,
             )
@@ -101,7 +101,7 @@ async def run_gitlab_ingest_job(
 async def run_gitlab_search(
     index_name: str,
     payload: IndexSearchRequest,
-    app_state: Any,  # noqa: ARG001 — parity with sibling runners; gitlab leaves self-config
+    app_state: Any,
 ) -> IndexSearchResponse | None:
     """Run a semantic search against a single gitlab store.
 
@@ -114,7 +114,7 @@ async def run_gitlab_search(
         retrieval_mod = importlib.import_module(
             f"open_pulse_sources.index.{index_name}.retrieval",
         )
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+    except Exception as exc:
         logger.warning(
             "gitlab search: %s module unavailable — %s", index_name, exc,
         )

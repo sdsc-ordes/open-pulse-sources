@@ -178,7 +178,7 @@ class current_agent:
         self._prev_name: str | None = None
         self._prev_context: dict[str, Any] | None = None
 
-    def __enter__(self) -> "current_agent":
+    def __enter__(self) -> current_agent:
         self._prev_name = current_agent_var.get()
         self._prev_context = current_agent_context_var.get()
         current_agent_var.set(self._name)

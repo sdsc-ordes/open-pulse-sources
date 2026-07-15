@@ -11,7 +11,9 @@ import logging
 import re
 from typing import TYPE_CHECKING
 
-from open_pulse_sources.common.detection.github_url_classifier import classify_github_url
+from open_pulse_sources.common.detection.github_url_classifier import (
+    classify_github_url,
+)
 from open_pulse_sources.common.detection.models import UnsupportedGitHubURL
 
 if TYPE_CHECKING:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 from graphai_client.client_api import voice as _voice
 
@@ -11,9 +11,9 @@ from open_pulse_sources.module.epfl_graph.auth import get_login_info
 
 def transcribe_audio(
     audio_token: str,
-    login_info: Optional[dict] = None,
+    login_info: dict | None = None,
     **kwargs: Any,
-) -> Tuple[Optional[str], Optional[List[dict]]]:
+) -> tuple[str | None, list[dict] | None]:
     return _voice.transcribe_audio(
         audio_token=audio_token, login_info=login_info or get_login_info(), **kwargs,
     )
@@ -21,9 +21,9 @@ def transcribe_audio(
 
 def detect_audio_language(
     audio_token: str,
-    login_info: Optional[dict] = None,
+    login_info: dict | None = None,
     **kwargs: Any,
-) -> Optional[str]:
+) -> str | None:
     """Detect the language of the voice in the audio (`voice.detect_language`)."""
     return _voice.detect_language(
         audio_token=audio_token, login_info=login_info or get_login_info(), **kwargs,

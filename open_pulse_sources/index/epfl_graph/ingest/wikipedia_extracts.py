@@ -86,8 +86,8 @@ def _fetch_extracts_batch_by_page_id(
     return out
 
 
-def fetch_wikipedia_extracts(  # noqa: C901
-    config: EpflGraphIndexConfig,  # noqa: ARG001 — keep symmetric with rebuild_*
+def fetch_wikipedia_extracts(
+    config: EpflGraphIndexConfig,
     store: EpflGraphStore,
     *,
     limit: int | None = None,
@@ -139,7 +139,7 @@ def fetch_wikipedia_extracts(  # noqa: C901
             extracts = _fetch_extracts_batch_by_page_id(
                 batch, session=session, timeout=DEFAULT_TIMEOUT,
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning(
                 "epfl_graph: wikipedia batch failed at offset %d: %s", index, exc,
             )
@@ -152,7 +152,7 @@ def fetch_wikipedia_extracts(  # noqa: C901
             try:
                 store.update_wikipedia_extract(category_id, extract)
                 updated += 1
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 LOGGER.warning(
                     "epfl_graph: failed to upsert extract for %s: %s",
                     category_id, exc,

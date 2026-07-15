@@ -15,14 +15,16 @@ class HuggingFacePapersAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.huggingface_papers.config import load_config
-            from open_pulse_sources.index.huggingface_papers.retrieval.semantic import semantic_search
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.huggingface_papers.retrieval.semantic import (
+                semantic_search,
+            )
+        except Exception:
             return []
         try:
             cfg = load_config()
@@ -31,7 +33,7 @@ class HuggingFacePapersAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -63,7 +65,7 @@ class HuggingFacePapersAdapter:
             from open_pulse_sources.index.huggingface_papers.storage.duckdb_store import (
                 HuggingFacePapersStore,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         arxiv_id = normalize_arxiv_id(identifier)
         if arxiv_id is None:

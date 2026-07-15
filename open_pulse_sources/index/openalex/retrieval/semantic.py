@@ -87,7 +87,7 @@ def _hydrate(
     entity_id: str,
 ) -> dict[str, Any] | None:
     cur = store.connect().execute(
-        f"SELECT * FROM {entity_type} WHERE openalex_id = ?",  # noqa: S608
+        f"SELECT * FROM {entity_type} WHERE openalex_id = ?",
         [entity_id],
     )
     row = cur.fetchone()

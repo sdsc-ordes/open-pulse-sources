@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -16,18 +16,18 @@ class ModelRecord(BaseModel):
     """
 
     repo_id: str
-    author: Optional[str] = None
-    sha: Optional[str] = None
-    pipeline_tag: Optional[str] = None
-    library_name: Optional[str] = None
-    license: Optional[str] = None
+    author: str | None = None
+    sha: str | None = None
+    pipeline_tag: str | None = None
+    library_name: str | None = None
+    license: str | None = None
     downloads: int = 0
     downloads_all_time: int = 0
     likes: int = 0
-    gated: Optional[bool] = None
-    private: Optional[bool] = None
-    created_at: Optional[datetime] = None
-    last_modified: Optional[datetime] = None
+    gated: bool | None = None
+    private: bool | None = None
+    created_at: datetime | None = None
+    last_modified: datetime | None = None
     tags: list[str] = []
     card_data: dict[str, Any] = {}
     base_models: list[str] = []

@@ -30,7 +30,10 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.service.api_models import IndexSearchRequest, IndexSearchResponse
+from open_pulse_sources.service.api_models import (
+    IndexSearchRequest,
+    IndexSearchResponse,
+)
 from open_pulse_sources.service.indices._search_common import hit_from_raw
 
 if TYPE_CHECKING:
@@ -71,7 +74,7 @@ def _hits_from_records(records: Iterable[Any]) -> list[Any]:
         elif hasattr(record, "model_dump"):
             raw = record.model_dump()
         elif hasattr(record, "__dataclass_fields__"):
-            from dataclasses import asdict  # noqa: PLC0415
+            from dataclasses import asdict
 
             raw = asdict(record)
         else:
@@ -92,14 +95,16 @@ async def run_ror_search(
 ) -> IndexSearchResponse | None:
     del app_state
     try:
-        from open_pulse_sources.index.ror.config import load_config as load_ror_config  # noqa: PLC0415
-        from open_pulse_sources.index.ror.query import query_rag  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.ror.config import (
+            load_config as load_ror_config,
+        )
+        from open_pulse_sources.index.ror.query import query_rag
+    except Exception as exc:
         LOGGER.warning("ror search: module unavailable — %s", exc)
         return None
     try:
         cfg = load_ror_config()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("ror search: config init failed — %s", exc)
         return None
     try:
@@ -107,7 +112,7 @@ async def run_ror_search(
             query_rag(cfg, payload.query, top_k=payload.top_k),
             timeout=_search_timeout_s(),
         )
-    except Exception as exc:  # noqa: BLE001 — backend down/slow → fail soft to 503
+    except Exception as exc:
         LOGGER.warning("ror search: query backend unavailable/timed out — %s", exc)
         return None
     return IndexSearchResponse(
@@ -128,14 +133,16 @@ async def run_snsf_search(
 ) -> IndexSearchResponse | None:
     del app_state
     try:
-        from open_pulse_sources.index.snsf.config import load_config as load_snsf_config  # noqa: PLC0415
-        from open_pulse_sources.index.snsf.query import query_rag  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001
+        from open_pulse_sources.index.snsf.config import (
+            load_config as load_snsf_config,
+        )
+        from open_pulse_sources.index.snsf.query import query_rag
+    except Exception as exc:
         LOGGER.warning("snsf search: module unavailable — %s", exc)
         return None
     try:
         cfg = load_snsf_config()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("snsf search: config init failed — %s", exc)
         return None
     try:
@@ -143,7 +150,7 @@ async def run_snsf_search(
             query_rag(cfg, payload.query, top_k=payload.top_k),
             timeout=_search_timeout_s(),
         )
-    except Exception as exc:  # noqa: BLE001 — backend down/slow → fail soft to 503
+    except Exception as exc:
         LOGGER.warning("snsf search: query backend unavailable/timed out — %s", exc)
         return None
     return IndexSearchResponse(
@@ -164,16 +171,18 @@ async def run_infoscience_search(
 ) -> IndexSearchResponse | None:
     del app_state
     try:
-        from open_pulse_sources.index.infoscience.config import (  # noqa: PLC0415
+        from open_pulse_sources.index.infoscience.config import (
             load_config as load_infoscience_config,
         )
-        from open_pulse_sources.index.infoscience.pipeline import query as infoscience_query  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001
+        from open_pulse_sources.index.infoscience.pipeline import (
+            query as infoscience_query,
+        )
+    except Exception as exc:
         LOGGER.warning("infoscience search: module unavailable — %s", exc)
         return None
     try:
         cfg = load_infoscience_config()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("infoscience search: config init failed — %s", exc)
         return None
     target = payload.target or "chunks"
@@ -194,7 +203,7 @@ async def run_infoscience_search(
             hits=[],
             extra={"error": str(exc)},
         )
-    except Exception as exc:  # noqa: BLE001 — Qdrant/backend down → fail soft to 503
+    except Exception as exc:
         LOGGER.warning("infoscience search: query backend unavailable — %s", exc)
         return None
     records: Iterable[Any]
@@ -224,18 +233,18 @@ async def run_epfl_graph_search(
 ) -> IndexSearchResponse | None:
     del app_state
     try:
-        from open_pulse_sources.index.epfl_graph.config import (  # noqa: PLC0415
+        from open_pulse_sources.index.epfl_graph.config import (
             load_config as load_epfl_graph_config,
         )
-        from open_pulse_sources.index.epfl_graph.retrieval.semantic import (  # noqa: PLC0415
+        from open_pulse_sources.index.epfl_graph.retrieval.semantic import (
             semantic_search,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("epfl_graph search: module unavailable — %s", exc)
         return None
     try:
         cfg = load_epfl_graph_config()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("epfl_graph search: config init failed — %s", exc)
         return None
     candidate_k = payload.candidate_k or max(payload.top_k * 5, 50)
@@ -249,7 +258,7 @@ async def run_epfl_graph_search(
             ),
             timeout=_search_timeout_s(),
         )
-    except Exception as exc:  # noqa: BLE001 — backend down/slow → fail soft to 503
+    except Exception as exc:
         LOGGER.warning("epfl_graph search: query backend unavailable/timed out — %s", exc)
         return None
     return IndexSearchResponse(
@@ -274,11 +283,13 @@ async def run_communities_search(
 ) -> IndexSearchResponse | None:
     del app_state  # we open a fresh read-only handle per request
     try:
-        from open_pulse_sources.index.zenodo_communities.paths import duckdb_path  # noqa: PLC0415
-        from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_communities.paths import (
+            duckdb_path,
+        )
+        from open_pulse_sources.index.zenodo_communities.storage.duckdb_store import (
             ZenodoCommunitiesStore,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("zenodo_communities search: module unavailable — %s", exc)
         return None
     db_path = duckdb_path()

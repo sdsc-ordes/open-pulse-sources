@@ -13,7 +13,7 @@ import asyncio
 import logging
 import math
 import random
-from typing import List, Optional, Sequence
+from typing import Sequence
 
 import httpx
 import numpy as np
@@ -45,7 +45,7 @@ async def _post_with_retry(
     payload: dict,
     headers: dict,
 ) -> dict:
-    last_error: Optional[Exception] = None
+    last_error: Exception | None = None
     for attempt in range(_MAX_RETRIES):
         try:
             resp = await client.post(url, json=payload, headers=headers)
@@ -162,7 +162,7 @@ def embed_query_sync(rcp: RcpConfig, text: str, *, normalize: bool = True) -> np
     return asyncio.run(embed_query(rcp, text, normalize=normalize))
 
 
-__all__: List[str] = [
+__all__: list[str] = [
     "EmbeddingError",
     "embed_passages",
     "embed_passages_sync",

@@ -20,18 +20,16 @@ import logging
 import os
 from collections.abc import Callable
 
+from open_pulse_sources.common.cache import ProviderCache
 from open_pulse_sources.module.dependents.models import (
     DependentItem,
     DependentKind,
     DependentsResult,
 )
 from open_pulse_sources.module.dependents.scraper import (
-    DEFAULT_PAGE_TIMEOUT_SECONDS,
-    DEFAULT_PAGE_WAIT_SECONDS,
     fetch_dependents_html,
     iterate_dependents,
 )
-from open_pulse_sources.common.cache import ProviderCache
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +119,7 @@ def list_dependents(
             )
             try:
                 return DependentsResult.model_validate(cached)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.warning(
                     "github_dependents cached payload invalid for %s — refetching: %s",
                     full_name,
@@ -170,7 +168,7 @@ def list_dependents(
                 continue
             seen_keys.add(key)
             items.append(item)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.exception("github_dependents: unhandled error for %s", full_name)
         warnings.append(f"Unhandled scraper error: {exc}")
 
@@ -206,7 +204,10 @@ def _streaming_fetcher(
 ):
     """Adapt a `(url) -> html` callable to the iterator's `Iterable[str]` shape."""
 
-    from open_pulse_sources.module.dependents.scraper import build_dependents_url, parse_dependents_page
+    from open_pulse_sources.module.dependents.scraper import (
+        build_dependents_url,
+        parse_dependents_page,
+    )
 
     def _gen():
         url: str | None = build_dependents_url(full_name, kind=kind)

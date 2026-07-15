@@ -11,7 +11,6 @@ import asyncio
 import datetime as dt
 import json
 import logging
-from typing import List, Optional
 
 from .config import InfoscienceIndexConfig
 from .dspace import DSpaceClient
@@ -49,8 +48,8 @@ def _write_item(item: dict) -> bool:
 async def discover(
     cfg: InfoscienceIndexConfig,
     *,
-    terms: Optional[List[str]] = None,
-    limit: Optional[int] = None,
+    terms: list[str] | None = None,
+    limit: int | None = None,
 ) -> dict:
     """Run the discover stage. Returns a summary dict."""
     target_terms = list(terms or cfg.filter.terms)

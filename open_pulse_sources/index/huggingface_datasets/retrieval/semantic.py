@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Any
 from open_pulse_sources.index._github_accounts_base.retrieval_base import (
     account_semantic_search_async,
 )
-from open_pulse_sources.index.huggingface_datasets.embed.pipeline import DATASETS_COLLECTION
+from open_pulse_sources.index.huggingface_datasets.embed.pipeline import (
+    DATASETS_COLLECTION,
+)
 from open_pulse_sources.index.huggingface_datasets.storage.duckdb_store import (
     HuggingFaceDatasetsStore,
 )

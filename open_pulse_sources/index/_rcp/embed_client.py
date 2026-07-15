@@ -14,7 +14,7 @@ for the canonical pattern.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 import httpx
 from tenacity import (
@@ -44,11 +44,6 @@ class RCPConfigProtocol(Protocol):
     def require_rcp(self) -> None: ...
 
 
-if TYPE_CHECKING:
-    # Kept under TYPE_CHECKING so the original `OpenAlexIndexConfig`
-    # type-only import doesn't pull the heavyweight pydantic graph at
-    # runtime. Callers can pass any RCPConfigProtocol-shaped object.
-    pass
 
 LOGGER = logging.getLogger(__name__)
 

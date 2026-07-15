@@ -10,9 +10,9 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 _RE_DIGITS_ONLY = re.compile(r"^\d{4,10}$")
 _RE_ZENODO_URL = re.compile(
     r"https?://(?:www\.|sandbox\.)?zenodo\.org/(?:records?|deposit)/(\d+)",
-    re.I,
+    re.IGNORECASE,
 )
-_RE_ZENODO_DOI = re.compile(r"10\.5281/zenodo\.(\d+)", re.I)
+_RE_ZENODO_DOI = re.compile(r"10\.5281/zenodo\.(\d+)", re.IGNORECASE)
 
 
 class ZenodoRecordsAdapter:
@@ -23,12 +23,14 @@ class ZenodoRecordsAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         from open_pulse_sources.index.zenodo_records.config import load_config
-        from open_pulse_sources.index.zenodo_records.retrieval.semantic import semantic_search
+        from open_pulse_sources.index.zenodo_records.retrieval.semantic import (
+            semantic_search,
+        )
 
         config = load_config()
         try:
@@ -37,7 +39,7 @@ class ZenodoRecordsAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -67,8 +69,10 @@ class ZenodoRecordsAdapter:
         else:
             return []
         try:
-            from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+                ZenodoRecordsStore,
+            )
+        except Exception:
             return []
         store = ZenodoRecordsStore.open()
         try:

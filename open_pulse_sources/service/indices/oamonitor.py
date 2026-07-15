@@ -39,21 +39,23 @@ def get_or_create_oamonitor_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.oamonitor.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.oamonitor.ingest.oamonitor_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.oamonitor.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.oamonitor.ingest.oamonitor_client import (
             OamonitorClient,
         )
-        from open_pulse_sources.index.oamonitor.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.oamonitor.storage.duckdb_store import (
             OamonitorStore,
         )
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+    except Exception as exc:
         logger.warning("oamonitor ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         client = OamonitorClient(config)
         store = OamonitorStore.open(config.paths.duckdb_path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("oamonitor ingest: resource init failed — %s", exc)
         return None
     app_state.v2_oamonitor_resources = (config, client, store)
@@ -68,34 +70,34 @@ def _ingest_one_item(
     """Dispatch a single ``OamonitorIngestItem`` to its per-entity helper."""
     try:
         if item.entity == "journals":
-            from open_pulse_sources.index.oamonitor.ingest.journals import (  # noqa: PLC0415
+            from open_pulse_sources.index.oamonitor.ingest.journals import (
                 ingest_single_journal,
             )
             outcome = ingest_single_journal(
                 config=config, client=client, store=store, journal_id=item.id,
             )
         elif item.entity == "publications":
-            from open_pulse_sources.index.oamonitor.ingest.publications import (  # noqa: PLC0415
+            from open_pulse_sources.index.oamonitor.ingest.publications import (
                 ingest_single_publication,
             )
             outcome = ingest_single_publication(
                 config=config, client=client, store=store, publication_id=item.id,
             )
         elif item.entity == "publishers":
-            from open_pulse_sources.index.oamonitor.ingest.publishers import (  # noqa: PLC0415
+            from open_pulse_sources.index.oamonitor.ingest.publishers import (
                 ingest_single_publisher,
             )
             outcome = ingest_single_publisher(
                 config=config, client=client, store=store, publisher_id=item.id,
             )
         else:
-            from open_pulse_sources.index.oamonitor.ingest.organisations import (  # noqa: PLC0415
+            from open_pulse_sources.index.oamonitor.ingest.organisations import (
                 ingest_single_organisation,
             )
             outcome = ingest_single_organisation(
                 config=config, client=client, store=store, organisation_id=item.id,
             )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning(
             "oamonitor ingest: %s/%s failed — %s", item.entity, item.id, exc,
         )
@@ -147,8 +149,12 @@ async def run_oamonitor_ingest_job(
         rejected = sum(1 for r in items_results if r["outcome"] == "rejected")
         errors = sum(1 for r in items_results if r["outcome"] == "error")
 
-        from open_pulse_sources.index.oamonitor.embed.pipeline import embed_entities  # noqa: PLC0415
-        from open_pulse_sources.index.oamonitor.storage.duckdb_store import ENTITY_TABLES  # noqa: PLC0415
+        from open_pulse_sources.index.oamonitor.embed.pipeline import (
+            embed_entities,
+        )
+        from open_pulse_sources.index.oamonitor.storage.duckdb_store import (
+            ENTITY_TABLES,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -189,7 +195,7 @@ async def run_oamonitor_search(
         return None
     config, _, store = resources
     entity_type = payload.target or "journals"
-    from open_pulse_sources.index.oamonitor.retrieval.semantic import (  # noqa: PLC0415
+    from open_pulse_sources.index.oamonitor.retrieval.semantic import (
         semantic_search,
     )
     try:

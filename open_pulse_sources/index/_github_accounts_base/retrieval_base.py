@@ -16,7 +16,9 @@ from open_pulse_sources.index._rcp.reranker_client import RCPRerankerClient
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index._github_accounts_base.config_base import AccountIndexConfigBase
+    from open_pulse_sources.index._github_accounts_base.config_base import (
+        AccountIndexConfigBase,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

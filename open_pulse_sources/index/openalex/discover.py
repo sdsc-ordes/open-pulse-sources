@@ -29,7 +29,7 @@ from typing import Any, Iterator
 
 import requests
 
-from open_pulse_sources.index._federated.protocols import IndexDiscoverer, Seed
+from open_pulse_sources.index._federated.protocols import Seed
 from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore
 
 LOGGER = logging.getLogger(__name__)
@@ -138,7 +138,7 @@ def _from_datascience_ch(
         try:
             r = _http_get(page_url)
             r.raise_for_status()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("datascience-ch: page %d failed: %s", p, exc)
             continue
         page_dois: set[str] = set()

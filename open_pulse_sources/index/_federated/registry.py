@@ -119,7 +119,7 @@ def load_adapters(only: list[str] | None = None) -> list[IndexAdapter]:
     for name in targets:
         try:
             import_module(f"open_pulse_sources.index._federated.adapters.{name}")
-        except Exception as exc:  # noqa: BLE001 — adapter import failure shouldn't kill the whole CLI
+        except Exception as exc:
             import logging
             logging.getLogger(__name__).warning(
                 "federated: adapter %r failed to import (%s); skipping",

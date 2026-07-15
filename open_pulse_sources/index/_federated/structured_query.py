@@ -26,7 +26,9 @@ def structured_query_capable() -> list[str]:
     Adapters are loaded lazily on the first call (same pattern as
     ``load_adapters``).
     """
-    from open_pulse_sources.index._federated.registry import load_adapters  # noqa: PLC0415
+    from open_pulse_sources.index._federated.registry import (
+        load_adapters,
+    )
 
     return [
         adapter.name
@@ -35,7 +37,7 @@ def structured_query_capable() -> list[str]:
     ]
 
 
-def run_structured_query(  # noqa: PLR0913
+def run_structured_query(
     index: str,
     filters: Any,
     *,
@@ -69,7 +71,10 @@ def run_structured_query(  # noqa: PLR0913
     KeyError
         If no adapter is registered for *index*.
     """
-    from open_pulse_sources.index._federated.registry import REGISTRY, load_adapters  # noqa: PLC0415
+    from open_pulse_sources.index._federated.registry import (
+        REGISTRY,
+        load_adapters,
+    )
 
     # Ensure the adapter module has been imported (self-registers on import).
     load_adapters(only=[index])

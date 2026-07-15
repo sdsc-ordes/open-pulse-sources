@@ -92,7 +92,7 @@ async def _maybe_checkpoint(
     try:
         await run_in_ingest_pool(_checkpoint_sync, store)
         return {"enabled": True, "ran": True, "ok": True}
-    except Exception as exc:  # noqa: BLE001 — checkpoint is best-effort
+    except Exception as exc:
         LOGGER.warning(
             "%s checkpoint failed (job=%s): %s — WAL will replay on next open",
             provider, job_id, exc,
@@ -111,13 +111,13 @@ async def _maybe_snapshot(
     """
     if store is None or not hasattr(store, "connect") or not hasattr(store, "db_path"):
         return {"ran": False, "reason": "no store"}
-    from open_pulse_sources.index._snapshot import publish_snapshot  # noqa: PLC0415
+    from open_pulse_sources.index._snapshot import publish_snapshot
 
     try:
         return await run_in_ingest_pool(
             lambda: publish_snapshot(store.connect(), store.db_path),
         )
-    except Exception as exc:  # noqa: BLE001 — snapshot is best-effort
+    except Exception as exc:
         LOGGER.warning("%s snapshot failed (job=%s): %s", provider, job_id, exc)
         return {"published": False, "error": str(exc)}
 
@@ -153,7 +153,7 @@ async def run_embed_step(
         result = await run_in_ingest_pool(embed_call)
         out["ok"] = True
         out["result"] = result
-    except Exception as exc:  # noqa: BLE001 — embed failures must not crash ingest job
+    except Exception as exc:
         LOGGER.exception("%s embed step failed: job=%s", provider, job_id)
         out["ok"] = False
         out["error"] = str(exc)

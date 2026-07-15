@@ -13,13 +13,15 @@ import logging
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
+from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.zenodo_records.config import ZenodoIndexConfig
-    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+        ZenodoRecordsStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

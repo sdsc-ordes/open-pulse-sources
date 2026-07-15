@@ -27,7 +27,9 @@ from open_pulse_sources.index.swissubase.embed.pipeline import (
 )
 from open_pulse_sources.index.swissubase.ingest.scope import resolve_scope
 from open_pulse_sources.index.swissubase.ingest.studies import ingest_studies
-from open_pulse_sources.index.swissubase.ingest.swissubase_client import SwissubaseClient
+from open_pulse_sources.index.swissubase.ingest.swissubase_client import (
+    SwissubaseClient,
+)
 from open_pulse_sources.index.swissubase.retrieval.semantic import semantic_search
 from open_pulse_sources.index.swissubase.retrieval.sql import (
     PREDEFINED_QUERIES,
@@ -161,7 +163,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
         from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
         qdrant_count = QdrantStore(config).count(SWISSUBASE_COLLECTION)  # type: ignore[arg-type]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_count = f"error: {exc}"
     _emit_json(
         {

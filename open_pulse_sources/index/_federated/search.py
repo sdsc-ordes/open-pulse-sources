@@ -7,7 +7,12 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
-from open_pulse_sources.index._federated.registry import REGISTRY, Hit, IndexAdapter, load_adapters
+from open_pulse_sources.index._federated.registry import (
+    REGISTRY,
+    Hit,
+    IndexAdapter,
+    load_adapters,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +53,7 @@ def federated_search(
                 top_k=top_k_per_index,
                 filters=filters,
             ))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("federated: adapter %s search failed: %s", adapter.name, exc)
             return (adapter.name, f"{type(exc).__name__}: {exc}")
 
@@ -90,13 +95,13 @@ def _cross_index_rerank(query: str, hits: list[Hit]) -> tuple[list[Hit], str | N
     documents = [_doc_for_rerank(h) for h in hits]
     try:
         rerank_client = _build_reranker()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return hits, f"reranker config: {type(exc).__name__}: {exc}"
     if rerank_client is None:
         return hits, "no per-index module available to source RCP config"
     try:
         scored = asyncio.run(rerank_client.rerank(query, documents, top_n=len(documents)))
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return hits, f"rerank call: {type(exc).__name__}: {exc}"
     if not scored:
         return hits, "rerank returned empty"
@@ -125,7 +130,7 @@ def _clone_hit(h: Hit, *, score: float) -> Hit:
     )
 
 
-def _build_reranker() -> Any | None:  # noqa: ANN401 — duck-typed RCP reranker
+def _build_reranker() -> Any | None:
     """Build an RCP reranker from any available per-index config.
 
     The reranker is index-agnostic: every per-index ``config.load_config()``
@@ -157,7 +162,7 @@ def _build_reranker() -> Any | None:  # noqa: ANN401 — duck-typed RCP reranker
         try:
             cfg = import_module(cfg_mod).load_config()
             return RCPRerankerClient(cfg)
-        except Exception:  # noqa: BLE001 — try the next config source
+        except Exception:
             continue
     return None
 

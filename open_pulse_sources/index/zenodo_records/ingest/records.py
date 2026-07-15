@@ -19,7 +19,9 @@ from open_pulse_sources.index.zenodo_records.ingest.zenodo_client import ZenodoC
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.zenodo_records.config import ZenodoIndexConfig
-    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+        ZenodoRecordsStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 
@@ -103,7 +105,10 @@ def _project_record(item: dict[str, Any]) -> dict[str, Any]:
     else:
         resource_type = str(resource_type_block) if resource_type_block else None
     concept_recid = item.get("conceptrecid")
-    from open_pulse_sources.index.zenodo_records.iri import doi_iri, record_iri  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_records.iri import (
+        doi_iri,
+        record_iri,
+    )
 
     bare_id = str(item.get("id") or item.get("conceptrecid") or "")
     stats = item.get("stats") if isinstance(item.get("stats"), dict) else {}
@@ -192,7 +197,9 @@ def _project_communities(item: dict[str, Any]) -> list[str]:
     `?q=<slug>` search fallback. So the canonical community URL is correct here
     and resolution is the fetcher's job, not a reason to discard the link.
     """
-    from open_pulse_sources.index.zenodo_records.iri import community_iri  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_records.iri import (
+        community_iri,
+    )
 
     metadata = item.get("metadata") or {}
     blocks = metadata.get("communities") or []
@@ -247,7 +254,9 @@ def persist_record(
     # "primary" colour even when the record belongs to several.
     communities = _project_communities(item)
     row["community_ids"] = list(communities)
-    from open_pulse_sources.index.zenodo_records.iri import community_iri  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_records.iri import (
+        community_iri,
+    )
 
     if crawling_community and not row.get("primary_community_id"):
         # Callers pass bare slugs ("epfl") for the community they were
@@ -332,7 +341,9 @@ async def _ingest_async(
         if community is None:
             LOGGER.warning("community %s not found on Zenodo; skipping", slug)
             continue
-        from open_pulse_sources.index.zenodo_records.iri import community_iri  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.iri import (
+            community_iri,
+        )
 
         store.upsert_community(
             {
@@ -473,7 +484,7 @@ async def _ingest_by_ids_async(
         for rid in pending:
             try:
                 payload = await client.fetch_record(rid, client=http)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 failed.append({"id": rid, "error": str(exc)[:200]})
                 continue
             if payload is None:

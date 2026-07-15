@@ -18,7 +18,7 @@ class GitHubURLClassification:
     repo: str | None = None
 
 
-class UnsupportedGitHubURL(ValueError):  # noqa: N818
+class UnsupportedGitHubURL(ValueError):
     def __init__(self, reason: str, normalized_url: str) -> None:
         self.reason = reason
         self.normalized_url = normalized_url

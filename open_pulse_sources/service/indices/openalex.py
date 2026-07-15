@@ -31,15 +31,19 @@ def get_or_create_openalex_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.openalex.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.openalex.storage.duckdb_store import OpenAlexStore  # noqa: PLC0415
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+        from open_pulse_sources.index.openalex.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.openalex.storage.duckdb_store import (
+            OpenAlexStore,
+        )
+    except Exception as exc:
         logger.warning("openalex ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = OpenAlexStore.open()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("openalex ingest: resource init failed — %s", exc)
         return None
     app_state.v2_openalex_resources = (config, store)
@@ -51,11 +55,13 @@ def _ingest_one_work(
 ) -> dict[str, Any]:
     """Run a single per-work ingest; never raises."""
     try:
-        from open_pulse_sources.index.openalex.ingest.works import ingest_single_work  # noqa: PLC0415
+        from open_pulse_sources.index.openalex.ingest.works import (
+            ingest_single_work,
+        )
         outcome = ingest_single_work(
             config=config, store=store, work_id=work_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("openalex ingest: %s failed — %s", work_id, exc)
         return {"id": work_id, "outcome": "error", "error": str(exc)}
     return {"id": work_id, "outcome": outcome}
@@ -102,8 +108,12 @@ async def run_openalex_ingest_job(
         rejected = sum(1 for r in items_results if r["outcome"] == "rejected")
         errors = sum(1 for r in items_results if r["outcome"] == "error")
 
-        from open_pulse_sources.index.openalex.embed.pipeline import embed_entities  # noqa: PLC0415
-        from open_pulse_sources.index.openalex.models import ALL_ENTITY_TYPES  # noqa: PLC0415
+        from open_pulse_sources.index.openalex.embed.pipeline import (
+            embed_entities,
+        )
+        from open_pulse_sources.index.openalex.models import (
+            ALL_ENTITY_TYPES,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -149,7 +159,9 @@ async def run_openalex_search(
         return None
     config, store = resources
     entity_type = payload.target or "works"
-    from open_pulse_sources.index.openalex.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.openalex.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query, entity_type=entity_type,

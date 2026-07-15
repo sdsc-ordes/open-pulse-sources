@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Iterable, List, Optional
+from typing import Iterable
 
 import httpx
 
@@ -27,11 +27,11 @@ class RCPEmbedder:
 
     def __init__(self, cfg: RcpConfig):
         self._cfg = cfg
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         self._semaphore = asyncio.Semaphore(cfg.max_concurrency)
-        self._observed_dim: Optional[int] = None
+        self._observed_dim: int | None = None
 
-    async def __aenter__(self) -> "RCPEmbedder":
+    async def __aenter__(self) -> RCPEmbedder:
         if not self._cfg.token:
             msg = "RCP_TOKEN is required to call the RCP embedding endpoint."
             raise EmbedError(msg)
@@ -57,8 +57,8 @@ class RCPEmbedder:
             raise RuntimeError(msg)
         return self._client
 
-    async def _post_embeddings(self, inputs: List[str]) -> List[List[float]]:
-        last_exc: Optional[Exception] = None
+    async def _post_embeddings(self, inputs: list[str]) -> list[list[float]]:
+        last_exc: Exception | None = None
         for attempt in range(4):
             try:
                 async with self._semaphore:
@@ -105,7 +105,7 @@ class RCPEmbedder:
                 raise EmbedError(msg)
         return vectors
 
-    async def embed_passage(self, texts: Iterable[str]) -> List[List[float]]:
+    async def embed_passage(self, texts: Iterable[str]) -> list[list[float]]:
         """Embed plain passage strings (no instruction prefix)."""
         batch = list(texts)
         if not batch:
@@ -115,8 +115,8 @@ class RCPEmbedder:
     async def embed_query(
         self,
         query: str,
-        instruction: Optional[str] = None,
-    ) -> List[float]:
+        instruction: str | None = None,
+    ) -> list[float]:
         """Embed a query with the Qwen3 instruction template."""
         instr = instruction or self._cfg.query_instruction
         formatted = f"Instruct: {instr}\nQuery: {query}"
@@ -125,10 +125,10 @@ class RCPEmbedder:
 
     async def embed_passages_batched(
         self,
-        texts: List[str],
-    ) -> List[List[float]]:
+        texts: list[str],
+    ) -> list[list[float]]:
         """Embed `texts` in batches of `cfg.batch_size`, preserving order."""
-        out: List[List[float]] = []
+        out: list[list[float]] = []
         for i in range(0, len(texts), self._cfg.batch_size):
             chunk = texts[i : i + self._cfg.batch_size]
             out.extend(await self.embed_passage(chunk))

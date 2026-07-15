@@ -6,17 +6,17 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.github_organizations.models import OrgRecord
 from open_pulse_sources.common.canonicalization.github import github_org_iri
+from open_pulse_sources.index.github_organizations.models import OrgRecord
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index.github_repos.ingest.github_client import GitHubClient
     from open_pulse_sources.index.github_organizations.config import (
         GitHubOrganizationsIndexConfig,
     )
     from open_pulse_sources.index.github_organizations.storage.duckdb_store import (
         GitHubOrganizationsStore,
     )
+    from open_pulse_sources.index.github_repos.ingest.github_client import GitHubClient
 
 LOGGER = logging.getLogger(__name__)
 

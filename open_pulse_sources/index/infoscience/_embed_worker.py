@@ -25,7 +25,6 @@ import asyncio
 import json
 import logging
 import sys
-from typing import List
 
 from .build import _articles_with_matches, _chunks_for_article
 from .config import load_config
@@ -35,7 +34,7 @@ from .paths import text_dir
 from .store import CHUNKS_COLLECTION, QdrantStore, upsert_chunks
 
 
-async def _run(uuids: List[str]) -> dict:
+async def _run(uuids: list[str]) -> dict:
     cfg = load_config()
     matches = matches_by_uuid()
     matches_subset = {u: matches[u] for u in uuids if u in matches}

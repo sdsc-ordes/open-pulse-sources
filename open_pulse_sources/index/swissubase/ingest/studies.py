@@ -27,7 +27,9 @@ from open_pulse_sources.index.swissubase.ingest.scope import Scope
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.swissubase.config import SwissubaseIndexConfig
-    from open_pulse_sources.index.swissubase.ingest.swissubase_client import SwissubaseClient
+    from open_pulse_sources.index.swissubase.ingest.swissubase_client import (
+        SwissubaseClient,
+    )
     from open_pulse_sources.index.swissubase.storage.duckdb_store import SwissubaseStore
 
 LOGGER = logging.getLogger(__name__)
@@ -378,19 +380,19 @@ def ingest_single_study(
         return "error"
     try:
         overview = client.fetch_study_overview(sid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("overview fetch failed for %s: %s", sid, exc)
         return "not_found"
     if overview is None:
         return "not_found"
     try:
         main = client.fetch_study_main(sid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning("main fetch failed for %s: %s", sid, exc)
         main = None
     try:
         dynamic_blocks = client.fetch_study_dynamic_blocks(sid)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.info("dynamic-blocks fetch failed for %s: %s", sid, exc)
         dynamic_blocks = None
     row = project_study(
@@ -453,13 +455,13 @@ def ingest_studies(
         sid = str(sid_int)
         try:
             main = client.fetch_study_main(sid)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             failures.append({"study_id": sid, "stage": "main", "error": str(exc)[:300]})
             LOGGER.warning("main fetch failed for %s: %s", sid, exc)
             main = None
         try:
             dynamic_blocks = client.fetch_study_dynamic_blocks(sid)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.info("dynamic-blocks fetch failed for %s: %s", sid, exc)
             dynamic_blocks = None
 

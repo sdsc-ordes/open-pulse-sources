@@ -12,12 +12,12 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 _RE_UUID = re.compile(
     r"\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b",
-    re.I,
+    re.IGNORECASE,
 )
 _RE_INFOSCIENCE_URL = re.compile(
     r"https?://infoscience\.epfl\.ch/entities/publication/"
     r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})",
-    re.I,
+    re.IGNORECASE,
 )
 
 _LINKS_INDEX = Path("data/index/infoscience/dumps/infoscience_links_index.json")
@@ -37,8 +37,10 @@ class InfoscienceAdapter:
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.infoscience.config import load_config
-            from open_pulse_sources.index.infoscience.pipeline import query as infoscience_query
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.infoscience.pipeline import (
+                query as infoscience_query,
+            )
+        except Exception:
             return []
         cfg = load_config()
         target = entity_type or "chunks"
@@ -46,7 +48,7 @@ class InfoscienceAdapter:
             qr = asyncio.run(infoscience_query(
                 cfg, query, target=target, where=filters, top_k=top_k,
             ))
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         # `query()` returns a QueryResult dataclass; the hits are in `.rows`.
         results = getattr(qr, "rows", None) or []

@@ -7,8 +7,6 @@ Python iteration over the 90 k-grant dump).
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -22,7 +20,7 @@ class IngestSummary(BaseModel):
     outputs_loaded: dict[str, int] = {}
     scope_mode: str
     scope_grants: int
-    snapshot_iso: Optional[str] = None
+    snapshot_iso: str | None = None
 
 
 class IngestManifest(BaseModel):
@@ -30,6 +28,6 @@ class IngestManifest(BaseModel):
 
     scope_mode: str
     record_count: int
-    snapshot_iso: Optional[str] = None
-    source_dir: Optional[str] = None
-    built_at_iso: Optional[str] = None
+    snapshot_iso: str | None = None
+    source_dir: str | None = None
+    built_at_iso: str | None = None

@@ -9,11 +9,11 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 _RE_GH_REPO_URL = re.compile(
     r"https?://(?:www\.)?github\.com/([^/\s?#]+)/([^/\s?#]+)",
-    re.I,
+    re.IGNORECASE,
 )
 _RE_GH_NS_URL = re.compile(
     r"https?://(?:www\.)?github\.com/([^/\s?#]+)/?$",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -25,14 +25,16 @@ class GitHubReposAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.github_repos.config import load_config
-            from open_pulse_sources.index.github_repos.retrieval.semantic import semantic_search
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.github_repos.retrieval.semantic import (
+                semantic_search,
+            )
+        except Exception:
             return []
         cfg = load_config()
         try:
@@ -41,7 +43,7 @@ class GitHubReposAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -74,8 +76,10 @@ class GitHubReposAdapter:
             # Bare org slug → no lookup yet (no orgs table in github index)
             return []
         try:
-            from open_pulse_sources.index.github_repos.storage.duckdb_store import GitHubReposStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.github_repos.storage.duckdb_store import (
+                GitHubReposStore,
+            )
+        except Exception:
             return []
         store = GitHubReposStore.open()
         if hasattr(store, "fetch_repo"):

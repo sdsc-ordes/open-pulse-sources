@@ -75,7 +75,9 @@ class GitHubOrganizationsStore:
     # ---- Upserts ---------------------------------------------------------
 
     def upsert_organization(self, record: OrgRecord) -> None:
-        from open_pulse_sources.common.canonicalization.github import github_org_iri  # noqa: PLC0415
+        from open_pulse_sources.common.canonicalization.github import (
+            github_org_iri,
+        )
 
         sql = (
             "INSERT INTO organizations "
@@ -165,7 +167,9 @@ class GitHubOrganizationsStore:
         return count_table(self.connect(), table)
 
     def fetch_organization(self, login: str) -> dict[str, Any] | None:
-        from open_pulse_sources.common.canonicalization.github import github_org_iri  # noqa: PLC0415
+        from open_pulse_sources.common.canonicalization.github import (
+            github_org_iri,
+        )
 
         return fetch_one(
             self.connect(),

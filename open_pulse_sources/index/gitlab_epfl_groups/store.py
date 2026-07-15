@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from open_pulse_sources.index._gitlab_base.group_store import GitLabGroupStore
-from open_pulse_sources.index.gitlab_epfl_groups.paths import get_gitlab_epfl_groups_paths
+from open_pulse_sources.index.gitlab_epfl_groups.paths import (
+    get_gitlab_epfl_groups_paths,
+)
 
 
 def open_store() -> GitLabGroupStore:

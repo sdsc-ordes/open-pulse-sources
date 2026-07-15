@@ -11,7 +11,6 @@ import asyncio
 import datetime as dt
 import json
 import logging
-from typing import List, Optional
 
 from .config import EthzResearchCollectionIndexConfig
 from .dspace import DSpaceClient
@@ -68,7 +67,7 @@ async def fetch_and_persist_item(
     async with DSpaceClient(cfg.research_collection) as client:
         try:
             item = await client.get_item(sanitized)
-        except Exception as exc:  # noqa: BLE001 — surfaced as a job error
+        except Exception as exc:
             logger.warning(
                 "ethz_research_collection: fetch failed for %s: %s",
                 sanitized, exc,
@@ -84,8 +83,8 @@ async def fetch_and_persist_item(
 async def discover(
     cfg: EthzResearchCollectionIndexConfig,
     *,
-    terms: Optional[List[str]] = None,
-    limit: Optional[int] = None,
+    terms: list[str] | None = None,
+    limit: int | None = None,
 ) -> dict:
     """Run the discover stage. Returns a summary dict."""
     target_terms = list(terms or cfg.filter.terms)

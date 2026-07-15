@@ -29,19 +29,23 @@ def get_or_create_huggingface_users_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index._huggingface_base.client import HFClient  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_users.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_users.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index._huggingface_base.client import (
+            HFClient,
+        )
+        from open_pulse_sources.index.huggingface_users.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.huggingface_users.storage.duckdb_store import (
             HuggingFaceUsersStore,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_users ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = HuggingFaceUsersStore.open(config.paths.duckdb_path)
         client = HFClient(config)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_users ingest: resource init failed — %s", exc)
         return None
     app_state.v2_huggingface_users_resources = (config, store, client)
@@ -50,13 +54,13 @@ def get_or_create_huggingface_users_resources(app_state: Any) -> Any | None:
 
 def _ingest_one(slug: str, *, config: Any, store: Any, client: Any) -> dict[str, Any]:
     try:
-        from open_pulse_sources.index.huggingface_users.ingest.users import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_users.ingest.users import (
             ingest_single_user,
         )
         outcome = ingest_single_user(
             config=config, store=store, client=client, slug=slug,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_users ingest: %s failed — %s", slug, exc)
         return {"slug": slug, "outcome": "failed", "error": str(exc)}
     return {"slug": slug, "outcome": outcome}
@@ -100,7 +104,9 @@ async def run_huggingface_users_ingest_job(
         skipped_org = sum(1 for r in items_results if r["outcome"] == "skipped_org")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.huggingface_users.embed.pipeline import embed_users  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_users.embed.pipeline import (
+            embed_users,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -137,7 +143,7 @@ async def run_huggingface_users_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.huggingface_users.retrieval.semantic import (  # noqa: PLC0415
+    from open_pulse_sources.index.huggingface_users.retrieval.semantic import (
         semantic_search,
     )
     raw_hits = await asyncio.to_thread(

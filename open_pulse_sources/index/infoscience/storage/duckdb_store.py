@@ -14,20 +14,17 @@ import json
 import logging
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator
 
 import duckdb
 
-from open_pulse_sources.index.infoscience.paths import duckdb_path
 from open_pulse_sources.common.canonicalization.infoscience import (
     infoscience_article_iri,
     infoscience_iri_sql,
     infoscience_org_iri,
     infoscience_person_iri,
 )
-
-if TYPE_CHECKING:
-    pass
+from open_pulse_sources.index.infoscience.paths import duckdb_path
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +47,7 @@ class InfoscienceStore:
         self._conn: duckdb.DuckDBPyConnection | None = None
 
     @classmethod
-    def open(cls, db_path: Path | None = None) -> "InfoscienceStore":
+    def open(cls, db_path: Path | None = None) -> InfoscienceStore:
         if db_path is None:
             db_path = duckdb_path()
         store = cls(db_path)
@@ -67,7 +64,7 @@ class InfoscienceStore:
         conn = self.connect()
         conn.execute(_load_schema_sql())
         # Promote `articles.doi` to canonical `https://doi.org/<bare>`.
-        from open_pulse_sources.index._shared.doi import (  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import (
             migrate_doi_column_to_url,
         )
 
@@ -138,7 +135,7 @@ class InfoscienceStore:
     # ---- Upserts ---------------------------------------------------------
 
     def upsert_article(self, row: dict[str, Any], raw: dict[str, Any]) -> None:
-        from open_pulse_sources.index._shared.doi import doi_iri  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import doi_iri
 
         if row.get("doi"):
             row = {**row, "doi": doi_iri(row["doi"])}

@@ -284,7 +284,7 @@ class OpenAlexStore:
             message = f"Unknown entity_type: {entity_type}"
             raise ValueError(message)
         sql = (
-            f"SELECT t.* FROM {entity_type} t "  # noqa: S608 - table name guarded above
+            f"SELECT t.* FROM {entity_type} t "
             "WHERE NOT EXISTS ("
             "  SELECT 1 FROM chunks c "
             "  WHERE c.entity_type = ? AND c.entity_id = t.openalex_id"

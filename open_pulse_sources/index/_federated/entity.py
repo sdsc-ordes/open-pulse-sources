@@ -7,7 +7,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
 from typing import Any
 
-from open_pulse_sources.index._federated.registry import EntityRecord, IndexAdapter, load_adapters
+from open_pulse_sources.index._federated.registry import (
+    EntityRecord,
+    IndexAdapter,
+    load_adapters,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +34,7 @@ def cross_index_lookup(
     def _run(adapter: IndexAdapter) -> tuple[str, list[EntityRecord] | str]:
         try:
             return (adapter.name, adapter.lookup(identifier))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("federated: adapter %s lookup failed: %s", adapter.name, exc)
             return (adapter.name, f"{type(exc).__name__}: {exc}")
 

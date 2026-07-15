@@ -19,7 +19,10 @@ import sys
 from typing import Any
 
 from open_pulse_sources.index.renkulab.config import load_config
-from open_pulse_sources.index.renkulab.embed.pipeline import COLLECTION_BY_ENTITY, embed_entities
+from open_pulse_sources.index.renkulab.embed.pipeline import (
+    COLLECTION_BY_ENTITY,
+    embed_entities,
+)
 from open_pulse_sources.index.renkulab.ingest.pipeline import ingest_all
 from open_pulse_sources.index.renkulab.ingest.scope import resolve_scope
 from open_pulse_sources.index.renkulab.retrieval.semantic import semantic_search
@@ -179,9 +182,9 @@ def _cmd_status(args: argparse.Namespace) -> int:
         for entity_type, collection in COLLECTION_BY_ENTITY.items():
             try:
                 qdrant_counts[collection] = qd.count(collection)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 qdrant_counts[collection] = f"error: {exc}"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_counts = {"_error": str(exc)}
     _emit_json(
         {

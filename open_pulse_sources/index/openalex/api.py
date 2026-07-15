@@ -45,11 +45,11 @@ def healthz() -> dict[str, Any]:
     qdrant_status = "ok"
     try:
         OpenAlexStore.open().count("works")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         duck_status = f"error: {exc}"
     try:
         QdrantStore(config).count("works")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_status = f"error: {exc}"
     return {
         "duckdb": duck_status,
@@ -113,7 +113,7 @@ def get_entity(entity_type: str, openalex_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=f"unknown entity type: {entity_type}")
     store = OpenAlexStore.open()
     cur = store.connect().execute(
-        f"SELECT * FROM {entity_type} WHERE openalex_id = ?",  # noqa: S608
+        f"SELECT * FROM {entity_type} WHERE openalex_id = ?",
         [openalex_id],
     )
     row = cur.fetchone()

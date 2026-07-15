@@ -9,7 +9,7 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 _RE_GH_ORG_URL = re.compile(
     r"https?://(?:www\.)?github\.com/(?:orgs/)?([^/\s?#]+)/?$",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -21,14 +21,16 @@ class GitHubOrganizationsAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.github_organizations.config import load_config
-            from open_pulse_sources.index.github_organizations.retrieval.semantic import semantic_search
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.github_organizations.retrieval.semantic import (
+                semantic_search,
+            )
+        except Exception:
             return []
         try:
             cfg = load_config()
@@ -37,7 +39,7 @@ class GitHubOrganizationsAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -74,7 +76,7 @@ class GitHubOrganizationsAdapter:
             from open_pulse_sources.index.github_organizations.storage.duckdb_store import (
                 GitHubOrganizationsStore,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         store = GitHubOrganizationsStore.open()
         if hasattr(store, "fetch_organization"):

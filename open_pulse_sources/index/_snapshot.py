@@ -125,7 +125,7 @@ def publish_snapshot(
             "tables": len(tables),
             "path": str(snap),
         }
-    except Exception as exc:  # noqa: BLE001 — snapshot is best-effort
+    except Exception as exc:
         LOGGER.warning("snapshot publish failed for %s: %s", live_path, exc)
         try:
             if tmp.exists():

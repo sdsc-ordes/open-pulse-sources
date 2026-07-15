@@ -120,7 +120,7 @@ def _add_country_predicate(
     placeholders = ", ".join(["?"] * len(country_vals))
     # All values are parameterised; {placeholders} is only ?-markers, not user input
     pred = (
-        "EXISTS ("  # noqa: S608
+        "EXISTS ("
         "SELECT 1 FROM grant_countries gc "
         "WHERE gc.grant_number = g.grant_number "
         f"AND gc.country IN ({placeholders})"
@@ -272,7 +272,7 @@ def _row_to_dict(
     return result
 
 
-def query_grants(  # noqa: PLR0913
+def query_grants(
     store: SnsfStore,
     filters: GrantFilters,
     *,
@@ -297,14 +297,14 @@ def query_grants(  # noqa: PLR0913
 
     # total count (no limit/offset) — where embeds only ?-parameterised predicates
     count_sql = (
-        f"SELECT count(*) FROM grants g {_JOIN} WHERE {where}"  # noqa: S608
+        f"SELECT count(*) FROM grants g {_JOIN} WHERE {where}"
     )
     total_row = conn.execute(count_sql, params).fetchone()
     total = int(total_row[0]) if total_row else 0
 
     # result rows — same parameterised where clause
     select_sql = (
-        "SELECT g.grant_number, g.title, g.title_english, g.responsible_applicant, "  # noqa: S608
+        "SELECT g.grant_number, g.title, g.title_english, g.responsible_applicant, "
         "g.research_institution, g.main_discipline, g.funding_instrument, "
         "g.keywords, g.state, g.start_date, g.end_date, g.amount_granted, "
         "COALESCE(oc.n_publications, 0) AS n_publications, "
@@ -347,7 +347,7 @@ def facet_counts(
     for col in _COL_FACETS:
         where, params = _build_where(filters, text, exclude=col)
         sql = (
-            f"SELECT g.{col} AS value, count(*) AS count FROM grants g {_JOIN} "  # noqa: S608
+            f"SELECT g.{col} AS value, count(*) AS count FROM grants g {_JOIN} "
             f"WHERE {where} AND g.{col} IS NOT NULL GROUP BY g.{col} "
             "ORDER BY count DESC, value LIMIT 100"
         )
@@ -357,7 +357,7 @@ def facet_counts(
     # country facet (via grant_countries)
     where_c, params_c = _build_where(filters, text, exclude="country")
     country_sql = (
-        "SELECT gc.country AS value, count(DISTINCT gc.grant_number) AS count "  # noqa: S608
+        "SELECT gc.country AS value, count(DISTINCT gc.grant_number) AS count "
         "FROM grant_countries gc WHERE gc.grant_number IN "
         f"(SELECT g.grant_number FROM grants g {_JOIN} WHERE {where_c}) "
         "GROUP BY gc.country ORDER BY count DESC LIMIT 100"

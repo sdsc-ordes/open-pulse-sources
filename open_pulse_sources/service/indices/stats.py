@@ -167,87 +167,87 @@ def fetch_store_for_stats(provider: str, app_state: Any) -> Any | None:
         )
 
     if provider == "github_repos":
-        from open_pulse_sources.service.indices.github_repos import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.github_repos import (
             get_or_create_github_repos_resources,
         )
         res = get_or_create_github_repos_resources(app_state)
         return res[1] if res else None
     if provider == "zenodo_records":
-        from open_pulse_sources.service.indices.zenodo_records import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.zenodo_records import (
             get_or_create_zenodo_records_store,
         )
         res = get_or_create_zenodo_records_store(app_state)
         return res[1] if res else None
     if provider == "huggingface_models":
-        from open_pulse_sources.service.indices.huggingface_models import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.huggingface_models import (
             get_or_create_huggingface_models_resources,
         )
         res = get_or_create_huggingface_models_resources(app_state)
         return res[1] if res else None
     if provider == "huggingface_datasets":
-        from open_pulse_sources.service.indices.huggingface_datasets import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.huggingface_datasets import (
             get_or_create_huggingface_datasets_resources,
         )
         res = get_or_create_huggingface_datasets_resources(app_state)
         return res[1] if res else None
     if provider == "huggingface_spaces":
-        from open_pulse_sources.service.indices.huggingface_spaces import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.huggingface_spaces import (
             get_or_create_huggingface_spaces_resources,
         )
         res = get_or_create_huggingface_spaces_resources(app_state)
         return res[1] if res else None
     if provider == "huggingface_users":
-        from open_pulse_sources.service.indices.huggingface_users import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.huggingface_users import (
             get_or_create_huggingface_users_resources,
         )
         res = get_or_create_huggingface_users_resources(app_state)
         return res[1] if res else None
     if provider == "huggingface_organizations":
-        from open_pulse_sources.service.indices.huggingface_organizations import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.huggingface_organizations import (
             get_or_create_huggingface_organizations_resources,
         )
         res = get_or_create_huggingface_organizations_resources(app_state)
         return res[1] if res else None
     if provider == "openalex":
-        from open_pulse_sources.service.indices.openalex import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.openalex import (
             get_or_create_openalex_resources,
         )
         res = get_or_create_openalex_resources(app_state)
         return res[1] if res else None
     if provider == "orcid":
-        from open_pulse_sources.service.indices.orcid import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.orcid import (
             get_or_create_orcid_resources,
         )
         res = get_or_create_orcid_resources(app_state)
         return res[1] if res else None
     if provider == "renkulab":
-        from open_pulse_sources.service.indices.renkulab import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.renkulab import (
             get_or_create_renkulab_resources,
         )
         res = get_or_create_renkulab_resources(app_state)
         return res[2] if res else None
     if provider == "swissubase":
-        from open_pulse_sources.service.indices.swissubase import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.swissubase import (
             get_or_create_swissubase_resources,
         )
         res = get_or_create_swissubase_resources(app_state)
         return res[2] if res else None
     if provider == "oamonitor":
-        from open_pulse_sources.service.indices.oamonitor import (  # noqa: PLC0415
+        from open_pulse_sources.service.indices.oamonitor import (
             get_or_create_oamonitor_resources,
         )
         res = get_or_create_oamonitor_resources(app_state)
         return res[2] if res else None
     if provider == "ethz_research_collection":
         try:
-            from open_pulse_sources.index.ethz_research_collection.storage import (  # noqa: PLC0415
+            from open_pulse_sources.index.ethz_research_collection.storage import (
                 EthzResearchCollectionStore,
             )
-        except Exception:  # noqa: BLE001 — optional dependency
+        except Exception:
             return None
         try:
             return EthzResearchCollectionStore.open()
-        except Exception:  # noqa: BLE001 — config / disk issues
+        except Exception:
             return None
 
     # CLI-managed catalogs: no v2 ingest/search route → no
@@ -286,8 +286,10 @@ def _open_epfl_graph_store_readonly(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.epfl_graph.paths import get_epfl_graph_paths  # noqa: PLC0415
-        from open_pulse_sources.index.epfl_graph.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.epfl_graph.paths import (
+            get_epfl_graph_paths,
+        )
+        from open_pulse_sources.index.epfl_graph.storage.duckdb_store import (
             EpflGraphStore,
         )
 
@@ -295,11 +297,11 @@ def _open_epfl_graph_store_readonly(app_state: Any) -> Any | None:
         if not db_path.exists():
             return None
         store = EpflGraphStore.open_readonly(db_path)
-    except Exception:  # noqa: BLE001 — optional dependency / config / disk error
+    except Exception:
         return None
     try:
         app_state.v2_epfl_graph_store = store
-    except Exception:  # noqa: BLE001 — app_state may be frozen in tests
+    except Exception:
         return store
     return store
 
@@ -314,15 +316,15 @@ def _cli_store(
     try:
         mod = __import__(module, fromlist=[class_name])
         store_cls = getattr(mod, class_name)
-    except Exception:  # noqa: BLE001 — optional dependency missing
+    except Exception:
         return None
     try:
         store = store_cls.open()
-    except Exception:  # noqa: BLE001 — config / disk error
+    except Exception:
         return None
     try:
         setattr(app_state, attr, store)
-    except Exception:  # noqa: BLE001 — app_state may be frozen in tests
+    except Exception:
         return store
     return store
 
@@ -336,9 +338,12 @@ def _open_communities_store(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.zenodo_communities.paths import duckdb_path  # noqa: PLC0415
-        import duckdb as _duckdb  # noqa: PLC0415
-    except Exception:  # noqa: BLE001
+        import duckdb as _duckdb
+
+        from open_pulse_sources.index.zenodo_communities.paths import (
+            duckdb_path,
+        )
+    except Exception:
         return None
 
     class _ZenodoCommunitiesStoreShim:
@@ -358,11 +363,11 @@ def _open_communities_store(app_state: Any) -> Any | None:
 
     try:
         shim = _ZenodoCommunitiesStoreShim(duckdb_path())
-    except Exception:  # noqa: BLE001
+    except Exception:
         return None
     try:
-        setattr(app_state, "v2_zenodo_communities_store", shim)
-    except Exception:  # noqa: BLE001
+        app_state.v2_zenodo_communities_store = shim
+    except Exception:
         return shim
     return shim
 

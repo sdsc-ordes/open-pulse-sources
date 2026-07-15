@@ -15,7 +15,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Iterable, List, Optional, Set
+from typing import Iterable
 
 from open_pulse_sources.common.canonicalization.infoscience import (
     infoscience_article_iri,
@@ -74,12 +74,12 @@ _UUID_RE = re.compile(
 )
 
 
-def _looks_like_uuid(s: Optional[str]) -> bool:
+def _looks_like_uuid(s: str | None) -> bool:
     return bool(s) and bool(_UUID_RE.match(s))
 
 
-def _authorities(metadata: dict, fields: Iterable[str]) -> List[str]:
-    out: List[str] = []
+def _authorities(metadata: dict, fields: Iterable[str]) -> list[str]:
+    out: list[str] = []
     for field in fields:
         for entry in metadata.get(field, []) or []:
             authority = entry.get("authority") if isinstance(entry, dict) else None
@@ -88,16 +88,16 @@ def _authorities(metadata: dict, fields: Iterable[str]) -> List[str]:
     return out
 
 
-def _load_item(uuid: str) -> Optional[dict]:
+def _load_item(uuid: str) -> dict | None:
     p = raw_items_dir() / f"{uuid}.json"
     if not p.exists():
         return None
     return json.loads(p.read_text(encoding="utf-8"))
 
 
-def _dedupe_preserve(seq: Iterable[str]) -> List[str]:
-    seen: Set[str] = set()
-    out: List[str] = []
+def _dedupe_preserve(seq: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
     for x in seq:
         if x in seen:
             continue
@@ -113,8 +113,8 @@ def extract_relations(_cfg: InfoscienceIndexConfig) -> dict:
         relations_path().write_text("", encoding="utf-8")
         return {"articles": 0, "persons": 0, "organizations": 0}
 
-    persons: Set[str] = set()
-    orgs: Set[str] = set()
+    persons: set[str] = set()
+    orgs: set[str] = set()
     written = 0
 
     with relations_path().open("w", encoding="utf-8") as out:
@@ -154,11 +154,11 @@ def extract_relations(_cfg: InfoscienceIndexConfig) -> dict:
     return summary
 
 
-def load_relations() -> List[RelationRecord]:
+def load_relations() -> list[RelationRecord]:
     p = relations_path()
     if not p.exists():
         return []
-    out: List[RelationRecord] = []
+    out: list[RelationRecord] = []
     for line in p.read_text(encoding="utf-8").splitlines():
         if line.strip():
             # Canonicalize on load so legacy relations.jsonl files (bare
@@ -167,7 +167,7 @@ def load_relations() -> List[RelationRecord]:
     return out
 
 
-def load_set(path: Path) -> Set[str]:
+def load_set(path: Path) -> set[str]:
     if not path.exists():
         return set()
     return {ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()}

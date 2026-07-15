@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import List, Optional
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -30,13 +29,13 @@ class RcpConfig(BaseModel):
     batch_size: int = 16
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None  # populated from RCP_TOKEN at load time
+    token: str | None = None  # populated from RCP_TOKEN at load time
 
 
 class ScopeConfig(BaseModel):
     mode: str = "epfl_ethz"
-    seeds: List[str] = Field(default_factory=lambda: [EPFL_ROR_ID, ETHZ_ROR_ID])
-    expand: List[str] = Field(default_factory=lambda: ["parent", "child", "related"])
+    seeds: list[str] = Field(default_factory=lambda: [EPFL_ROR_ID, ETHZ_ROR_ID])
+    expand: list[str] = Field(default_factory=lambda: ["parent", "child", "related"])
     max_depth: int = 2
 
     @field_validator("mode")
@@ -61,7 +60,7 @@ class RetrievalConfig(BaseModel):
 class QdrantConfig(BaseModel):
     url: str = "http://localhost:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None  # populated from INDEX_QDRANT_API_KEY at load time
+    api_key: str | None = None  # populated from INDEX_QDRANT_API_KEY at load time
     collection_prefix: str = "ror"
 
 
@@ -77,7 +76,7 @@ class RorIndexConfig(BaseModel):
         return f"{self.qdrant.collection_prefix}_{self.scope.mode}"
 
 
-def load_config(path: Optional[Path] = None) -> RorIndexConfig:
+def load_config(path: Path | None = None) -> RorIndexConfig:
     """Load + validate the YAML config; merge `RCP_TOKEN` and resolved data dir."""
     cfg_path = path or DEFAULT_CONFIG_PATH
     raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))

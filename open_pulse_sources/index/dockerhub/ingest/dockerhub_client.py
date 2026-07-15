@@ -59,7 +59,7 @@ class DockerHubClient:
             response = requests.get(
                 url, headers=self._headers(), timeout=REQUEST_TIMEOUT_SECONDS,
             )
-        except Exception:  # noqa: BLE001 — client contract is "never raise"; transport errors -> None
+        except Exception:
             LOGGER.exception("dockerhub GET failed: %s", url)
             return None
         if response.status_code == 404:

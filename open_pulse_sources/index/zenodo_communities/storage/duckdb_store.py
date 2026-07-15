@@ -6,7 +6,7 @@ import contextlib
 import json
 import logging
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 
 import duckdb
 
@@ -26,8 +26,10 @@ class ZenodoCommunitiesStore:
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
 
     @classmethod
-    def open(cls, db_path: Optional[Path] = None) -> "ZenodoCommunitiesStore":
-        from open_pulse_sources.index.zenodo_communities.paths import duckdb_path  # noqa: PLC0415
+    def open(cls, db_path: Path | None = None) -> ZenodoCommunitiesStore:
+        from open_pulse_sources.index.zenodo_communities.paths import (
+            duckdb_path,
+        )
 
         store = cls(db_path or duckdb_path())
         store.bootstrap()
@@ -84,7 +86,7 @@ class ZenodoCommunitiesStore:
             try:
                 self.upsert(row)
                 ok += 1
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.exception(
                     "zenodo_communities upsert failed for %s",
                     row.get("community_id"),

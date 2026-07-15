@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -32,9 +32,9 @@ class SnsfApiConfig(BaseModel):
 
 class ScopeConfig(BaseModel):
     active: ScopeMode = "epfl"
-    filters: Dict[str, Dict[str, List[str]]] = Field(default_factory=dict)
+    filters: dict[str, dict[str, list[str]]] = Field(default_factory=dict)
 
-    def filter_for_active_scope(self) -> Dict[str, List[str]]:
+    def filter_for_active_scope(self) -> dict[str, list[str]]:
         return dict(self.filters.get(self.active, {}))
 
 
@@ -51,12 +51,12 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class QdrantConfig(BaseModel):
     url: str = "http://gme-qdrant:6333"
-    api_key: Optional[str] = None
+    api_key: str | None = None
     prefer_grpc: bool = False
     collection_prefix: str = "snsf"
 
@@ -100,7 +100,7 @@ def _env_override(cfg: SnsfIndexConfig) -> SnsfIndexConfig:
 
 def load_config(path: Path | None = None) -> SnsfIndexConfig:
     src = Path(path) if path else DEFAULT_CONFIG_PATH
-    raw: Dict[str, Any] = {}
+    raw: dict[str, Any] = {}
     if src.exists():
         raw = yaml.safe_load(src.read_text(encoding="utf-8")) or {}
     return _env_override(SnsfIndexConfig(**raw))

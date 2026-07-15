@@ -12,10 +12,9 @@ Operates on raw v2 records (dicts) — no Pydantic round-trip, no normalization.
 from __future__ import annotations
 
 from collections import deque
-from typing import Any, Dict, FrozenSet, Iterable, List, Sequence, Set
+from typing import Any, Iterable, Sequence
 
-
-EUROPE_COUNTRY_CODES: FrozenSet[str] = frozenset({
+EUROPE_COUNTRY_CODES: frozenset[str] = frozenset({
     "AD", "AL", "AT", "BA", "BE", "BG", "BY", "CH", "CY", "CZ",
     "DE", "DK", "EE", "ES", "FI", "FO", "FR", "GB", "GG", "GI",
     "GR", "HR", "HU", "IE", "IM", "IS", "IT", "JE", "LI", "LT",
@@ -34,9 +33,9 @@ def _bare_id(ror_id: str) -> str:
     return _normalize_id(ror_id).rsplit("/", 1)[-1]
 
 
-def index_by_id(records: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+def index_by_id(records: Iterable[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """Return `{ror_id_url: record}` plus alias entries keyed by bare ID."""
-    out: Dict[str, Dict[str, Any]] = {}
+    out: dict[str, dict[str, Any]] = {}
     for record in records:
         rid = record.get("id")
         if isinstance(rid, str) and rid:
@@ -47,12 +46,12 @@ def index_by_id(records: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
 
 
 def filter_countries(
-    records: Iterable[Dict[str, Any]],
+    records: Iterable[dict[str, Any]],
     country_codes: Iterable[str],
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Keep records where any location's country_code matches the allowed set."""
     targets = {c.upper() for c in country_codes}
-    kept: List[Dict[str, Any]] = []
+    kept: list[dict[str, Any]] = []
     for record in records:
         for loc in record.get("locations") or []:
             if not isinstance(loc, dict):
@@ -68,20 +67,20 @@ def filter_countries(
 
 
 def filter_country_code(
-    records: Iterable[Dict[str, Any]],
+    records: Iterable[dict[str, Any]],
     country_code: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Keep records whose location matches a single ISO-3166 alpha-2 code."""
     return filter_countries(records, [country_code])
 
 
 def filter_subtree(
-    records: Iterable[Dict[str, Any]],
+    records: Iterable[dict[str, Any]],
     seeds: Sequence[str],
     *,
     expand_types: Sequence[str] = ("parent", "child", "related"),
     max_depth: int = 2,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """BFS from seed ROR IDs over allowed relationship types.
 
     Records list is materialized once into an id-indexed dict; relationships
@@ -90,7 +89,7 @@ def filter_subtree(
     by_id = index_by_id(records)
     allowed = {t.lower() for t in expand_types}
 
-    seen: Set[str] = set()
+    seen: set[str] = set()
     queue: deque[tuple[str, int]] = deque()
     for seed in seeds:
         seed_norm = _normalize_id(seed)
@@ -102,7 +101,7 @@ def filter_subtree(
             seen.add(rid)
             queue.append((rid, 0))
 
-    kept: List[Dict[str, Any]] = []
+    kept: list[dict[str, Any]] = []
     while queue:
         rid, depth = queue.popleft()
         record = by_id.get(rid)

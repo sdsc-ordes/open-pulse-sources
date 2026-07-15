@@ -41,7 +41,10 @@ from open_pulse_sources.module.epfl_graph.video import (
     fingerprint_video,
     get_video_token,
 )
-from open_pulse_sources.module.epfl_graph.voice import detect_audio_language, transcribe_audio
+from open_pulse_sources.module.epfl_graph.voice import (
+    detect_audio_language,
+    transcribe_audio,
+)
 
 __all__ = [
     "category_chain",

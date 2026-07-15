@@ -13,12 +13,13 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from pydantic import BaseModel
 
-from open_pulse_sources.index._github_accounts_base.paths_base import AccountIndexPathsBase
+from open_pulse_sources.index._github_accounts_base.paths_base import (
+    AccountIndexPathsBase,
+)
 
 TRUE_ENV_VALUES = {"1", "true", "t", "yes", "y", "on"}
 FALSE_ENV_VALUES = {"0", "false", "f", "no", "n", "off"}
@@ -36,7 +37,7 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class GitHubAccountFetchConfig(BaseModel):
@@ -47,13 +48,13 @@ class GitHubAccountFetchConfig(BaseModel):
     api_base: str = "https://api.github.com"
     max_concurrency: int = 4
     min_card_chars: int = 16
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class QdrantConfig(BaseModel):
     url: str = "http://gme-qdrant:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class ChunkingConfig(BaseModel):
@@ -87,7 +88,7 @@ class AccountIndexConfigBase(BaseModel):
             raise ValueError(MISSING_GME_GITHUB_TOKEN_ERROR)
 
 
-def _env_bool(name: str) -> Optional[bool]:
+def _env_bool(name: str) -> bool | None:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return None
@@ -100,7 +101,7 @@ def _env_bool(name: str) -> Optional[bool]:
     raise ValueError(message)
 
 
-def _env_str(name: str) -> Optional[str]:
+def _env_str(name: str) -> str | None:
     raw = os.getenv(name)
     if raw is None:
         return None

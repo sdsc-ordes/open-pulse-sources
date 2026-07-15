@@ -18,14 +18,17 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel
 
-from open_pulse_sources.index.epfl_graph.paths import EpflGraphPaths, get_epfl_graph_paths
+from open_pulse_sources.index.epfl_graph.paths import (
+    EpflGraphPaths,
+    get_epfl_graph_paths,
+)
 
 DEFAULT_CONFIG_PATH = Path("config/index/epfl_graph.yaml")
 
 TRUE_ENV_VALUES = {"1", "true", "t", "yes", "y", "on"}
 FALSE_ENV_VALUES = {"0", "false", "f", "no", "n", "off"}
 
-MISSING_RCP_TOKEN_ERROR = "Missing required environment variable: RCP_TOKEN"  # noqa: S105
+MISSING_RCP_TOKEN_ERROR = "Missing required environment variable: RCP_TOKEN"
 
 
 class RcpConfig(BaseModel):

@@ -14,11 +14,12 @@ from __future__ import annotations
 import logging
 from typing import Any, Iterator
 
-from open_pulse_sources.index._federated.dh_registry import register_discoverer, register_hydrator
+from open_pulse_sources.index._federated.dh_registry import (
+    register_discoverer,
+    register_hydrator,
+)
 from open_pulse_sources.index._federated.protocols import (
     HydrationSummary,
-    IndexDiscoverer,
-    IndexHydrator,
     Seed,
 )
 

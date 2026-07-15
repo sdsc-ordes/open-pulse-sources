@@ -9,11 +9,11 @@ into the matching Qdrant collection. No RCP calls — vectors are reused.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
-from .build import _build_payload  # noqa: PLC2701 — internal reuse
+from .build import _build_payload
 from .config import RorIndexConfig
 from .paths import index_data_root
 from .qdrant_store import QdrantRorStore
@@ -22,14 +22,14 @@ from .store import has_legacy_faiss, read_legacy_faiss, read_records
 logger = logging.getLogger(__name__)
 
 
-def list_scope_dirs() -> List[str]:
+def list_scope_dirs() -> list[str]:
     base = index_data_root() / "ror" / "index"
     if not base.exists():
         return []
     return sorted([p.name for p in base.iterdir() if p.is_dir()])
 
 
-def migrate_scope(cfg: RorIndexConfig, scope_mode: str) -> Dict[str, Any]:
+def migrate_scope(cfg: RorIndexConfig, scope_mode: str) -> dict[str, Any]:
     """Migrate one scope's vectors from FAISS to Qdrant."""
     if not has_legacy_faiss(scope_mode):
         msg = (
@@ -76,8 +76,8 @@ def migrate_scope(cfg: RorIndexConfig, scope_mode: str) -> Dict[str, Any]:
     }
 
 
-def migrate_all(cfg: RorIndexConfig) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def migrate_all(cfg: RorIndexConfig) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     for scope in list_scope_dirs():
         if not has_legacy_faiss(scope):
             continue

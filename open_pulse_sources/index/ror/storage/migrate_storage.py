@@ -20,10 +20,15 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Optional
+from typing import Any, Iterator
 
 from open_pulse_sources.index.ror.config import RorIndexConfig
-from open_pulse_sources.index.ror.paths import dump_dir, index_data_root, manifest_path, records_path
+from open_pulse_sources.index.ror.paths import (
+    dump_dir,
+    index_data_root,
+    manifest_path,
+    records_path,
+)
 from open_pulse_sources.index.ror.qdrant_store import QdrantRorStore
 from open_pulse_sources.index.ror.storage.duckdb_store import (
     RorStore,
@@ -50,7 +55,7 @@ def list_scope_dirs() -> list[str]:
     return sorted(p.name for p in base.iterdir() if p.is_dir())
 
 
-def find_cached_dump_json() -> Optional[Path]:
+def find_cached_dump_json() -> Path | None:
     """Locate the most recent cached ROR v2 dump JSON.
 
     Returns the highest-version `*-ror-data.json` (or `_schema_v2.json`)
@@ -125,7 +130,7 @@ def populate_full_dump(
     store: RorStore,
     json_path: Path,
     *,
-    release_version: Optional[str] = None,
+    release_version: str | None = None,
     csv_chunk_size: int = 50_000,
 ) -> int:
     """Load all records from the cached ROR dump JSON into the `records` table.
@@ -213,7 +218,7 @@ def verify_against_qdrant(
     qstore = QdrantRorStore(cfg)
     try:
         qdrant_count = qstore.count(scope_mode)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         LOGGER.warning(
             "Could not read Qdrant count for scope=%s: %s. "
             "Migration of DuckDB succeeded; Qdrant comparison skipped.",
@@ -232,8 +237,8 @@ def verify_against_qdrant(
 def migrate_all(
     cfg: RorIndexConfig,
     *,
-    db_path: Optional[Path] = None,
-    dump_path: Optional[Path] = None,
+    db_path: Path | None = None,
+    dump_path: Path | None = None,
     skip_qdrant_check: bool = False,
 ) -> dict[str, Any]:
     """Run the full storage migration. Returns a summary suitable for printing."""
@@ -272,7 +277,7 @@ def migrate_all(
     }
 
 
-def _guess_version_from_path(json_path: Path) -> Optional[str]:
+def _guess_version_from_path(json_path: Path) -> str | None:
     """Fallback when `release.json` is missing — read the parent dir name."""
     parent = json_path.parent.name
     return parent if _VERSION_DIR_RE.match(parent) else None

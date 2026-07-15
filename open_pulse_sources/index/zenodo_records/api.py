@@ -17,7 +17,9 @@ from open_pulse_sources.index.zenodo_records.retrieval.sql import (
     run_adhoc,
     run_predefined,
 )
-from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+    ZenodoRecordsStore,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,11 +46,11 @@ def healthz() -> dict[str, Any]:
     qdrant_status = "ok"
     try:
         ZenodoRecordsStore.open().count("records")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         duck_status = f"error: {exc}"
     try:
         QdrantStore(config).count(ZENODO_COLLECTION)  # type: ignore[arg-type]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_status = f"error: {exc}"
     return {
         "duckdb": duck_status,

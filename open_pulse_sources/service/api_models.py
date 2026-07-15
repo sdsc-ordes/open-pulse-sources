@@ -346,7 +346,7 @@ class IndexSearchHit(BaseModel):
 class IndexSearchResponse(BaseModel):
     """Wrapper envelope for index search results."""
 
-    index_name: "IndexName"
+    index_name: IndexName
     target: str | None = None
     query: str
     hits: list[IndexSearchHit] = Field(default_factory=list)

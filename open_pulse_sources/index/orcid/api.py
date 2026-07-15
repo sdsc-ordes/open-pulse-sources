@@ -44,11 +44,11 @@ def healthz() -> dict[str, Any]:
     qdrant_status = "ok"
     try:
         OrcidStore.open().count("persons")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         duck_status = f"error: {exc}"
     try:
         OrcidQdrantStore(config).count("persons")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_status = f"error: {exc}"
     return {
         "scope": config.paths.scope,

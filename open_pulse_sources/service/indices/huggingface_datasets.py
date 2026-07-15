@@ -29,19 +29,23 @@ def get_or_create_huggingface_datasets_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index._huggingface_base.client import HFClient  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_datasets.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.huggingface_datasets.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index._huggingface_base.client import (
+            HFClient,
+        )
+        from open_pulse_sources.index.huggingface_datasets.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.huggingface_datasets.storage.duckdb_store import (
             HuggingFaceDatasetsStore,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_datasets ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = HuggingFaceDatasetsStore.open(config.paths.duckdb_path)
         client = HFClient(config)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_datasets ingest: resource init failed — %s", exc)
         return None
     app_state.v2_huggingface_datasets_resources = (config, store, client)
@@ -50,13 +54,13 @@ def get_or_create_huggingface_datasets_resources(app_state: Any) -> Any | None:
 
 def _ingest_one(repo_id: str, *, config: Any, store: Any, client: Any) -> dict[str, Any]:
     try:
-        from open_pulse_sources.index.huggingface_datasets.ingest.datasets import (  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_datasets.ingest.datasets import (
             ingest_single_dataset,
         )
         outcome = ingest_single_dataset(
             config=config, store=store, client=client, repo_id=repo_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("huggingface_datasets ingest: %s failed — %s", repo_id, exc)
         return {"repo_id": repo_id, "outcome": "failed", "error": str(exc)}
     return {"repo_id": repo_id, "outcome": outcome}
@@ -99,7 +103,9 @@ async def run_huggingface_datasets_ingest_job(
         skipped_404 = sum(1 for r in items_results if r["outcome"] == "skipped_404")
         failed = sum(1 for r in items_results if r["outcome"] == "failed")
 
-        from open_pulse_sources.index.huggingface_datasets.embed.pipeline import embed_datasets  # noqa: PLC0415
+        from open_pulse_sources.index.huggingface_datasets.embed.pipeline import (
+            embed_datasets,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -135,7 +141,7 @@ async def run_huggingface_datasets_search(
     if resources is None:
         return None
     config, store, _ = resources
-    from open_pulse_sources.index.huggingface_datasets.retrieval.semantic import (  # noqa: PLC0415
+    from open_pulse_sources.index.huggingface_datasets.retrieval.semantic import (
         semantic_search,
     )
     raw_hits = await asyncio.to_thread(

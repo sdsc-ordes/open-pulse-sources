@@ -27,7 +27,10 @@ from open_pulse_sources.index.github_repos.embed.pipeline import (
     rebuild_qdrant_from_chunks,
 )
 from open_pulse_sources.index.github_repos.ingest.repos import ingest_repos
-from open_pulse_sources.index.github_repos.ingest.scope import merge_openalex_repos, resolve_scope
+from open_pulse_sources.index.github_repos.ingest.scope import (
+    merge_openalex_repos,
+    resolve_scope,
+)
 from open_pulse_sources.index.github_repos.retrieval.semantic import semantic_search
 from open_pulse_sources.index.github_repos.retrieval.sql import (
     PREDEFINED_QUERIES,
@@ -170,7 +173,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
         from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
         qdrant_count = QdrantStore(config).count(GITHUB_REPOS_COLLECTION)  # type: ignore[arg-type]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_count = f"error: {exc}"
     _emit_json(
         {

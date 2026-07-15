@@ -81,7 +81,7 @@ async def _async_search(
                 top_k=candidate_k,
                 filter_payload=filter_payload,
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("search %s failed: %s", collection, exc)
             continue
         for hit in hits:

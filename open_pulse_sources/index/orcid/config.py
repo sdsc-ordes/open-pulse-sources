@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from pydantic import BaseModel
@@ -32,7 +31,7 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None  # populated from RCP_TOKEN at load time
+    token: str | None = None  # populated from RCP_TOKEN at load time
 
 
 class OrcidApiConfig(BaseModel):
@@ -43,14 +42,14 @@ class OrcidApiConfig(BaseModel):
     base_delay_seconds: float = 0.5
     max_delay_seconds: float = 60.0
     request_min_interval_seconds: float = 1.5
-    user_agent: Optional[str] = "git-metadata-extractor-orcid-index/0.1"
+    user_agent: str | None = "git-metadata-extractor-orcid-index/0.1"
     # OAuth 2-legged (client_credentials) for the public-API rate uplift.
     # Both client_id and client_secret must be set for the token fetch to fire;
     # if either is missing, the provider falls back to anonymous access.
     oauth_token_url: str = "https://orcid.org/oauth/token"
     oauth_scope: str = "/read-public"
-    client_id: Optional[str] = None       # populated from ORCID_CLIENT_ID
-    client_secret: Optional[str] = None   # populated from ORCID_CLIENT_SECRET
+    client_id: str | None = None       # populated from ORCID_CLIENT_ID
+    client_secret: str | None = None   # populated from ORCID_CLIENT_SECRET
 
 
 class ScopeConfig(BaseModel):
@@ -67,7 +66,7 @@ class DiscoveryConfig(BaseModel):
 class QdrantConfig(BaseModel):
     url: str = "http://localhost:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None  # populated from INDEX_QDRANT_API_KEY
+    api_key: str | None = None  # populated from INDEX_QDRANT_API_KEY
 
 
 class ChunkingConfig(BaseModel):
@@ -92,7 +91,7 @@ class OrcidIndexConfig(BaseModel):
             raise ValueError(MISSING_RCP_TOKEN_ERROR)
 
 
-def _env_bool(name: str) -> Optional[bool]:
+def _env_bool(name: str) -> bool | None:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return None
@@ -105,7 +104,7 @@ def _env_bool(name: str) -> Optional[bool]:
     raise ValueError(message)
 
 
-def _env_str(name: str) -> Optional[str]:
+def _env_str(name: str) -> str | None:
     raw = os.getenv(name)
     if raw is None:
         return None
@@ -113,7 +112,7 @@ def _env_str(name: str) -> Optional[str]:
     return stripped or None
 
 
-def _active_scope(scope: Optional[str]) -> str:
+def _active_scope(scope: str | None) -> str:
     """Resolve the scope being operated on, mirroring `paths._resolve_scope`."""
     if scope:
         return scope
@@ -123,14 +122,14 @@ def _active_scope(scope: Optional[str]) -> str:
     return "epfl"
 
 
-def _env_int(name: str) -> Optional[int]:
+def _env_int(name: str) -> int | None:
     raw = _env_str(name)
     if raw is None:
         return None
     return int(raw)
 
 
-def _env_float(name: str) -> Optional[float]:
+def _env_float(name: str) -> float | None:
     raw = _env_str(name)
     if raw is None:
         return None
@@ -138,9 +137,9 @@ def _env_float(name: str) -> Optional[float]:
 
 
 def load_config(
-    path: Optional[Path] = None,
+    path: Path | None = None,
     *,
-    scope: Optional[str] = None,
+    scope: str | None = None,
 ) -> OrcidIndexConfig:
     """Load + validate the YAML config; merge env tokens, env overrides, paths."""
     cfg_path = path or DEFAULT_CONFIG_PATH

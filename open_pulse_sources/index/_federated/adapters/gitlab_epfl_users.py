@@ -9,7 +9,7 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 class GitLabEpflUsersAdapter:
     name = "gitlab_epfl_users"
-    entity_types: list[str] = ["user"]  # noqa: RUF012
+    entity_types: list[str] = ["user"]
 
     # Manifest hints (see IndexAdapter docstring).
     backend = "vector"
@@ -20,17 +20,19 @@ class GitLabEpflUsersAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
-        filters: dict[str, Any] | None,  # noqa: ARG002
+        filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
-            from open_pulse_sources.index.gitlab_epfl_users.retrieval import search  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.gitlab_epfl_users.retrieval import (
+                search,
+            )
+        except Exception:
             return []
         try:
             results = search(query, top_k=top_k)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -51,14 +53,16 @@ class GitLabEpflUsersAdapter:
             ))
         return out
 
-    def lookup(self, identifier: str) -> list[EntityRecord]:  # noqa: PLR0911
+    def lookup(self, identifier: str) -> list[EntityRecord]:
         if not isinstance(identifier, str) or not identifier.strip():
             return []
         s = identifier.strip()
         # Validate that it's a GitLab user URL using the canonicalization helper.
         try:
-            from open_pulse_sources.common.canonicalization.gitlab import parse_gitlab_iri  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.common.canonicalization.gitlab import (
+                parse_gitlab_iri,
+            )
+        except Exception:
             return []
         parsed = parse_gitlab_iri(s)
         if parsed is None:
@@ -67,8 +71,10 @@ class GitLabEpflUsersAdapter:
         if kind != "user" or host != "gitlab.epfl.ch":
             return []
         try:
-            from open_pulse_sources.index.gitlab_epfl_users.store import open_store  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.gitlab_epfl_users.store import (
+                open_store,
+            )
+        except Exception:
             return []
         store = None
         try:
@@ -83,13 +89,13 @@ class GitLabEpflUsersAdapter:
                 data=row,
                 url=s,
             )]
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         finally:
             if store is not None:
-                try:  # noqa: SIM105
+                try:
                     store.close()
-                except Exception:  # noqa: BLE001, S110
+                except Exception:
                     pass
 
 

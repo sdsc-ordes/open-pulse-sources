@@ -92,7 +92,7 @@ def _hit_url(entity_type: str, payload: dict[str, Any]) -> str | None:
 
 class SwissubaseAdapter:
     name = "swissubase"
-    entity_types: list[str] = list(_ENTITY_NAMES)  # noqa: RUF012
+    entity_types: list[str] = list(_ENTITY_NAMES)
 
     def search(
         self,
@@ -103,7 +103,9 @@ class SwissubaseAdapter:
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         from open_pulse_sources.index.swissubase.config import load_config
-        from open_pulse_sources.index.swissubase.retrieval.semantic import semantic_search
+        from open_pulse_sources.index.swissubase.retrieval.semantic import (
+            semantic_search,
+        )
 
         if entity_type is not None and entity_type not in _ENTITY_NAMES:
             return []
@@ -123,7 +125,7 @@ class SwissubaseAdapter:
                 candidate_k=max(top_k * 5, 50),
                 filter_payload=filter_payload or None,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
 
         out: list[Hit] = []
@@ -177,13 +179,15 @@ class SwissubaseAdapter:
 
     def _lookup_study(self, study_id: str) -> list[EntityRecord]:
         try:
-            from open_pulse_sources.index.swissubase.storage.duckdb_store import SwissubaseStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.swissubase.storage.duckdb_store import (
+                SwissubaseStore,
+            )
+        except Exception:
             return []
         store = SwissubaseStore.open()
         try:
             row = store.fetch_study(study_id)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         finally:
             store.close()
@@ -199,8 +203,10 @@ class SwissubaseAdapter:
 
     def _lookup_person(self, person_key: str) -> list[EntityRecord]:
         try:
-            from open_pulse_sources.index.swissubase.storage.duckdb_store import SwissubaseStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.swissubase.storage.duckdb_store import (
+                SwissubaseStore,
+            )
+        except Exception:
             return []
         store = SwissubaseStore.open()
         try:
@@ -213,7 +219,7 @@ class SwissubaseAdapter:
                 return []
             cols = [d[0] for d in cur.description]
             row_dict = dict(zip(cols, row, strict=False))
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         finally:
             store.close()
@@ -227,8 +233,10 @@ class SwissubaseAdapter:
 
     def _lookup_institution(self, institution_key: str) -> list[EntityRecord]:
         try:
-            from open_pulse_sources.index.swissubase.storage.duckdb_store import SwissubaseStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.swissubase.storage.duckdb_store import (
+                SwissubaseStore,
+            )
+        except Exception:
             return []
         store = SwissubaseStore.open()
         try:
@@ -241,7 +249,7 @@ class SwissubaseAdapter:
                 return []
             cols = [d[0] for d in cur.description]
             row_dict = dict(zip(cols, row, strict=False))
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         finally:
             store.close()

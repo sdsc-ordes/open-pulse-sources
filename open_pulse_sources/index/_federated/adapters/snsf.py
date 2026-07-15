@@ -16,7 +16,7 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 # https://data.snf.ch/grants/grant/<id>.
 _RE_SNSF_URL = re.compile(
     r"https?://(?:data|p3)\.sn[fs]\.ch/(?:grants/grant|grant)/(\S+?)(?:[/?#]|$)",
-    re.I,
+    re.IGNORECASE,
 )
 _RE_SNSF_ID = re.compile(r"\b(\d{6,7})\b")
 
@@ -30,14 +30,14 @@ class SnsfAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type for now
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.snsf.config import load_config
             from open_pulse_sources.index.snsf.query import query_rag_sync
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         cfg = load_config()
         kw: dict[str, Any] = {"top_k": top_k}
@@ -47,7 +47,7 @@ class SnsfAdapter:
                     kw[fk] = filters[fk]
         try:
             results = query_rag_sync(cfg, query, **kw)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -91,16 +91,16 @@ class SnsfAdapter:
 
         try:
             from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore
-        except Exception:  # noqa: BLE001
+        except Exception:
             return self._fallback_record(grant_id_str)
 
         try:
             store = SnsfStore.open()
-        except Exception:  # noqa: BLE001
+        except Exception:
             return self._fallback_record(grant_id_str)
         try:
             row = store.fetch_grant(grant_id)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return self._fallback_record(grant_id_str)
         finally:
             store.close()
@@ -132,17 +132,21 @@ class SnsfAdapter:
         ``{"total": 0, "results": []}`` when the store is unavailable.
         """
         try:
-            from open_pulse_sources.index.snsf.facet_query import query_grants  # noqa: PLC0415
-            from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.snsf.facet_query import (
+                query_grants,
+            )
+            from open_pulse_sources.index.snsf.storage.duckdb_store import (
+                SnsfStore,
+            )
+        except Exception:
             return {"total": 0, "results": []}
         try:
             store = SnsfStore.open()
-        except Exception:  # noqa: BLE001
+        except Exception:
             return {"total": 0, "results": []}
         try:
             return query_grants(store, filters, text=text, sort=sort, limit=limit, offset=offset)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return {"total": 0, "results": []}
         finally:
             store.close()
@@ -158,17 +162,21 @@ class SnsfAdapter:
         Returns an empty dict when the store is unavailable.
         """
         try:
-            from open_pulse_sources.index.snsf.facet_query import facet_counts  # noqa: PLC0415
-            from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore  # noqa: PLC0415
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.snsf.facet_query import (
+                facet_counts,
+            )
+            from open_pulse_sources.index.snsf.storage.duckdb_store import (
+                SnsfStore,
+            )
+        except Exception:
             return {}
         try:
             store = SnsfStore.open()
-        except Exception:  # noqa: BLE001
+        except Exception:
             return {}
         try:
             return facet_counts(store, filters, text=text)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return {}
         finally:
             store.close()

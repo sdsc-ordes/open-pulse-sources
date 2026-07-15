@@ -11,10 +11,11 @@ import json
 import logging
 import re
 from collections import Counter
-from typing import Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 
-from open_pulse_sources.common.detection.github_url_classifier import classify_github_url
+from open_pulse_sources.common.detection.github_url_classifier import (
+    classify_github_url,
+)
 
 from .config import EthzResearchCollectionIndexConfig
 from .models import MatchRecord
@@ -38,7 +39,7 @@ def _hostname(url: str) -> str:
         return ""
 
 
-def classify_huggingface_url(url: str) -> Optional[Tuple[str, str]]:
+def classify_huggingface_url(url: str) -> tuple[str, str] | None:
     """Return (kind, canonical_url) for a HuggingFace URL, or None.
 
     `kind` is one of: 'model', 'dataset', 'space', 'org', 'user', 'other'.
@@ -65,7 +66,7 @@ def classify_huggingface_url(url: str) -> Optional[Tuple[str, str]]:
     return ("model", canonical)
 
 
-def _canonicalise(url: str) -> Optional[str]:
+def _canonicalise(url: str) -> str | None:
     """Return a canonical URL string if the URL points at GitHub or HF, else None.
 
     GitHub URLs that classify_github_url rejects (issues, blobs, etc.) are
@@ -84,7 +85,7 @@ def _canonicalise(url: str) -> Optional[str]:
     return None
 
 
-def extract_matches_single(uuid: str) -> Optional[MatchRecord]:
+def extract_matches_single(uuid: str) -> MatchRecord | None:
     """Run match extraction for one UUID. Reads ``text/<uuid>.txt`` and
     returns a :class:`MatchRecord` if any GitHub/HF URL is found, else
     ``None``. Does NOT touch the shared ``matches.jsonl`` aggregate; the
@@ -104,8 +105,8 @@ def extract_matches_single(uuid: str) -> Optional[MatchRecord]:
     )
 
 
-def _extract_from_text(text: str) -> Tuple[Set[str], Counter]:
-    found: Set[str] = set()
+def _extract_from_text(text: str) -> tuple[set[str], Counter]:
+    found: set[str] = set()
     counts: Counter = Counter()
     for raw in _URL_RE.findall(text):
         # Trim trailing punctuation that often clings to URLs in prose.
@@ -154,12 +155,12 @@ def extract_matches(_cfg: EthzResearchCollectionIndexConfig) -> dict:
     }
 
 
-def load_matches() -> List[MatchRecord]:
+def load_matches() -> list[MatchRecord]:
     """Read all match records from disk."""
     path = matches_path()
     if not path.exists():
         return []
-    out: List[MatchRecord] = []
+    out: list[MatchRecord] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if line:
@@ -167,7 +168,7 @@ def load_matches() -> List[MatchRecord]:
     return out
 
 
-def matches_by_uuid() -> Dict[str, MatchRecord]:
+def matches_by_uuid() -> dict[str, MatchRecord]:
     return {m.uuid: m for m in load_matches()}
 
 

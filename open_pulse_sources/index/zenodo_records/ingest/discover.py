@@ -26,7 +26,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+    from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+        ZenodoRecordsStore,
+    )
 
 LOGGER = logging.getLogger(__name__)
 

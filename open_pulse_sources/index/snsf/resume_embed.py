@@ -22,15 +22,15 @@ import asyncio
 import json
 import logging
 import sys
-from typing import Any, Dict, List
+from typing import Any
 
+from open_pulse_sources.common.canonicalization.snsf import snsf_grant_point_id
 from open_pulse_sources.index.snsf.config import load_config
 from open_pulse_sources.index.snsf.document import to_document
 from open_pulse_sources.index.snsf.embed import embed_passages
 from open_pulse_sources.index.snsf.embed_pipeline import _payload, _scope_grant_rows
 from open_pulse_sources.index.snsf.qdrant_store import QdrantSnsfStore
 from open_pulse_sources.index.snsf.storage.duckdb_store import SnsfStore
-from open_pulse_sources.common.canonicalization.snsf import snsf_grant_point_id
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def _existing_point_ids(qstore: QdrantSnsfStore, collection: str) -> set[str]:
     return seen
 
 
-async def run(scope_mode: str) -> Dict[str, Any]:
+async def run(scope_mode: str) -> dict[str, Any]:
     cfg = load_config()
     if cfg.rcp.token is None:
         msg = "RCP_TOKEN not set."
@@ -76,7 +76,7 @@ async def run(scope_mode: str) -> Dict[str, Any]:
         store.close()
     LOGGER.info("Scope %s has %d grants in DuckDB", scope_mode, len(all_rows))
 
-    missing: List[Dict[str, Any]] = [
+    missing: list[dict[str, Any]] = [
         r for r in all_rows
         if snsf_grant_point_id(r["grant_number"]) not in existing
     ]

@@ -20,12 +20,14 @@ logger = logging.getLogger(__name__)
 def _open_read_only():
     """Lazy open — keeps `from open_pulse_sources.index._federated.adapters.zenodo_communities`
     cheap and tolerates a missing DB file gracefully."""
-    from open_pulse_sources.index.zenodo_communities.paths import duckdb_path  # noqa: PLC0415
+    from open_pulse_sources.index.zenodo_communities.paths import (
+        duckdb_path,
+    )
 
     path = duckdb_path()
     if not path.exists():
         return None
-    import duckdb  # noqa: PLC0415
+    import duckdb
 
     return duckdb.connect(str(path), read_only=True)
 
@@ -56,7 +58,7 @@ class ZenodoCommunitiesAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
@@ -93,13 +95,13 @@ class ZenodoCommunitiesAdapter:
                 )
                 out.append(_row_to_hit(record, score))
             return out
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.exception("zenodo_communities.search failed for %r", query)
             return []
         finally:
             try:
                 con.close()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
 
     def lookup(self, identifier: str) -> list[EntityRecord]:
@@ -141,13 +143,13 @@ class ZenodoCommunitiesAdapter:
                     url=record.get("url"),
                 ))
             return out
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.exception("zenodo_communities.lookup failed for %r", identifier)
             return []
         finally:
             try:
                 con.close()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
 
 

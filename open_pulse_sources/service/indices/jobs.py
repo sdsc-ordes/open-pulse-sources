@@ -7,8 +7,8 @@ extract-job and index-ingest-job keys never collide in the shared
 
 from __future__ import annotations
 
-from open_pulse_sources.service.api_models import IndexIngestJob
 from open_pulse_sources.common.cache import ProviderCache
+from open_pulse_sources.service.api_models import IndexIngestJob
 
 JOB_NAMESPACE = "v2-index-ingest-job"
 
@@ -29,7 +29,7 @@ class IndexIngestJobStore:
             return None
         try:
             return IndexIngestJob.model_validate(raw)
-        except Exception:  # noqa: BLE001 — return None on schema drift
+        except Exception:
             return None
 
     def set(self, job: IndexIngestJob) -> None:

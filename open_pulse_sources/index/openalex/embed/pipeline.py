@@ -33,12 +33,12 @@ def _chunk_id(entity_type: str, entity_id: str, chunk_index: int) -> str:
         uuid.uuid5(_CHUNK_NAMESPACE, f"{entity_type}|{entity_id}|{chunk_index}"),
     )
 
+from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index.openalex.embed.chunker import (
     Chunk,
     chunk_for_simple_entity,
     chunk_for_work,
 )
-from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
@@ -186,7 +186,7 @@ def _rebuild_select_sql(entity_type: str) -> str:
     else:
         extra = "NULL AS title, NULL AS publication_year, t.display_name AS display_name"
     join_alias = "w" if entity_type == "works" else "t"
-    return (  # noqa: S608 - entity_type guarded by ENTITY_TABLES
+    return (
         "SELECT c.chunk_id, c.entity_id, c.chunk_index, c.text, "
         f"{extra} "
         f"FROM chunks c JOIN {entity_type} {join_alias} "

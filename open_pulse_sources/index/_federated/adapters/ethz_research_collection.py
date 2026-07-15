@@ -14,11 +14,11 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 _RE_UUID = re.compile(
     r"\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b",
-    re.I,
+    re.IGNORECASE,
 )
 _RE_RC_URL = re.compile(
     r"https?://(?:www\.)?research-collection\.ethz\.ch/handle/(\S+)",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -35,11 +35,13 @@ class EthzResearchCollectionAdapter:
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
-            from open_pulse_sources.index.ethz_research_collection.config import load_config
+            from open_pulse_sources.index.ethz_research_collection.config import (
+                load_config,
+            )
             from open_pulse_sources.index.ethz_research_collection.pipeline import (
                 query as rc_query,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         cfg = load_config()
         target = entity_type or "chunks"
@@ -47,7 +49,7 @@ class EthzResearchCollectionAdapter:
             qr = asyncio.run(rc_query(
                 cfg, query, target=target, where=filters, top_k=top_k,
             ))
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         results = getattr(qr, "rows", None) or []
         out: list[Hit] = []

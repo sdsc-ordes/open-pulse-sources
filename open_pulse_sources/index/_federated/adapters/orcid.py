@@ -8,7 +8,7 @@ from typing import Any
 from open_pulse_sources.index._federated.registry import EntityRecord, Hit, register
 
 _RE_ORCID = re.compile(r"\b(\d{4}-\d{4}-\d{4}-\d{3}[\dX])\b")
-_RE_ORCID_URL = re.compile(r"https?://orcid\.org/(\d{4}-\d{4}-\d{4}-\d{3}[\dX])", re.I)
+_RE_ORCID_URL = re.compile(r"https?://orcid\.org/(\d{4}-\d{4}-\d{4}-\d{3}[\dX])", re.IGNORECASE)
 
 
 class OrcidAdapter:
@@ -36,7 +36,7 @@ class OrcidAdapter:
                     top_k=top_k, candidate_k=max(top_k * 5, 50),
                     filter_payload=filters,
                 )
-            except Exception:  # noqa: BLE001
+            except Exception:
                 continue
             for r in results:
                 payload = r.get("payload") or {}
@@ -69,7 +69,7 @@ class OrcidAdapter:
         oid = m.group(1)
         try:
             from open_pulse_sources.index.orcid.storage.duckdb_store import DuckDBStore
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         store = DuckDBStore.open()
         if hasattr(store, "fetch_person"):

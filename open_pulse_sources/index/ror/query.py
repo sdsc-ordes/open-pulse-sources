@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import List, Literal, Optional
+from typing import Literal
 
 import numpy as np
 
@@ -30,10 +30,10 @@ async def query_rag(
     cfg: RorIndexConfig,
     text: str,
     *,
-    top_k: Optional[int] = None,
-    rerank_top_k: Optional[int] = None,
-    country: Optional[str] = None,
-) -> List[ScoredRecord]:
+    top_k: int | None = None,
+    rerank_top_k: int | None = None,
+    country: str | None = None,
+) -> list[ScoredRecord]:
     """Embed query → Qdrant search → rerank → return top results."""
     top_k = top_k or cfg.retrieval.top_k
     rerank_top_k = rerank_top_k or cfg.retrieval.rerank_top_k
@@ -53,7 +53,7 @@ async def query_rag(
     rerank_results = await rerank(
         cfg.rcp, text, candidate_texts, top_n=rerank_top_k,
     )
-    out: List[ScoredRecord] = []
+    out: list[ScoredRecord] = []
     for r in rerank_results[:rerank_top_k]:
         if r.index < 0 or r.index >= len(candidates):
             continue
@@ -70,13 +70,13 @@ async def query_rag(
 def lookup_dump(
     cfg: RorIndexConfig,
     *,
-    text: Optional[str] = None,
-    ror_id: Optional[str] = None,
-    country: Optional[str] = None,
-    type_: Optional[str] = None,
-    status: Optional[str] = None,
+    text: str | None = None,
+    ror_id: str | None = None,
+    country: str | None = None,
+    type_: str | None = None,
+    status: str | None = None,
     limit: int = 20,
-) -> List[DumpMatch]:
+) -> list[DumpMatch]:
     """Lexical / exact lookup over the full ROR dump (no RCP calls).
 
     Backed by the `records` table in `<INDEX_DATA_DIR>/ror/duckdb/ror.duckdb`
@@ -100,7 +100,7 @@ def lookup_dump(
     finally:
         store.close()
 
-    out: List[DumpMatch] = []
+    out: list[DumpMatch] = []
     for row in rows:
         record = row.get("record") or {}
         out.append(DumpMatch(
@@ -118,7 +118,7 @@ async def query(
     *,
     mode: Literal["auto", "rag", "dump"] = "auto",
     score_floor: float = 0.0,
-) -> List[ScoredRecord] | List[DumpMatch]:
+) -> list[ScoredRecord] | list[DumpMatch]:
     """Convenience wrapper: RAG if `mode!="dump"` and there's a hit above floor."""
     if mode == "dump":
         return lookup_dump(cfg, text=text)
@@ -130,7 +130,7 @@ async def query(
     return lookup_dump(cfg, text=text)
 
 
-def query_rag_sync(cfg: RorIndexConfig, text: str, **kwargs) -> List[ScoredRecord]:
+def query_rag_sync(cfg: RorIndexConfig, text: str, **kwargs) -> list[ScoredRecord]:
     return asyncio.run(query_rag(cfg, text, **kwargs))
 
 
@@ -138,7 +138,7 @@ def query_sync(cfg: RorIndexConfig, text: str, **kwargs):
     return asyncio.run(query(cfg, text, **kwargs))
 
 
-__all__: List[str] = [
+__all__: list[str] = [
     "lookup_dump",
     "query",
     "query_rag",

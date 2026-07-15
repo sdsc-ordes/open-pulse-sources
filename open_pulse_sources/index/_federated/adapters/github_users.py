@@ -9,7 +9,7 @@ from open_pulse_sources.index._federated.registry import EntityRecord, Hit, regi
 
 _RE_GH_USER_URL = re.compile(
     r"https?://(?:www\.)?github\.com/([^/\s?#]+)/?$",
-    re.I,
+    re.IGNORECASE,
 )
 
 
@@ -21,14 +21,16 @@ class GitHubUsersAdapter:
         self,
         *,
         query: str,
-        entity_type: str | None,  # noqa: ARG002 — single-type index
+        entity_type: str | None,
         top_k: int,
         filters: dict[str, Any] | None,
     ) -> list[Hit]:
         try:
             from open_pulse_sources.index.github_users.config import load_config
-            from open_pulse_sources.index.github_users.retrieval.semantic import semantic_search
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.github_users.retrieval.semantic import (
+                semantic_search,
+            )
+        except Exception:
             return []
         try:
             cfg = load_config()
@@ -37,7 +39,7 @@ class GitHubUsersAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
         out: list[Hit] = []
         for r in results:
@@ -70,8 +72,10 @@ class GitHubUsersAdapter:
         if not login:
             return []
         try:
-            from open_pulse_sources.index.github_users.storage.duckdb_store import GitHubUsersStore
-        except Exception:  # noqa: BLE001
+            from open_pulse_sources.index.github_users.storage.duckdb_store import (
+                GitHubUsersStore,
+            )
+        except Exception:
             return []
         store = GitHubUsersStore.open()
         if hasattr(store, "fetch_user"):

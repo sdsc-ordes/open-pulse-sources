@@ -35,21 +35,23 @@ def get_or_create_renkulab_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.renkulab.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.renkulab.ingest.renku_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.renkulab.config import (
+            load_config,
+        )
+        from open_pulse_sources.index.renkulab.ingest.renku_client import (
             RenkulabClient,
         )
-        from open_pulse_sources.index.renkulab.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.renkulab.storage.duckdb_store import (
             RenkulabStore,
         )
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+    except Exception as exc:
         logger.warning("renkulab ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         client = RenkulabClient(config)
         store = RenkulabStore.open(config.paths.duckdb_path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("renkulab ingest: resource init failed — %s", exc)
         return None
     app_state.v2_renkulab_resources = (config, client, store)
@@ -61,13 +63,13 @@ async def _ingest_one_project(
 ) -> dict[str, Any]:
     """Run a single per-project ingest; never raises."""
     try:
-        from open_pulse_sources.index.renkulab.ingest.pipeline import (  # noqa: PLC0415
+        from open_pulse_sources.index.renkulab.ingest.pipeline import (
             ingest_single_project,
         )
         outcome = await ingest_single_project(
             client=client, store=store, project_id=project_id,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("renkulab ingest: %s failed — %s", project_id, exc)
         return {"project_id": project_id, "outcome": "error", "error": str(exc)}
     return {"project_id": project_id, "outcome": outcome}
@@ -115,7 +117,9 @@ async def run_renkulab_ingest_job(
         )
         errors = sum(1 for r in items_results if r["outcome"] == "error")
 
-        from open_pulse_sources.index.renkulab.embed.pipeline import embed_entities  # noqa: PLC0415
+        from open_pulse_sources.index.renkulab.embed.pipeline import (
+            embed_entities,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -159,7 +163,9 @@ async def run_renkulab_search(
         return None
     config, _, store = resources
     entity_types = [payload.target] if payload.target else None
-    from open_pulse_sources.index.renkulab.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.renkulab.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query, entity_types=entity_types,

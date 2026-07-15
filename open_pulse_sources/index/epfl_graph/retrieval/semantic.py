@@ -11,10 +11,10 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.epfl_graph.embed.pipeline import EPFL_GRAPH_COLLECTION
-from open_pulse_sources.index.epfl_graph.storage.duckdb_store import EpflGraphStore
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
 from open_pulse_sources.index._rcp.reranker_client import RCPRerankerClient
+from open_pulse_sources.index.epfl_graph.embed.pipeline import EPFL_GRAPH_COLLECTION
+from open_pulse_sources.index.epfl_graph.storage.duckdb_store import EpflGraphStore
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ def _walk_chain(
     return chain
 
 
-async def _async_search(  # noqa: PLR0913
+async def _async_search(
     *,
     config: EpflGraphIndexConfig,
     query: str,
@@ -130,7 +130,7 @@ async def _async_search(  # noqa: PLR0913
     return out
 
 
-def semantic_search(  # noqa: PLR0913
+def semantic_search(
     *,
     config: EpflGraphIndexConfig,
     query: str,

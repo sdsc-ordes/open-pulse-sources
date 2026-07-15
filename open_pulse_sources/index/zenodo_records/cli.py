@@ -20,9 +20,18 @@ import sys
 from typing import Any
 
 from open_pulse_sources.index.zenodo_records.config import load_config
-from open_pulse_sources.index.zenodo_records.embed.pipeline import ZENODO_COLLECTION, embed_records
-from open_pulse_sources.index.zenodo_records.ingest.discover import discover_from_infoscience
-from open_pulse_sources.index.zenodo_records.ingest.records import ingest_by_ids, ingest_records, load_ids_file
+from open_pulse_sources.index.zenodo_records.embed.pipeline import (
+    ZENODO_COLLECTION,
+    embed_records,
+)
+from open_pulse_sources.index.zenodo_records.ingest.discover import (
+    discover_from_infoscience,
+)
+from open_pulse_sources.index.zenodo_records.ingest.records import (
+    ingest_by_ids,
+    ingest_records,
+    load_ids_file,
+)
 from open_pulse_sources.index.zenodo_records.ingest.scope import resolve_scope
 from open_pulse_sources.index.zenodo_records.retrieval.semantic import semantic_search
 from open_pulse_sources.index.zenodo_records.retrieval.sql import (
@@ -30,7 +39,9 @@ from open_pulse_sources.index.zenodo_records.retrieval.sql import (
     run_adhoc,
     run_predefined,
 )
-from open_pulse_sources.index.zenodo_records.storage.duckdb_store import ZenodoRecordsStore
+from open_pulse_sources.index.zenodo_records.storage.duckdb_store import (
+    ZenodoRecordsStore,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -177,7 +188,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
         from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
         qdrant_count = QdrantStore(config).count(ZENODO_COLLECTION)  # type: ignore[arg-type]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         qdrant_count = f"error: {exc}"
     _emit_json(
         {
@@ -383,7 +394,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return int(args.func(args) or 0)
-    except Exception as exc:  # noqa: BLE001 — top-level surface for operator clarity
+    except Exception as exc:
         # DuckDB raises `IOException` when another process holds the
         # file lock. Print the actionable message so an operator
         # doesn't get a silent exit 0 / 1 and wonder what happened.

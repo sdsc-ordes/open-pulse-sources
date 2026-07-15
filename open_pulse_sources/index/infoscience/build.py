@@ -24,7 +24,7 @@ import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
+from typing import Sequence
 
 from .chunker import chunk_text
 from .config import InfoscienceIndexConfig
@@ -71,11 +71,11 @@ def _release_memory() -> None:
     try:
         import ctypes
         ctypes.CDLL("libc.so.6").malloc_trim(0)
-    except Exception:  # noqa: BLE001  (Linux/glibc-specific; ignore elsewhere)
+    except Exception:
         pass
 
 
-def _load_json(path: Path) -> Optional[dict]:
+def _load_json(path: Path) -> dict | None:
     if not path.exists():
         return None
     try:
@@ -89,9 +89,9 @@ def _chunks_for_article(
     cfg: InfoscienceIndexConfig,
     article: ArticleRecord,
     text: str,
-) -> List[ChunkRecord]:
+) -> list[ChunkRecord]:
     pieces = chunk_text(text, cfg.chunking)
-    out: List[ChunkRecord] = []
+    out: list[ChunkRecord] = []
     for i, piece in enumerate(pieces):
         out.append(ChunkRecord(
             chunk_id=f"{article.article_uuid}::{i}",
@@ -118,8 +118,8 @@ def _chunks_for_article(
     return out
 
 
-def _articles_with_matches(matches_map: dict) -> List[ArticleRecord]:
-    out: List[ArticleRecord] = []
+def _articles_with_matches(matches_map: dict) -> list[ArticleRecord]:
+    out: list[ArticleRecord] = []
     for uuid, match in matches_map.items():
         item = _load_json(raw_items_dir() / f"{uuid}.json")
         if item is None:
@@ -128,16 +128,16 @@ def _articles_with_matches(matches_map: dict) -> List[ArticleRecord]:
     return out
 
 
-def _build_article_to_persons() -> Dict[str, List[str]]:
-    rev: Dict[str, List[str]] = defaultdict(list)
+def _build_article_to_persons() -> dict[str, list[str]]:
+    rev: dict[str, list[str]] = defaultdict(list)
     for rel in load_relations():
         for p in rel.person_uuids:
             rev[p].append(rel.article_uuid)
     return rev
 
 
-def _build_article_to_orgs() -> Dict[str, List[str]]:
-    rev: Dict[str, List[str]] = defaultdict(list)
+def _build_article_to_orgs() -> dict[str, list[str]]:
+    rev: dict[str, list[str]] = defaultdict(list)
     for rel in load_relations():
         for o in rel.org_uuids:
             rev[o].append(rel.article_uuid)
@@ -145,7 +145,7 @@ def _build_article_to_orgs() -> Dict[str, List[str]]:
 
 
 def _person_text(rec: PersonRecord) -> str:
-    parts: List[str] = []
+    parts: list[str] = []
     if rec.name:
         parts.append(rec.name)
     if rec.position:
@@ -160,7 +160,7 @@ def _person_text(rec: PersonRecord) -> str:
 
 
 def _organization_text(rec: OrganizationRecord) -> str:
-    parts: List[str] = []
+    parts: list[str] = []
     if rec.name:
         header = rec.name
         if rec.acronym:
@@ -174,7 +174,7 @@ def _organization_text(rec: OrganizationRecord) -> str:
 
 
 def _article_embed_text(rec: ArticleRecord) -> str:
-    parts: List[str] = []
+    parts: list[str] = []
     if rec.title:
         parts.append(rec.title)
     if rec.abstract:
@@ -225,7 +225,7 @@ async def build_chunks(cfg: InfoscienceIndexConfig) -> dict:
             if next_offset is None:
                 break
         logger.info("build_chunks resume: %d articles already in qdrant", len(already_done))
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("build_chunks resume scroll failed (will reprocess all): %s", exc)
         already_done = set()
 
@@ -239,7 +239,7 @@ async def build_chunks(cfg: InfoscienceIndexConfig) -> dict:
     total_chunks = 0
     total_upserted = 0
     skipped_no_text = 0
-    chunk_counts_per_article: Dict[str, int] = {}
+    chunk_counts_per_article: dict[str, int] = {}
     worker_mode = os.getenv("INFOSCIENCE_EMBED_WORKER_MODE", "inproc").lower()
     n_groups = (len(todo) + group_size - 1) // group_size
 
@@ -297,7 +297,7 @@ async def build_chunks(cfg: InfoscienceIndexConfig) -> dict:
         async with RCPEmbedder(cfg.rcp) as embedder:
             for start in range(0, len(todo), group_size):
                 group = todo[start : start + group_size]
-                chunk_records: List[ChunkRecord] = []
+                chunk_records: list[ChunkRecord] = []
                 for article in group:
                     text_path = text_dir() / f"{article.article_uuid}.txt"
                     if not text_path.exists():
@@ -350,7 +350,7 @@ async def build_articles(cfg: InfoscienceIndexConfig) -> dict:
     # Derive chunk_count per article from the on-disk text files (no
     # round-trip to Qdrant needed; chunker is deterministic so the count
     # we'd insert in build_chunks matches what we'd see in the store).
-    chunk_counts: Dict[str, int] = {}
+    chunk_counts: dict[str, int] = {}
     for art in articles:
         text_path = text_dir() / f"{art.article_uuid}.txt"
         if not text_path.exists():
@@ -374,7 +374,7 @@ async def build_articles(cfg: InfoscienceIndexConfig) -> dict:
     else:
         embeddings_iter = []
 
-    embeddings: List[Optional[Sequence[float]]] = []
+    embeddings: list[Sequence[float] | None] = []
     embed_pos = 0
     for ok in have_text:
         if ok:
@@ -393,7 +393,7 @@ async def build_persons(cfg: InfoscienceIndexConfig) -> dict:
         return {"persons": 0}
 
     rev = _build_article_to_persons()
-    records: List[PersonRecord] = []
+    records: list[PersonRecord] = []
     for f in files:
         item = _load_json(f)
         if item is None:
@@ -415,7 +415,7 @@ async def build_persons(cfg: InfoscienceIndexConfig) -> dict:
     else:
         embeddings_iter = []
 
-    embeddings: List[Optional[Sequence[float]]] = []
+    embeddings: list[Sequence[float] | None] = []
     embed_pos = 0
     for ok in have_text:
         if ok:
@@ -434,7 +434,7 @@ async def build_organizations(cfg: InfoscienceIndexConfig) -> dict:
         return {"organizations": 0}
 
     rev = _build_article_to_orgs()
-    records: List[OrganizationRecord] = []
+    records: list[OrganizationRecord] = []
     for f in files:
         item = _load_json(f)
         if item is None:
@@ -456,7 +456,7 @@ async def build_organizations(cfg: InfoscienceIndexConfig) -> dict:
     else:
         embeddings_iter = []
 
-    embeddings: List[Optional[Sequence[float]]] = []
+    embeddings: list[Sequence[float] | None] = []
     embed_pos = 0
     for ok in have_text:
         if ok:

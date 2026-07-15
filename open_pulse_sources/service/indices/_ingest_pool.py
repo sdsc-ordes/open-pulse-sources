@@ -43,7 +43,7 @@ def _max_threads() -> int:
 
 def ingest_executor() -> ThreadPoolExecutor:
     """The process-wide bounded ingest pool (created lazily, on first use)."""
-    global _executor  # noqa: PLW0603 — module-level lazy singleton
+    global _executor
     if _executor is None:
         workers = _max_threads()
         _executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="gme-ingest")
@@ -63,7 +63,7 @@ async def run_in_ingest_pool(func: Callable[..., _T], /, *args: Any, **kwargs: A
 def reset_ingest_pool() -> None:
     """Tear down the pool so the next call rebuilds it (e.g. to pick up a new
     ``V2_INGEST_MAX_THREADS``). Intended for tests."""
-    global _executor  # noqa: PLW0603 — module-level lazy singleton
+    global _executor
     if _executor is not None:
         _executor.shutdown(wait=False)
         _executor = None

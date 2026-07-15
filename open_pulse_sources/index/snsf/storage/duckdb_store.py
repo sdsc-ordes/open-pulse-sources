@@ -13,13 +13,16 @@ import datetime as dt
 import logging
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from open_pulse_sources.common.canonicalization.snsf import (
+    snsf_grant_iri,
+    snsf_grant_iri_sql,
+)
 from open_pulse_sources.index.snsf.models import IngestManifest
 from open_pulse_sources.index.snsf.paths import duckdb_path
-from open_pulse_sources.common.canonicalization.snsf import snsf_grant_iri, snsf_grant_iri_sql
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -88,7 +91,7 @@ class SnsfStore:
         conn.execute(_load_schema_sql())
         # Promote `output_publications.doi` to canonical
         # `https://doi.org/<bare>`. Idempotent.
-        from open_pulse_sources.index._shared.doi import (  # noqa: PLC0415
+        from open_pulse_sources.index._shared.doi import (
             migrate_doi_column_to_url,
         )
 
@@ -136,16 +139,16 @@ class SnsfStore:
         try:
             for table in tables:
                 conn.execute(
-                    f"CREATE TEMP TABLE _mig_{table} AS "  # noqa: S608
+                    f"CREATE TEMP TABLE _mig_{table} AS "
                     f"SELECT * REPLACE ({url_sql} AS grant_number) FROM {table}",
                 )
-                conn.execute(f"DROP TABLE {table}")  # noqa: S608 — also drops its indexes
+                conn.execute(f"DROP TABLE {table}")
             conn.execute(_load_schema_sql())  # recreate fresh TEXT tables + indexes
             for table in tables:
                 conn.execute(
-                    f"INSERT INTO {table} BY NAME SELECT * FROM _mig_{table}",  # noqa: S608
+                    f"INSERT INTO {table} BY NAME SELECT * FROM _mig_{table}",
                 )
-                conn.execute(f"DROP TABLE _mig_{table}")  # noqa: S608
+                conn.execute(f"DROP TABLE _mig_{table}")
             # persons keeps its schema; only its JSON arrays of bare integers
             # become arrays of grant URLs.
             if "persons" in existing:
@@ -155,7 +158,7 @@ class SnsfStore:
                     # through existing grant URLs, promote bare numeric ids, and
                     # drop null / non-numeric tokens. Safe to re-run.
                     conn.execute(
-                        f"UPDATE persons SET {col} = TO_JSON(LIST_FILTER("  # noqa: S608
+                        f"UPDATE persons SET {col} = TO_JSON(LIST_FILTER("
                         f"LIST_TRANSFORM(CAST({col} AS VARCHAR[]), x -> CASE "
                         f"WHEN x IS NULL THEN NULL "
                         f"WHEN starts_with(lower(x), '{_GRANT_BASE}') THEN x "
@@ -305,7 +308,7 @@ class SnsfStore:
                     {_split("ApplicantAbroadGrantNumber")},
                     Person_Grant_Discipline, Person_Grant_Keywords
                 FROM read_csv_auto(?, delim=';', header=true, sample_size=-1)
-                """,  # noqa: S608 — column expressions are fixed strings, not user input
+                """,
                 [str(csv_path)],
             )
         return self.count_persons()
@@ -502,19 +505,19 @@ class SnsfStore:
         select = select.replace("GrantNumber", _GRANT_URL_SQL, 1)
         conn = self.connect()
         with self.transaction():
-            conn.execute(f"DELETE FROM {table}")  # noqa: S608 — table is a fixed string
+            conn.execute(f"DELETE FROM {table}")
             conn.execute(
-                f"INSERT INTO {table} ({cols}) SELECT {select} "  # noqa: S608
+                f"INSERT INTO {table} ({cols}) SELECT {select} "
                 "FROM read_csv_auto(?, delim=';', header=true, sample_size=-1)",
                 [str(csv_path)],
             )
-        result = conn.execute(f"SELECT count(*) FROM {table}").fetchone()  # noqa: S608
+        result = conn.execute(f"SELECT count(*) FROM {table}").fetchone()
         return int(result[0]) if result else 0
 
     # ---- Scope + manifest --------------------------------------------------
 
     def replace_scope_records_by_filter(
-        self, scope_mode: str, where_clause: str, params: Optional[list[Any]] = None,
+        self, scope_mode: str, where_clause: str, params: list[Any] | None = None,
     ) -> int:
         """Re-derive `scope_records` for one scope from a SQL WHERE on `grants`.
 
@@ -533,7 +536,7 @@ class SnsfStore:
             )
             conn.execute(
                 "INSERT INTO scope_records (scope_mode, grant_number) "
-                f"SELECT ?, grant_number FROM grants WHERE {where_clause}",  # noqa: S608 — caller controls
+                f"SELECT ?, grant_number FROM grants WHERE {where_clause}",
                 [scope_mode, *params],
             )
         return self.count_scope_records(scope_mode)
@@ -583,7 +586,7 @@ class SnsfStore:
         ).fetchone()
         return int(result[0]) if result else 0
 
-    def fetch_grant(self, grant_number: object) -> Optional[dict[str, Any]]:
+    def fetch_grant(self, grant_number: object) -> dict[str, Any] | None:
         # Accept a bare int / numeric string or the canonical grant URL.
         cur = self.connect().execute(
             "SELECT * FROM grants WHERE grant_number = ?",
@@ -595,7 +598,7 @@ class SnsfStore:
         cols = [d[0] for d in cur.description]
         return dict(zip(cols, row, strict=False))
 
-    def fetch_manifest(self, scope_mode: str) -> Optional[dict[str, Any]]:
+    def fetch_manifest(self, scope_mode: str) -> dict[str, Any] | None:
         cur = self.connect().execute(
             "SELECT * FROM manifests WHERE scope_mode = ?", [scope_mode],
         )

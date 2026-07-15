@@ -10,7 +10,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
 
 import httpx
 
@@ -32,9 +31,9 @@ class RerankHit:
 class RCPReranker:
     def __init__(self, cfg: RcpConfig):
         self._cfg = cfg
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self) -> "RCPReranker":
+    async def __aenter__(self) -> RCPReranker:
         if not self._cfg.token:
             msg = "RCP_TOKEN is required to call the RCP reranker endpoint."
             raise RerankError(msg)
@@ -63,10 +62,10 @@ class RCPReranker:
     async def rerank(
         self,
         query: str,
-        documents: List[str],
+        documents: list[str],
         *,
-        top_n: Optional[int] = None,
-    ) -> List[RerankHit]:
+        top_n: int | None = None,
+    ) -> list[RerankHit]:
         if not documents:
             return []
         body = {
@@ -77,7 +76,7 @@ class RCPReranker:
         if top_n is not None:
             body["top_n"] = top_n
 
-        last_exc: Optional[Exception] = None
+        last_exc: Exception | None = None
         for attempt in range(4):
             try:
                 response = await self.client.post("/rerank", json=body)
@@ -98,7 +97,7 @@ class RCPReranker:
             raise RerankError(msg) from last_exc
 
         results = payload.get("results") or payload.get("data") or []
-        hits: List[RerankHit] = []
+        hits: list[RerankHit] = []
         for r in results:
             idx = r.get("index")
             score = r.get("relevance_score") or r.get("score")

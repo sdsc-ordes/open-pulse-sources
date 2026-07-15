@@ -8,7 +8,7 @@ field additions without re-ingesting.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -22,13 +22,13 @@ class RepoRecord(BaseModel):
     repo_id: str  # canonical URL: https://github.com/<owner>/<name>
     owner: str
     name: str
-    default_branch: Optional[str] = None
-    description: Optional[str] = None
-    homepage: Optional[str] = None
-    primary_language: Optional[str] = None
+    default_branch: str | None = None
+    description: str | None = None
+    homepage: str | None = None
+    primary_language: str | None = None
     languages: dict[str, int] = {}
     topics: list[str] = []
-    license_spdx: Optional[str] = None
+    license_spdx: str | None = None
     is_fork: bool = False
     is_archived: bool = False
     is_private: bool = False
@@ -37,9 +37,9 @@ class RepoRecord(BaseModel):
     watchers_count: int = 0
     open_issues_count: int = 0
     size_kb: int = 0
-    created_at: Optional[datetime] = None
-    pushed_at: Optional[datetime] = None
-    readme_path: Optional[str] = None
-    readme_text: Optional[str] = None
+    created_at: datetime | None = None
+    pushed_at: datetime | None = None
+    readme_path: str | None = None
+    readme_text: str | None = None
     contributors: list[ContributorEntry] = []
     raw: dict[str, Any] = {}

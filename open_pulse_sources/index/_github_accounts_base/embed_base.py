@@ -23,13 +23,13 @@ from open_pulse_sources.index._github_accounts_base.storage_base import (
     stream_unembedded,
     upsert_chunk,
 )
-from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index._rcp.embed_client import RCPEmbeddingClient
+from open_pulse_sources.index.openalex.embed.chunker import Chunk, chunk_text
 from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore
 
 if TYPE_CHECKING:
-    from open_pulse_sources.index._github_accounts_base.config_base import AccountIndexConfigBase
     import duckdb
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ async def embed_accounts_async(
                     payloads=payloads,
                 )
                 break
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 last_exc = exc
         else:
             LOGGER.error(

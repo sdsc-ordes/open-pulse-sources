@@ -31,21 +31,21 @@ def get_or_create_orcid_resources(app_state: Any) -> Any | None:
     if cached is not None:
         return cached
     try:
-        from open_pulse_sources.index.orcid.config import load_config  # noqa: PLC0415
-        from open_pulse_sources.index.orcid.ingest.orcid_client import (  # noqa: PLC0415
+        from open_pulse_sources.index.orcid.config import load_config
+        from open_pulse_sources.index.orcid.ingest.orcid_client import (
             build_orcid_provider,
         )
-        from open_pulse_sources.index.orcid.storage.duckdb_store import (  # noqa: PLC0415
+        from open_pulse_sources.index.orcid.storage.duckdb_store import (
             OrcidStore,
         )
-    except Exception as exc:  # noqa: BLE001 — optional dependency
+    except Exception as exc:
         logger.warning("orcid ingest: index module unavailable — %s", exc)
         return None
     try:
         config = load_config()
         store = OrcidStore.open(config.paths.duckdb_path)
         provider = build_orcid_provider(config)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("orcid ingest: resource init failed — %s", exc)
         return None
     app_state.v2_orcid_resources = (config, store, provider)
@@ -57,7 +57,9 @@ def _ingest_one_orcid(
 ) -> dict[str, Any]:
     """Run a single per-orcid ingest; never raises."""
     try:
-        from open_pulse_sources.index.orcid.ingest.persons import ingest_single_orcid  # noqa: PLC0415
+        from open_pulse_sources.index.orcid.ingest.persons import (
+            ingest_single_orcid,
+        )
         outcome = ingest_single_orcid(
             config=config,
             store=store,
@@ -66,7 +68,7 @@ def _ingest_one_orcid(
             scope="switzerland",
             discovered_via="api_post",
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("orcid ingest: %s failed — %s", orcid_id, exc)
         return {"orcid_id": orcid_id, "outcome": "error", "error": str(exc)}
     return {"orcid_id": orcid_id, "outcome": outcome}
@@ -113,8 +115,12 @@ async def run_orcid_ingest_job(
         not_found = sum(1 for r in items_results if r["outcome"] == "not_found")
         errors = sum(1 for r in items_results if r["outcome"] == "error")
 
-        from open_pulse_sources.index.orcid.embed.pipeline import embed_entities  # noqa: PLC0415
-        from open_pulse_sources.index.orcid.models import ALL_ENTITY_TYPES  # noqa: PLC0415
+        from open_pulse_sources.index.orcid.embed.pipeline import (
+            embed_entities,
+        )
+        from open_pulse_sources.index.orcid.models import (
+            ALL_ENTITY_TYPES,
+        )
         embed_summary = await run_embed_step(
             provider=INDEX_NAME,
             job_id=job_id,
@@ -155,7 +161,9 @@ async def run_orcid_search(
         return None
     config, store, _ = resources
     entity_type = payload.target or "persons"
-    from open_pulse_sources.index.orcid.retrieval.semantic import semantic_search  # noqa: PLC0415
+    from open_pulse_sources.index.orcid.retrieval.semantic import (
+        semantic_search,
+    )
     raw_hits = await asyncio.to_thread(
         semantic_search,
         config=config, query=payload.query, entity_type=entity_type,

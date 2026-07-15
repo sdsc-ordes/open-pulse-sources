@@ -165,7 +165,9 @@ class ZenodoRecordsStore:
         fast in practice (~hundreds of rows for our deployment, not all
         6.7k).
         """
-        from open_pulse_sources.index.zenodo_records.ingest.records import _strip_html  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.ingest.records import (
+            _strip_html,
+        )
 
         conn = self.connect()
         candidates = conn.execute(
@@ -629,7 +631,10 @@ class ZenodoRecordsStore:
         """
         if not zenodo_ids:
             return set()
-        from open_pulse_sources.index.zenodo_records.iri import parse_record_id, record_iri  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.iri import (
+            parse_record_id,
+            record_iri,
+        )
 
         iri_form = [record_iri(z) for z in zenodo_ids]
         placeholders = ",".join(["?"] * len(zenodo_ids))
@@ -650,7 +655,9 @@ class ZenodoRecordsStore:
         return found
 
     def fetch_record(self, zenodo_id: str) -> dict[str, Any] | None:
-        from open_pulse_sources.index.zenodo_records.iri import record_iri  # noqa: PLC0415
+        from open_pulse_sources.index.zenodo_records.iri import (
+            record_iri,
+        )
 
         cur = self.connect().execute(
             "SELECT * FROM records WHERE zenodo_id = ?",

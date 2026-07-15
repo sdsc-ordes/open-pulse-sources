@@ -17,14 +17,20 @@ import sys
 from typing import Any
 
 from open_pulse_sources.index.oamonitor.config import load_config
-from open_pulse_sources.index.oamonitor.embed.pipeline import OAM_COLLECTIONS, embed_entities
+from open_pulse_sources.index.oamonitor.embed.pipeline import (
+    OAM_COLLECTIONS,
+    embed_entities,
+)
 from open_pulse_sources.index.oamonitor.ingest.journals import ingest_journals
 from open_pulse_sources.index.oamonitor.ingest.oamonitor_client import OamonitorClient
 from open_pulse_sources.index.oamonitor.ingest.organisations import ingest_organisations
 from open_pulse_sources.index.oamonitor.ingest.publications import ingest_publications
 from open_pulse_sources.index.oamonitor.ingest.publishers import ingest_publishers
 from open_pulse_sources.index.oamonitor.retrieval.semantic import semantic_search
-from open_pulse_sources.index.oamonitor.storage.duckdb_store import ENTITY_TABLES, OamonitorStore
+from open_pulse_sources.index.oamonitor.storage.duckdb_store import (
+    ENTITY_TABLES,
+    OamonitorStore,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -132,14 +138,16 @@ def _cmd_status(_args: argparse.Namespace) -> int:
         "qdrant_collections": OAM_COLLECTIONS,
     }
     try:
-        from open_pulse_sources.index.openalex.vector.qdrant_store import QdrantStore  # noqa: PLC0415
+        from open_pulse_sources.index.openalex.vector.qdrant_store import (
+            QdrantStore,
+        )
 
         qdrant = QdrantStore(config)  # type: ignore[arg-type]
         summary["qdrant_collection_counts"] = {
             entity: qdrant.count(collection)
             for entity, collection in OAM_COLLECTIONS.items()
         }
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         summary["qdrant_error"] = str(exc)
     _emit_json(summary)
     return 0

@@ -238,7 +238,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_v = sub.add_parser("serve", help="Run the FastAPI app")
     _add_scope_arg(p_v)
-    p_v.add_argument("--host", default="0.0.0.0")  # noqa: S104
+    p_v.add_argument("--host", default="0.0.0.0")
     p_v.add_argument("--port", type=int, default=8002)
     p_v.add_argument("--reload", action="store_true")
     p_v.set_defaults(func=_cmd_serve)

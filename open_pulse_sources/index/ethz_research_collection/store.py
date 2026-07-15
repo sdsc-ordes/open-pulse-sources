@@ -27,10 +27,9 @@ Payloads carry the full entity record so structured filters work natively
 
 from __future__ import annotations
 
-import json
 import logging
 import uuid
-from typing import Any, Iterable, List, Optional, Sequence
+from typing import Any, Iterable, Sequence
 
 from qdrant_client import QdrantClient, models
 
@@ -214,7 +213,7 @@ class QdrantStore:
         )
 
     @classmethod
-    def from_config(cls, cfg: EthzResearchCollectionIndexConfig) -> "QdrantStore":
+    def from_config(cls, cfg: EthzResearchCollectionIndexConfig) -> QdrantStore:
         return cls(cfg.qdrant, vector_size=cfg.rcp.embedding_dim)
 
     @property
@@ -272,8 +271,8 @@ class QdrantStore:
         *,
         query_vector: Sequence[float],
         top_k: int = 50,
-        query_filter: Optional[models.Filter] = None,
-    ) -> List[dict[str, Any]]:
+        query_filter: models.Filter | None = None,
+    ) -> list[dict[str, Any]]:
         if not self._client.collection_exists(collection):
             return []
         hits = self._client.query_points(
@@ -293,7 +292,7 @@ class QdrantStore:
         collection: str,
         *,
         ids: Sequence[str],
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Read-only retrieval by point IDs."""
         if not ids or not self._client.collection_exists(collection):
             return []
@@ -311,9 +310,9 @@ class QdrantStore:
         self,
         collection: str,
         *,
-        query_filter: Optional[models.Filter] = None,
+        query_filter: models.Filter | None = None,
         limit: int = 50,
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Filter-only listing (no vector); returns up to `limit` points."""
         if not self._client.collection_exists(collection):
             return []
@@ -334,7 +333,7 @@ class QdrantStore:
 # ---------------------------------------------------------------------------
 
 
-def build_filter(payload: Optional[dict[str, Any]]) -> Optional[models.Filter]:
+def build_filter(payload: dict[str, Any] | None) -> models.Filter | None:
     """Translate a JSON-style filter dict into a Qdrant ``Filter``.
 
     Supported operators per key:
@@ -417,7 +416,7 @@ def upsert_chunks(
 def upsert_articles(
     store: QdrantStore,
     records: Sequence[ArticleRecord],
-    embeddings: Sequence[Optional[Sequence[float]]],
+    embeddings: Sequence[Sequence[float] | None],
     dim: int,
 ) -> int:
     if not records:
@@ -434,7 +433,7 @@ def upsert_articles(
 def upsert_persons(
     store: QdrantStore,
     records: Sequence[PersonRecord],
-    embeddings: Sequence[Optional[Sequence[float]]],
+    embeddings: Sequence[Sequence[float] | None],
     dim: int,
 ) -> int:
     if not records:
@@ -451,7 +450,7 @@ def upsert_persons(
 def upsert_organizations(
     store: QdrantStore,
     records: Sequence[OrganizationRecord],
-    embeddings: Sequence[Optional[Sequence[float]]],
+    embeddings: Sequence[Sequence[float] | None],
     dim: int,
 ) -> int:
     if not records:

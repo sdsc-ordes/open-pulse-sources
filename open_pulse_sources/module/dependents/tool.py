@@ -22,14 +22,14 @@ from typing import Any
 
 from pydantic_ai import Tool
 
+from open_pulse_sources.common.cache import ProviderCache
+from open_pulse_sources.common.query_log import record_query
 from open_pulse_sources.module.dependents.models import DependentKind
 from open_pulse_sources.module.dependents.service import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_MAX_PAGES,
     list_dependents,
 )
-from open_pulse_sources.common.cache import ProviderCache
-from open_pulse_sources.common.query_log import record_query
 
 logger = logging.getLogger(__name__)
 

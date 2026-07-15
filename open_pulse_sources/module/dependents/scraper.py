@@ -227,7 +227,7 @@ def fetch_dependents_html(
         from open_pulse_sources.common.selenium_fetch import (
             _load_html_via_selenium,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("dependents: selenium helper unavailable: %s", exc)
         return ""
 
@@ -237,7 +237,7 @@ def fetch_dependents_html(
             timeout_seconds=timeout_seconds,
             wait_seconds=wait_seconds,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("dependents: selenium fetch failed for %s: %s", url, exc)
         return ""
     return html or ""

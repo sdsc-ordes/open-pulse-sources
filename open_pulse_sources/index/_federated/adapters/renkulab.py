@@ -97,7 +97,7 @@ def _summary(entity_type: str, payload: dict[str, Any]) -> str | None:
 
 class RenkulabAdapter:
     name = "renkulab"
-    entity_types: list[str] = list(_ENTITY_NAMES)  # noqa: RUF012
+    entity_types: list[str] = list(_ENTITY_NAMES)
 
     def search(
         self,
@@ -122,7 +122,7 @@ class RenkulabAdapter:
                 top_k=top_k, candidate_k=max(top_k * 5, 50),
                 filter_payload=filters,
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             return []
 
         out: list[Hit] = []
@@ -161,14 +161,16 @@ class RenkulabAdapter:
 
         # Bare ULID / UUID — try each entity type until one resolves.
         if _RE_ULID.match(s) or _RE_UUID.match(s):
-            from open_pulse_sources.index.renkulab.storage.duckdb_store import RenkulabStore
+            from open_pulse_sources.index.renkulab.storage.duckdb_store import (
+                RenkulabStore,
+            )
 
             store = RenkulabStore.open()
             try:
                 for et in _ENTITY_NAMES:
                     try:
                         row = store.fetch_entity(et, s)
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         row = None
                     if row is not None:
                         return [self._record_from_row(et, str(s), row)]

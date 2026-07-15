@@ -30,7 +30,7 @@ _PYALEX_CONFIGURED = False
 
 
 def _ensure_pyalex_configured() -> None:
-    global _PYALEX_CONFIGURED  # noqa: PLW0603
+    global _PYALEX_CONFIGURED
     if _PYALEX_CONFIGURED:
         return
     with _PYALEX_LOCK:
@@ -81,7 +81,7 @@ def publications_for_topics(
             )
         )
         rows = list(query.get(per_page=top_n))[:top_n]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("openalex Works lookup failed: %s", exc)
         return []
     out: list[dict[str, Any]] = []
@@ -130,7 +130,7 @@ def people_for_topics(
             )
         )
         rows = list(query.get(per_page=top_n))[:top_n]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("openalex Authors lookup failed: %s", exc)
         return []
     out: list[dict[str, Any]] = []
@@ -174,7 +174,7 @@ def units_for_topics(
             )
         )
         rows = list(query.get(per_page=top_n))[:top_n]
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("openalex Institutions lookup failed: %s", exc)
         return []
     out: list[dict[str, Any]] = []

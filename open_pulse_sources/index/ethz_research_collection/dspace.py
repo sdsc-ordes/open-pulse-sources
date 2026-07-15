@@ -21,7 +21,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator, Dict, List, Optional
+from typing import Any, AsyncIterator
 
 import httpx
 
@@ -41,15 +41,15 @@ class DSpaceClient:
         self._cfg = cfg
         self._timeout = timeout_seconds
         self._semaphore = asyncio.Semaphore(cfg.max_concurrency)
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self) -> "DSpaceClient":
+    async def __aenter__(self) -> DSpaceClient:
         # Default headers are anonymous: discover/item/bundle/bitstream-listing
         # endpoints are public and a misconfigured/inactive `ETHZ_RESEARCH_COLLECTION_TOKEN`
         # (e.g. one whose user hasn't accepted the platform agreement) gets
         # 403'd. The bearer is only attached on demand for bitstream content
         # downloads (some PDFs/text bundles are gated).
-        headers: Dict[str, str] = {
+        headers: dict[str, str] = {
             "Accept": "application/json",
             "User-Agent": (
                 "Mozilla/5.0 (compatible; "
@@ -81,8 +81,8 @@ class DSpaceClient:
                             httpx.PoolTimeout, httpx.RemoteProtocolError,
                             httpx.ConnectError)
 
-    async def _get_json(self, path: str, **kwargs: Any) -> Dict[str, Any]:
-        last_exc: Optional[Exception] = None
+    async def _get_json(self, path: str, **kwargs: Any) -> dict[str, Any]:
+        last_exc: Exception | None = None
         for attempt in range(6):
             try:
                 async with self._semaphore:
@@ -122,7 +122,7 @@ class DSpaceClient:
         configuration: str = "researchoutputs",
         page: int = 0,
         size: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """One page of `/discover/search/objects?query=fulltext:<term>`."""
         params = {
             "query": f"fulltext:{term}",
@@ -139,8 +139,8 @@ class DSpaceClient:
         configuration: str = "researchoutputs",
         size: int = 100,
         start_page: int = 0,
-        max_pages: Optional[int] = None,
-    ) -> AsyncIterator[Dict[str, Any]]:
+        max_pages: int | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
         """Yield raw indexable item dicts across all pages for a fulltext term."""
         page = start_page
         while True:
@@ -161,7 +161,7 @@ class DSpaceClient:
             if max_pages is not None and (page - start_page) >= max_pages:
                 return
 
-    async def get_item(self, uuid: str) -> Optional[Dict[str, Any]]:
+    async def get_item(self, uuid: str) -> dict[str, Any] | None:
         """`GET /core/items/{uuid}`. Returns None on 404."""
         try:
             return await self._get_json(f"/core/items/{uuid}")
@@ -170,12 +170,12 @@ class DSpaceClient:
                 return None
             raise
 
-    async def get_bundles(self, item_uuid: str) -> List[Dict[str, Any]]:
+    async def get_bundles(self, item_uuid: str) -> list[dict[str, Any]]:
         """List bundles for an item; returns the `_embedded.bundles` array."""
         payload = await self._get_json(f"/core/items/{item_uuid}/bundles")
         return payload.get("_embedded", {}).get("bundles", []) or []
 
-    async def get_bitstreams(self, bundle_uuid: str) -> List[Dict[str, Any]]:
+    async def get_bitstreams(self, bundle_uuid: str) -> list[dict[str, Any]]:
         """List bitstreams in a bundle."""
         payload = await self._get_json(f"/core/bundles/{bundle_uuid}/bitstreams")
         return payload.get("_embedded", {}).get("bitstreams", []) or []

@@ -7,7 +7,7 @@ and would dilute the technical signal we're embedding for.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
 def _coalesce(*values: Any) -> str:
@@ -17,7 +17,7 @@ def _coalesce(*values: Any) -> str:
     return ""
 
 
-def to_document(grant: Dict[str, Any]) -> str:
+def to_document(grant: dict[str, Any]) -> str:
     """Flatten a `grants` row dict into a single embedding-ready string.
 
     `grant` is the dict shape returned by `SnsfStore.fetch_grant`; columns
@@ -43,7 +43,7 @@ def to_document(grant: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def short_label(grant: Dict[str, Any]) -> str:
+def short_label(grant: dict[str, Any]) -> str:
     """Used for log lines + reranker fallback when abstract is missing."""
     title = _coalesce(grant.get("title_english"), grant.get("title"))
     inst = _coalesce(grant.get("research_institution"))

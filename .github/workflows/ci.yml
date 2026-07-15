@@ -49,6 +49,11 @@ jobs:
       - name: Install (locked)
         run: uv sync --frozen --extra dev
 
+      - name: Lint (ruff)
+        # Gate is green against the documented baseline in pyproject
+        # [tool.ruff.lint] ignore — remove entries there as debt burns down.
+        run: uv run ruff check open_pulse_sources/
+
       - name: Import-closure guard
         run: uv run python scripts/check_import_closure.py
 

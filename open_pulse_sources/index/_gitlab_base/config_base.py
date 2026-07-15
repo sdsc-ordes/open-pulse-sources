@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from pydantic import BaseModel
 
-from open_pulse_sources.index._gitlab_base.paths_base import GitLabIndexPathsBase, resolve_gitlab_paths
+from open_pulse_sources.index._gitlab_base.paths_base import (
+    GitLabIndexPathsBase,
+    resolve_gitlab_paths,
+)
 
 MISSING_RCP_TOKEN_ERROR = "Missing required environment variable: RCP_TOKEN"
 
@@ -30,13 +32,13 @@ class RcpConfig(BaseModel):
     batch_size: int = 32
     max_concurrency: int = 4
     timeout_seconds: int = 120
-    token: Optional[str] = None
+    token: str | None = None
 
 
 class QdrantConfig(BaseModel):
     url: str = "http://gme-qdrant:6333"
     prefer_grpc: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class ChunkingConfig(BaseModel):
@@ -49,7 +51,7 @@ class GitLabFetchConfig(BaseModel):
     """Wire-side knobs for a GitLab host."""
 
     host: str
-    token: Optional[str] = None
+    token: str | None = None
     per_page: int = 100
     min_card_chars: int = 64
     collection: str
@@ -75,7 +77,7 @@ class GitLabIndexConfig(BaseModel):
             raise ValueError(MISSING_RCP_TOKEN_ERROR)
 
 
-def _env_bool(name: str) -> Optional[bool]:
+def _env_bool(name: str) -> bool | None:
     _true = {"1", "true", "t", "yes", "y", "on"}
     _false = {"0", "false", "f", "no", "n", "off"}
     raw = os.getenv(name)
@@ -90,7 +92,7 @@ def _env_bool(name: str) -> Optional[bool]:
     raise ValueError(message)
 
 
-def _env_str(name: str) -> Optional[str]:
+def _env_str(name: str) -> str | None:
     raw = os.getenv(name)
     if raw is None:
         return None

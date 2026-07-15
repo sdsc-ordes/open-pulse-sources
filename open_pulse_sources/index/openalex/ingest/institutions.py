@@ -5,7 +5,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from open_pulse_sources.index.openalex.ingest.openalex_client import batched, iter_institutions
+from open_pulse_sources.index.openalex.ingest.openalex_client import (
+    batched,
+    iter_institutions,
+)
 
 if TYPE_CHECKING:
     from open_pulse_sources.index.openalex.config import OpenAlexIndexConfig

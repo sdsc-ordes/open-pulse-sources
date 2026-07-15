@@ -22,12 +22,17 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .config import RorIndexConfig
 from .document import display_name, to_document
 from .embed import embed_passages
-from .filter import EUROPE_COUNTRY_CODES, filter_countries, filter_country_code, filter_subtree
+from .filter import (
+    EUROPE_COUNTRY_CODES,
+    filter_countries,
+    filter_country_code,
+    filter_subtree,
+)
 from .qdrant_store import QdrantRorStore
 from .storage.duckdb_store import (
     RorStore,
@@ -40,8 +45,8 @@ from .storage.duckdb_store import (
 logger = logging.getLogger(__name__)
 
 
-def _load_dump(json_path) -> List[Dict[str, Any]]:
-    with open(json_path, "r", encoding="utf-8") as f:
+def _load_dump(json_path) -> list[dict[str, Any]]:
+    with open(json_path, encoding="utf-8") as f:
         data = json.load(f)
     if not isinstance(data, list):
         msg = f"Expected ROR dump JSON list at {json_path}, got {type(data).__name__}"
@@ -50,9 +55,9 @@ def _load_dump(json_path) -> List[Dict[str, Any]]:
 
 
 def _select_subset(
-    records: List[Dict[str, Any]],
+    records: list[dict[str, Any]],
     cfg: RorIndexConfig,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     if cfg.scope.mode == "epfl_ethz":
         return filter_subtree(
             records,
@@ -70,9 +75,11 @@ def _select_subset(
     raise ValueError(msg)
 
 
-async def build(cfg: RorIndexConfig, *, refresh: bool = False) -> Dict[str, Any]:
+async def build(cfg: RorIndexConfig, *, refresh: bool = False) -> dict[str, Any]:
     """Run the full build pipeline. Returns a summary dict."""
-    from .download import fetch_latest_dump  # local import keeps requests optional in tests
+    from .download import (
+        fetch_latest_dump,  # local import keeps requests optional in tests
+    )
 
     cached = fetch_latest_dump(
         cfg.ror_dump.zenodo_concept_doi,
@@ -154,9 +161,9 @@ async def build(cfg: RorIndexConfig, *, refresh: bool = False) -> Dict[str, Any]
     }
 
 
-def _build_payload(record: Dict[str, Any], text: str) -> Dict[str, Any]:
+def _build_payload(record: dict[str, Any], text: str) -> dict[str, Any]:
     """Qdrant payload for one scope row: kept compact but searchable."""
-    cc: Optional[str] = None
+    cc: str | None = None
     for loc in record.get("locations") or []:
         details = loc.get("geonames_details") if isinstance(loc, dict) else None
         if isinstance(details, dict):
@@ -174,6 +181,6 @@ def _build_payload(record: Dict[str, Any], text: str) -> Dict[str, Any]:
     }
 
 
-def run(cfg: RorIndexConfig, **kwargs) -> Dict[str, Any]:
+def run(cfg: RorIndexConfig, **kwargs) -> dict[str, Any]:
     """Sync wrapper for the CLI."""
     return asyncio.run(build(cfg, **kwargs))

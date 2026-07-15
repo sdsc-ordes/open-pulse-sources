@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -17,9 +17,9 @@ class HFOrgRecord(BaseModel):
     """
 
     slug: str  # namespace handle, e.g. "openai"
-    fullname: Optional[str] = None
-    details: Optional[str] = None
-    avatar_url: Optional[str] = None
+    fullname: str | None = None
+    details: str | None = None
+    avatar_url: str | None = None
     num_models: int = 0
     num_datasets: int = 0
     num_spaces: int = 0

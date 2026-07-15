@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from open_pulse_sources.common.canonicalization.huggingface import huggingface_iri
 from open_pulse_sources.index._github_accounts_base.storage_base import (
     bootstrap_schema,
     count_table,
@@ -21,8 +22,6 @@ from open_pulse_sources.index._github_accounts_base.storage_base import (
 from open_pulse_sources.index.huggingface_papers.paths import (
     get_huggingface_papers_paths,
 )
-
-from open_pulse_sources.common.canonicalization.huggingface import huggingface_iri
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

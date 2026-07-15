@@ -85,7 +85,7 @@ def ingest_single_work(
     canonical id). Network and unexpected errors are raised so the caller
     can record them on the job.
     """
-    from open_pulse_sources.index.openalex.ingest.openalex_client import (  # noqa: PLC0415
+    from open_pulse_sources.index.openalex.ingest.openalex_client import (
         fetch_work,
     )
 
