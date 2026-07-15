@@ -13,7 +13,8 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from open_pulse_sources.service.api import router
 
@@ -48,3 +49,19 @@ async def root() -> dict[str, str]:
         "docs": "/docs",
         "health": "/health",
     }
+
+
+@app.exception_handler(ValueError)
+async def missing_env_error_handler(request: Request, exc: ValueError) -> JSONResponse:
+    """Map missing-credential config errors to a clean 503.
+
+    Every index config raises ``ValueError("Missing required environment
+    variable: <NAME>")`` when a required credential is absent
+    (``require_rcp()`` and friends). Without this handler those surfaced as
+    raw 500s on the search/ingest routes (found in the 2026-07-14 live
+    smoke tests — GME task brief 04). Other ValueErrors keep the default
+    500 shape.
+    """
+    if "Missing required environment variable" in str(exc):
+        return JSONResponse(status_code=503, content={"detail": str(exc)})
+    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
